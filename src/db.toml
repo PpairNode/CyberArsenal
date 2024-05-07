@@ -1,0 +1,6 @@
+title = "Pentest commands"
+
+[command.ping0]
+name_exe = "ping"
+help = "[-h]"
+dest = "<destination>"
