@@ -57,28 +57,24 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 _ => Style::default(),
             };
             // Add a example datetime and apply proper spacing between them
-            let t = format!("{}", app_event.datetime.format("%d/%m/%Y %T"));
             let header = Spans::from(vec![
-                Span::styled(format!("{:<9}", app_event.level), s),
-                Span::raw(" "),
+                Span::styled(format!("[{:<9}]", app_event.level), s),
                 Span::styled(
-                    t,
-                    Style::default().add_modifier(Modifier::ITALIC),
+                    format!("[{}]", app_event.datetime.format("%Y-%m-%d %T")),
+                    Style::default().add_modifier(Modifier::DIM),
                 ),
             ]);
             // The event gets its own line
             let log = Spans::from(vec![Span::raw(app_event.text.clone())]);
 
             // Here several things happen:
-            // 1. Add a `---` spacing line above the final list entry
+            // 1. Add a `---` spacing line
             // 2. Add the Level + datetime
-            // 3. Add a spacer line
-            // 4. Add the actual event
+            // 3. Add the log
             ListItem::new(vec![
                 Spans::from("-".repeat(chunks[1].width as usize)),
                 header,
-                Spans::from(""),
-                log,
+                log
             ])
         })
         .collect();
