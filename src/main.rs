@@ -15,6 +15,7 @@ use tui::{
 };
 
 pub mod arsenal_terminal;
+pub mod arsenal_objects;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -27,7 +28,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // create app and run it
     let tick_rate = Duration::from_millis(250);
-    let app = ArsenalApp::new(100);
+    let mut app = ArsenalApp::new(100);
+    app.load_example_commands();
     let res = run_app(&mut terminal, app, tick_rate);
 
     // restore terminal

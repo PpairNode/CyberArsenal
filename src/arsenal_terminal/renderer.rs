@@ -3,7 +3,7 @@ use tui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
 };
 
@@ -23,15 +23,14 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
         .split(window[1]);
 
-    
     // LEFT PANE
     // Iterate through all elements in the `items` app and append some debug text to it.
     let commands: Vec<ListItem> = app
         .items
         .items
         .iter()
-        .map(|line| {
-            ListItem::new(line.clone()).style(Style::default())
+        .map(|command| {
+            ListItem::new(format!("{}", command)).style(Style::default())
         })
         .collect();
     // Create a List from all list items and highlight the currently selected one
@@ -45,11 +44,20 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         )
         .highlight_symbol("> ");
 
-    
     // RIGHT UPPER PANE
     let info_pane = Block::default()
         .title("Info Pane")
         .borders(Borders::ALL);
+
+    let info_paragraph_pane = match app.items.state.selected() {
+        Some(s) => {
+            match app.items.items.get(s) {
+                Some(s) => Paragraph::new(s.info()),
+                None => Paragraph::new("")
+            }
+        },
+        None => Paragraph::new("")
+    }.block(info_pane);
 
     // RIGHT LOWER PANE
     // Let's do the same for the events.
@@ -95,7 +103,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // RENDER LEFT PANE
     f.render_stateful_widget(commands_list_pane, window[0], &mut app.items.state);
     // RENDER RIGHT UPPER PANE (info)
-    f.render_widget(info_pane, right_pane[0]);
+    f.render_widget(info_paragraph_pane, right_pane[0]);
     // RENDER RIGHT LOWER PANE (events)
     f.render_widget(events_list_pane, right_pane[1]);
 }

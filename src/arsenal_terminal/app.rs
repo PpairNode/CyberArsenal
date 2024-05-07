@@ -8,25 +8,20 @@ use tui::{
     Terminal,
 };
 
-
+use crate::arsenal_objects::command::Command;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 
 
 pub struct ArsenalApp {
     pub max_events: usize,
-    pub items: StatefulList<String>,
+    pub items: StatefulList<Command>,
     pub events: Vec<AppEvent>,
 }
 
 impl ArsenalApp {
     pub fn new(max_events: usize) -> ArsenalApp {
         ArsenalApp {
-            items: StatefulList::with_items(vec![
-                "Item0".to_string(),
-                "Item1".to_string(),
-                "Item2".to_string(),
-                "Item3".to_string()
-            ]),
+            items: StatefulList::with_items(vec![]),
             max_events,
             events: vec![],
         }
@@ -34,6 +29,13 @@ impl ArsenalApp {
 
     fn on_tick(&mut self) {
         // Do something on tick
+    }
+
+    pub fn load_example_commands(&mut self) {
+        self.items.items.push(Command::new(
+            "ping".to_string(),
+            vec!["[-h]".to_string(), "[-v]".to_string(), "<destination>".to_string()],
+            vec!["ping 127.0.0.1".to_string(), "ping -v 127.0.0.1".to_string()]))
     }
 
     fn push_event(&mut self, event: AppEvent) {
