@@ -11,14 +11,22 @@ use super::{app::ArsenalApp, event::ErrorCode};
 
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
-    // Create two chunks with equal horizontal screen space
-    let chunks = Layout::default()
+    // COMPLETE WINDOW
+    let window = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref()) 
         .split(f.size());
 
+    // RIGHT PANE
+    let right_pane = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(window[1]);
+
+    
+    // LEFT PANE
     // Iterate through all elements in the `items` app and append some debug text to it.
-    let items: Vec<ListItem> = app
+    let commands: Vec<ListItem> = app
         .items
         .items
         .iter()
@@ -26,9 +34,8 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             ListItem::new(line.clone()).style(Style::default())
         })
         .collect();
-
     // Create a List from all list items and highlight the currently selected one
-    let items = List::new(items)
+    let commands_list_pane = List::new(commands)
         .block(Block::default().borders(Borders::ALL).title("Commands"))
         .highlight_style(
             Style::default()
@@ -38,9 +45,13 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         )
         .highlight_symbol("> ");
 
-    // We can now render the item list
-    f.render_stateful_widget(items, chunks[0], &mut app.items.state);
+    
+    // RIGHT UPPER PANE
+    let info_pane = Block::default()
+        .title("Info Pane")
+        .borders(Borders::ALL);
 
+    // RIGHT LOWER PANE
     // Let's do the same for the events.
     // The event list doesn't have any state and only displays the current state of the list.
     let events: Vec<ListItem> = app
@@ -72,13 +83,19 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             // 2. Add the Level + datetime
             // 3. Add the log
             ListItem::new(vec![
-                Spans::from("-".repeat(chunks[1].width as usize)),
+                Spans::from("-".repeat(right_pane[1].width as usize)),
                 header,
                 log
             ])
         })
         .collect();
-    let events_list = List::new(events)
+    let events_list_pane = List::new(events)
         .block(Block::default().borders(Borders::ALL).title("Events"));
-    f.render_widget(events_list, chunks[1]);
+
+    // RENDER LEFT PANE
+    f.render_stateful_widget(commands_list_pane, window[0], &mut app.items.state);
+    // RENDER RIGHT UPPER PANE (info)
+    f.render_widget(info_pane, right_pane[0]);
+    // RENDER RIGHT LOWER PANE (events)
+    f.render_widget(events_list_pane, right_pane[1]);
 }
