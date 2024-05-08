@@ -1,6 +1,20 @@
 title = "Pentest commands"
 
+max_events = 100
+
 [command.ping0]
 name_exe = "ping"
 help = "[-h]"
+verbose = "[-v]"
 dest = "<destination>"
+example = [
+    "ping -v 127.0.0.1"
+]
+
+[command.cat0]
+name_exe = "cat"
+help = "[-h]"
+file = "<file>"
+example = [
+    "cat test.txt"
+]

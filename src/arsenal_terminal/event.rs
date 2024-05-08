@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 
 
 
-pub enum ErrorCode {
+pub enum LevelCode {
     INFO,
     DEBUG,
     TRACE,
@@ -13,27 +13,27 @@ pub enum ErrorCode {
     CRITICAL
 }
 
-impl Display for ErrorCode {
+impl Display for LevelCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ErrorCode::INFO => { write!(f, "INFO") },
-            ErrorCode::DEBUG => { write!(f, "DEBUG") },
-            ErrorCode::TRACE => { write!(f, "DEBUG") },
-            ErrorCode::WARNING => { write!(f, "WARNING") },
-            ErrorCode::ERROR => { write!(f, "ERROR") },
-            ErrorCode::CRITICAL => { write!(f, "CRITICAL") }
+            LevelCode::INFO => { write!(f, "INFO") },
+            LevelCode::DEBUG => { write!(f, "DEBUG") },
+            LevelCode::TRACE => { write!(f, "DEBUG") },
+            LevelCode::WARNING => { write!(f, "WARNING") },
+            LevelCode::ERROR => { write!(f, "ERROR") },
+            LevelCode::CRITICAL => { write!(f, "CRITICAL") }
         }
     }
 }
 
 pub struct AppEvent {
     pub datetime: DateTime<Utc>,
-    pub level: ErrorCode,
+    pub level: LevelCode,
     pub text: String
 }
 
 impl AppEvent {
-    pub fn new(text: &str, level: ErrorCode) -> Self {
+    pub fn new(text: &str, level: LevelCode) -> Self {
         let system_time = SystemTime::now();
         let datetime: DateTime<Utc> = system_time.into();
         
