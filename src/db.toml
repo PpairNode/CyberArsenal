@@ -7,7 +7,7 @@ name_exe = "ping"
 help = "[-h]"
 verbose = "[-v]"
 dest = "<destination>"
-example = [
+examples = [
     "ping -v 127.0.0.1"
 ]
 
@@ -15,6 +15,6 @@ example = [
 name_exe = "cat"
 help = "[-h]"
 file = "<file>"
-example = [
+examples = [
     "cat test.txt"
 ]

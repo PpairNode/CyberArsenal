@@ -69,11 +69,11 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                     let arg_value = args_map.get(arg).unwrap();
                     // Check few basic values
                     if arg == "examples" {
-                        tmp_command.examples.push(arg_value.to_string());
+                        tmp_command.examples.push(arg_value.to_string().replace("\"", ""));
                     } else if arg == "name_exe"{ 
-                        tmp_command.name = arg_value.to_string();
+                        tmp_command.name = arg_value.to_string().replace("\"", "");
                     } else {
-                        tmp_command.args.push((arg.clone(), arg_value.to_string()))
+                        tmp_command.args.push((arg.clone().replace("\"", ""), arg_value.to_string().replace("\"", "")))
                     }
                 }
             }
