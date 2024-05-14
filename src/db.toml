@@ -18,3 +18,16 @@ file = "<file>"
 examples = [
     "cat test.txt"
 ]
+
+[command.nmap0]
+name_exe = "nmap"
+help = "[-h]"
+destination = "<destination>"
+scan_sv = "[-sV]"
+scan_ss = "[-sS]"
+scan_no_ping = "[-Pn]"
+scan_all_ports = "[-p-]"
+output_file = "[-oN <output_file>]"
+examples = [
+    "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
+]
