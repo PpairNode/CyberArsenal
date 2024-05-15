@@ -3,24 +3,47 @@ use anyhow::Result;
 use toml::Value;
 
 
-
+#[derive(Debug)]
 pub enum CommandType {
     PROGRAMMING,
     PENTEST,
     REVERSE,
-    FORENSICS
+    FORENSICS,
+    CRYPTO,
+    ADMINSYS,
+    NETWORK,
+    UNKNOWN,
+}
+
+impl CommandType {
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "programming" | "" => CommandType::PROGRAMMING,
+            "reverse" => CommandType::REVERSE,
+            "forensics" => CommandType::FORENSICS,
+            "pentest" => CommandType::PENTEST,
+            "crypto" => CommandType::CRYPTO,
+            "adminsys" => CommandType::ADMINSYS,
+            "network" => CommandType::NETWORK,
+            _ => CommandType::UNKNOWN
+        }
+    }
 }
 
 pub struct Command {
     pub name: String,
+    pub cmd_type: CommandType,
     pub args: Vec<(String, String)>,
     pub examples: Vec<String>
 }
 
 impl Command {
-    pub fn new(name: String, args: Vec<(String, String)>, examples: Vec<String>) -> Self {
+    pub fn new(name: String, cmd_type: String, args: Vec<(String, String)>, examples: Vec<String>) -> Self {
+
+        let cmd_type = CommandType::from_str(&cmd_type);
         Command {
             name,
+            cmd_type,
             args,
             examples
         }
@@ -29,11 +52,13 @@ impl Command {
     pub fn info(&self) -> String {
         format!(
             "Command: {}\n\
+            Type: {:?}\n\
             \
             \n\
             Examples:\n\
             | {}",
             self.name,
+            self.cmd_type,
             self.examples.join("\n| ")
         )
     }
@@ -60,7 +85,7 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let mut tmp_command = Command::new(k_command.to_string(), vec![], vec![]);
+            let mut tmp_command = Command::new(k_command.to_string(), "unknown".to_string(), vec![], vec![]);
 
             let v_args = elt_commands.get(k_command).unwrap();
             let args_value = v_args.as_table();
@@ -73,6 +98,8 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                         tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
                     } else if arg == "name_exe"{ 
                         tmp_command.name = arg_value.to_string().replace("\"", "");
+                    } else if arg == "cmd_type"{ 
+                        tmp_command.cmd_type = CommandType::from_str(&arg_value.to_string().replace("\"", ""));
                     } else {
                         tmp_command.args.push((arg.clone().replace("\"", ""), arg_value.to_string().replace("\"", "")))
                     }

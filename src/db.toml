@@ -11,16 +11,9 @@ examples = [
     "ping -v 127.0.0.1"
 ]
 
-[command.cat0]
-name_exe = "cat"
-help = "[-h]"
-file = "<file>"
-examples = [
-    "cat test.txt"
-]
-
 [command.nmap0]
 name_exe = "nmap"
+cmd_type = "pentest"
 help = "[-h]"
 destination = "<destination>"
 scan_sv = "[-sV]"
@@ -30,4 +23,14 @@ scan_all_ports = "[-p-]"
 output_file = "[-oN <output_file>]"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
+]
+
+[command.objdump0]
+name_exe = "objdump"
+cmd_type = "reverse"
+binary = "-D <binary>"
+type = "[-M <type>]"
+examples = [
+    "obdjump -M intel -D bin",
+    "obdjump -M intel -D bin | grep -A20 main"
 ]

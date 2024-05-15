@@ -55,6 +55,7 @@ impl ArsenalApp {
     pub fn load_example_commands(&mut self) {
         self.items.items.push(Command::new(
             "ping".to_string(),
+            "network".to_string(),
             vec![
                 ("help".to_string(), "[-h]".to_string()),
                 ("verbose".to_string(), "[-v]".to_string()),
