@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use toml::Value;
 use std::{
     fs::File, io, time::{Duration, Instant}
@@ -76,17 +76,27 @@ impl ArsenalApp {
         self.events.push(event);
     }
 
-    fn handle_event_key(&mut self, key_code: KeyCode) {
+    fn handle_event_key(&mut self, key: KeyEvent) {
         // self.push_event(AppEvent::new(&format!("KeyCode triggered: {:?}", key_code), ErrorCode::TRACE));
-        match key_code {
-            // If key is 'q' => app should quit
-            KeyCode::Char('q') => {
+        if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
+            // ^C => Should quit app
+            self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
+            self.quit_app = true;
+            return
+        }
+
+        match key.code {
+            KeyCode::Char(x) => {
+                self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
+            }
+            // KeyCode::Left => app.items.unselect(),
+            KeyCode::Backspace => _ = self.search.pop(),
+            KeyCode::Down => self.items.next(),
+            KeyCode::Up => self.items.previous(),
+            KeyCode::Esc => {
                 self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
                 self.quit_app = true;
             }
-            // KeyCode::Left => app.items.unselect(),
-            KeyCode::Down => self.items.next(),
-            KeyCode::Up => self.items.previous(),
             _ => {}
         }
     }
@@ -112,7 +122,7 @@ pub fn run_app<B: Backend>(
             .unwrap_or_else(|| Duration::from_secs(0));
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
-                app.handle_event_key(key.code);
+                app.handle_event_key(key);
                 if app.quit_app {
                     terminal.draw(|f| renderer::render(f, &mut app))?;  // Render quitting program event
                     app.quit();
