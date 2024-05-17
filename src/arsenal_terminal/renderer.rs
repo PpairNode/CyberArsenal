@@ -57,7 +57,9 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             }
         },
         None => Paragraph::new("")
-    }.block(info_pane);
+    }
+        .block(info_pane)
+        .wrap(Wrap { trim: true });
 
     // RIGHT LOWER PANE
     // Let's do the same for the events.

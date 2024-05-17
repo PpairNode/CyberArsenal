@@ -50,16 +50,16 @@ impl Command {
     }
 
     pub fn info(&self) -> String {
+        // let s1 = vec!["check", "check2"].join(" \n ");
         format!(
             "Command: {}\n\
             Type: {:?}\n\
             \
             \n\
-            Examples:\n\
-            | {}",
+            Examples:\n > {}",
             self.name,
             self.cmd_type,
-            self.examples.join("\n| ")
+            self.examples.join("\n > ")
         )
     }
 }
@@ -94,9 +94,15 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                     let arg_value = args_map.get(arg).unwrap();
                     // Check few basic values
                     if arg == "examples" {
+                        let Some(examples) = arg_value.as_array() else {
+                            continue;
+                        };
+                        for example in examples.iter() {
+                            tmp_command.examples.push(example.to_string().replace("\"", ""));
+                        }
                         // Remove `",[,]` from examples as we do not need them for the presentation
-                        tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
-                    } else if arg == "name_exe"{ 
+                        // tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
+                    } else if arg == "name_exe"{
                         tmp_command.name = arg_value.to_string().replace("\"", "");
                     } else if arg == "cmd_type"{ 
                         tmp_command.cmd_type = CommandType::from_str(&arg_value.to_string().replace("\"", ""));

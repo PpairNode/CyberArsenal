@@ -5,8 +5,7 @@ max_events = 100
 [command.ping0]
 name_exe = "ping"
 cmd_type = "network"
-help = "[-h]"
-verbose = "[-v]"
+verbose = "-v"
 dest = "<destination>"
 examples = [
     "ping -v 127.0.0.1"
@@ -15,13 +14,12 @@ examples = [
 [command.nmap0]
 name_exe = "nmap"
 cmd_type = "pentest"
-help = "[-h]"
+scan_sv = "-sV"
+scan_ss = "-sS"
+scan_no_ping = "-Pn"
+scan_all_ports = "-p-"
+output_file = "-oN <output_file>"
 destination = "<destination>"
-scan_sv = "[-sV]"
-scan_ss = "[-sS]"
-scan_no_ping = "[-Pn]"
-scan_all_ports = "[-p-]"
-output_file = "[-oN <output_file>]"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
