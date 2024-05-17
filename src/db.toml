@@ -14,6 +14,7 @@ examples = [
 [command.nmap0]
 name_exe = "nmap"
 cmd_type = "pentest"
+explanation = "Scanning: version, SYN scan, no ping, all ports, save to file"
 scan_sv = "-sV"
 scan_ss = "-sS"
 scan_no_ping = "-Pn"

@@ -19,6 +19,7 @@ pub struct ArsenalApp {
     pub max_events: usize,
     pub items: StatefulList<Command>,
     pub events: Vec<AppEvent>,
+    pub search: String,
     pub quit_app: bool
 }
 
@@ -28,6 +29,7 @@ impl ArsenalApp {
             items: StatefulList::with_items(vec![]),
             max_events,
             events: vec![],
+            search: "".to_string(),
             quit_app: false
         }
     }
@@ -56,6 +58,7 @@ impl ArsenalApp {
         self.items.items.push(Command::new(
             "ping".to_string(),
             "network".to_string(),
+            "Simple ping with verbose on".to_string(),
             vec![
                 ("help".to_string(), "[-h]".to_string()),
                 ("verbose".to_string(), "[-v]".to_string()),

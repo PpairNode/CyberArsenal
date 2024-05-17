@@ -33,17 +33,19 @@ impl CommandType {
 pub struct Command {
     pub name: String,
     pub cmd_type: CommandType,
+    pub explanation: String,
     pub args: Vec<(String, String)>,
     pub examples: Vec<String>
 }
 
 impl Command {
-    pub fn new(name: String, cmd_type: String, args: Vec<(String, String)>, examples: Vec<String>) -> Self {
+    pub fn new(name: String, cmd_type: String, explanation: String, args: Vec<(String, String)>, examples: Vec<String>) -> Self {
 
         let cmd_type = CommandType::from_str(&cmd_type);
         Command {
             name,
             cmd_type,
+            explanation,
             args,
             examples
         }
@@ -54,11 +56,13 @@ impl Command {
         format!(
             "Command: {}\n\
             Type: {:?}\n\
+            Explanation: {}\n\
             \
             \n\
             Examples:\n > {}",
             self.name,
             self.cmd_type,
+            self.explanation,
             self.examples.join("\n > ")
         )
     }
@@ -85,7 +89,7 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let mut tmp_command = Command::new(k_command.to_string(), "unknown".to_string(), vec![], vec![]);
+            let mut tmp_command = Command::new(k_command.to_string(), "unknown".to_string(), "".to_string(), vec![], vec![]);
 
             let v_args = elt_commands.get(k_command).unwrap();
             let args_value = v_args.as_table();
@@ -106,6 +110,8 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                         tmp_command.name = arg_value.to_string().replace("\"", "");
                     } else if arg == "cmd_type"{ 
                         tmp_command.cmd_type = CommandType::from_str(&arg_value.to_string().replace("\"", ""));
+                    } else if arg == "explanation"{ 
+                        tmp_command.explanation = arg_value.to_string().replace("\"", "");
                     } else {
                         tmp_command.args.push((arg.clone().replace("\"", ""), arg_value.to_string().replace("\"", "")))
                     }
