@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.83"
+arboard = { version = "3.4.0", features = ["wl-clipboard-rs", "wayland-data-control"] }
 arg = { version = "0.4.1", features = ["std"] }
 chrono = "0.4.38"
 crossterm = "0.27.0"

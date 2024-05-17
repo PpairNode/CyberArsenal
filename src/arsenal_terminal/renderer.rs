@@ -13,17 +13,31 @@ use super::{app::ArsenalApp, event::LevelCode};
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // COMPLETE WINDOW
     let window = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref()) 
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(3), Constraint::Min(95)])
         .split(f.size());
 
-    // RIGHT PANE
-    let right_pane = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+    // SEARCH PARAGRAPH
+    let search_pane = Block::default()
+        .title("Search CMD")
+        .borders(Borders::ALL);
+    let search_paragraph_pane = Paragraph::new(format!(">> {}", app.search.to_string()))
+        .block(search_pane)
+        .wrap(Wrap { trim: true });
+
+    // BODY
+    let body = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)]) 
         .split(window[1]);
 
-    // LEFT PANE
+    // BODY RIGHT PANE
+    let right_pane = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
+        .split(body[1]);
+
+    // BODY LEFT PANE
     // Iterate through all elements in the `items` app and append some debug text to it.
     let commands: Vec<ListItem> = app
         .items
@@ -44,15 +58,15 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         )
         .highlight_symbol("> ");
 
-    // RIGHT UPPER PANE
+    // BODY RIGHT UPPER PANE
     let info_pane = Block::default()
-        .title("Info Pane")
+        .title("Info")
         .borders(Borders::ALL);
 
     let info_paragraph_pane = match app.items.state.selected() {
         Some(s) => {
             match app.items.items.get(s) {
-                Some(s) => Paragraph::new(s.info()),
+                Some(c) => Paragraph::new(c.info()),
                 None => Paragraph::new("")
             }
         },
@@ -61,7 +75,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         .block(info_pane)
         .wrap(Wrap { trim: true });
 
-    // RIGHT LOWER PANE
+    // BODY RIGHT LOWER PANE
     let events_spans: Vec<Spans> = 
         app.events.iter()
             .rev()
@@ -91,10 +105,11 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         .style(Style::default())
         .wrap(Wrap { trim: true });
 
-    // RENDER LEFT PANE
-    f.render_stateful_widget(commands_list_pane, window[0], &mut app.items.state);
-    // RENDER RIGHT UPPER PANE (info)
+    f.render_widget(search_paragraph_pane, window[0]);
+    // RENDER BODY LEFT PANE
+    f.render_stateful_widget(commands_list_pane, body[0], &mut app.items.state);
+    // RENDER BODY RIGHT UPPER PANE (info)
     f.render_widget(info_paragraph_pane, right_pane[0]);
-    // RENDER RIGHT LOWER PANE (events)
+    // RENDER BODY RIGHT LOWER PANE (events)
     f.render_widget(events_paragraph_pane, right_pane[1]);
 }

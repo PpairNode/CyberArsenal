@@ -14,6 +14,8 @@ use crate::arsenal_objects::command::{load_values_into_commands, Command};
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 use super::event::LevelCode;
 
+use arboard::Clipboard;
+
 
 pub struct ArsenalApp {
     pub max_events: usize,
@@ -88,6 +90,7 @@ impl ArsenalApp {
         match key.code {
             KeyCode::Char(x) => {
                 self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
+                self.search.push(x);
             }
             // KeyCode::Left => app.items.unselect(),
             KeyCode::Backspace => _ = self.search.pop(),
@@ -96,6 +99,59 @@ impl ArsenalApp {
             KeyCode::Esc => {
                 self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
                 self.quit_app = true;
+            }
+            KeyCode::Enter => {
+                let Some(selected) = self.items.state.selected() else {
+                    self.push_event(AppEvent::new(&format!("Cannot get selected value from list!"), LevelCode::ERROR));
+                    return
+                };
+                // Get item from list
+                let Some(command) = self.items.items.get(selected).clone() else {
+                    self.push_event(AppEvent::new(&format!("Cannot retrieve value from item list!"), LevelCode::ERROR));
+                    return
+                };
+                let command_str = format!("{command}");
+                self.push_event(AppEvent::new(&format!("Command to copy to clipboard: {command_str}"), LevelCode::DEBUG));
+
+                // let mut context = match cli_clipboard::linux_clipboard::LinuxClipboardContext::new() {
+                //     Ok(c) => c,
+                //     Err(e) => {
+                //         self.push_event(AppEvent::new(&format!("Cannot create clipboard context! Error={}", e), LevelCode::ERROR));
+                //         return
+                //     }
+                // };
+                // if let Err(e) = context.set_contents(command_str.clone()) {
+                //     self.push_event(AppEvent::new(&format!("Cannot copy value to clipboard! Error={}", e), LevelCode::ERROR));
+                //     return
+                // };
+
+                // let mut clipboard = match Clipboard::new() {
+                //     Ok(c) => c,
+                //     Err(e) => {
+                //         self.push_event(AppEvent::new(&format!("Cannot create Clipboard! Error={}", e), LevelCode::ERROR));
+                //         return
+                //     }
+                // };
+
+                // let text = match clipboard.get_text() {
+                //     Ok(s) => s,
+                //     Err(e) => {
+                //         self.push_event(AppEvent::new(&format!("Cannot get text from Clipboard! Error={}", e), LevelCode::ERROR));
+                //         return
+                //     }
+                // };
+                // self.push_event(AppEvent::new(&format!("Clipboard text was: {}", text), LevelCode::DEBUG));
+
+                // if let Err(e) = clipboard.set_text(command_str.clone()) {
+                //     self.push_event(AppEvent::new(&format!("Cannot set text from Clipboard! Error={}", e), LevelCode::ERROR));
+                //     return
+                // };
+
+                // if let Err(e) = cli_clipboard::set_contents(command_str) {
+                //     self.push_event(AppEvent::new(&format!("Cannot copy value to clipboard! Error={}", e), LevelCode::ERROR));
+                //     return
+                // };
+                self.push_event(AppEvent::new(&format!("Value copied to clipboard: {}", command_str), LevelCode::DEBUG));
             }
             _ => {}
         }
