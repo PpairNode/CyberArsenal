@@ -4,6 +4,7 @@ max_events = 100
 
 [command.ping0]
 name_exe = "ping"
+cmd_type = "network"
 help = "[-h]"
 verbose = "[-v]"
 dest = "<destination>"

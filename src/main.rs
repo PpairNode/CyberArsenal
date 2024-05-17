@@ -49,8 +49,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         app.load_settings(args.settings)?;
     }
 
-    app.load_example_commands();
-
     let res = run_app(&mut terminal, app, tick_rate);
 
     // restore terminal
