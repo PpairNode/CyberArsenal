@@ -1,9 +1,9 @@
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
@@ -112,4 +112,36 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     f.render_widget(info_paragraph_pane, right_pane[0]);
     // RENDER BODY RIGHT LOWER PANE (events)
     f.render_widget(events_paragraph_pane, right_pane[1]);
+
+    // If App command popup is opened, this should show the popup
+    if app.show_command_popup {
+        let block = Block::default().title("Popup Test").borders(Borders::ALL);
+        let area = centered_rect(60, 20, f.size());
+        f.render_widget(Clear, area); //this clears out the background
+        f.render_widget(block, area);
+    }
+}
+
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let popup_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Percentage((100 - percent_y) / 2),
+                Constraint::Percentage(percent_y),
+                Constraint::Percentage((100 - percent_y) / 2),
+            ],
+        )
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage((100 - percent_x) / 2),
+                Constraint::Percentage(percent_x),
+                Constraint::Percentage((100 - percent_x) / 2),
+            ],
+        )
+        .split(popup_layout[1])[1]
 }

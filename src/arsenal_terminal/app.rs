@@ -1,7 +1,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use toml::Value;
 use std::{
-    fs::File, io, time::{Duration, Instant}
+    collections::HashMap, fs::File, io, time::{Duration, Instant}
 };
 use std::io::prelude::*;
 use tui::{
@@ -11,34 +11,32 @@ use tui::{
 use anyhow::Result;
 
 use crate::arsenal_objects::command::{load_values_into_commands, Command};
+use crate::misc::inputs::write_co_clipboard;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 use super::event::LevelCode;
-
-use clipboard::ClipboardProvider;
-use clipboard::ClipboardContext;
 
 
 pub struct ArsenalApp {
     pub max_events: usize,
     pub items: StatefulList<Command>,
+    pub auto_fill_commands: HashMap<String, String>,
     pub events: Vec<AppEvent>,
     pub search: String,
+    pub show_command_popup: bool,
     pub quit_app: bool
 }
 
 impl ArsenalApp {
     pub fn new(max_events: usize) -> ArsenalApp {
         ArsenalApp {
-            items: StatefulList::with_items(vec![]),
             max_events,
+            items: StatefulList::with_items(vec![]),
+            auto_fill_commands: HashMap::new(),
             events: vec![],
             search: "".to_string(),
+            show_command_popup: false,
             quit_app: false
         }
-    }
-
-    fn on_tick(&mut self) {
-        // Do something on tick
     }
 
     pub fn load_settings(&mut self, settings: String) -> Result<()> {
@@ -80,7 +78,6 @@ impl ArsenalApp {
     }
 
     fn handle_event_key(&mut self, key: KeyEvent) {
-        // self.push_event(AppEvent::new(&format!("KeyCode triggered: {:?}", key_code), ErrorCode::TRACE));
         if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
             // ^C => Should quit app
             self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
@@ -90,40 +87,79 @@ impl ArsenalApp {
 
         match key.code {
             KeyCode::Char(x) => {
-                self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
-                self.search.push(x);
+                // There is 2 possibility when `down` is triggered:
+                // - 1. Popup is opened and so it's writing to command values to fill
+                // - 2. Popup is not opened and it's writing to search bar
+                if self.show_command_popup {
+                    
+                } else {
+                    self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
+                    self.search.push(x);
+                }
             }
             // KeyCode::Left => app.items.unselect(),
             KeyCode::Backspace => _ = self.search.pop(),
-            KeyCode::Down => self.items.next(),
-            KeyCode::Up => self.items.previous(),
+            KeyCode::Down => {
+                // There is 2 possibility when `down` is triggered:
+                // - 1. Popup is opened and so it's switching between command values to fill
+                // - 2. Popup is not opened and it's switching between commands
+                if self.show_command_popup {
+                    
+                } else {
+                    self.items.next()
+                }
+            },
+            KeyCode::Up => {
+                // There is 2 possibility when `up` is triggered:
+                // - 1. Popup is opened and so it's switching between command values to fill
+                // - 2. Popup is not opened and it's switching between commands
+                if self.show_command_popup {
+                    
+                } else {
+                    self.items.previous()
+                }
+            },
             KeyCode::Esc => {
-                self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
-                self.quit_app = true;
+                // There is 2 possibility when `escape` is triggered:
+                // - 1. Popup is opened and so it's closing the popup
+                // - 2. Popup is not opened and it's quitting the program
+                if self.show_command_popup {
+                    self.show_command_popup = false;
+                } else {
+                    self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
+                    self.quit_app = true;
+                }
             }
             KeyCode::Enter => {
-                let Some(selected) = self.items.state.selected() else {
-                    self.push_event(AppEvent::new(&format!("Cannot get selected value from list!"), LevelCode::ERROR));
-                    return
-                };
-                // Get item from list
-                let Some(command) = self.items.items.get(selected).clone() else {
-                    self.push_event(AppEvent::new(&format!("Cannot retrieve value from item list!"), LevelCode::ERROR));
-                    return
-                };
-                let command_str = format!("{command}");
-
-                let mut ctx: ClipboardContext = match ClipboardProvider::new() {
-                    Ok(c) => c,
-                    Err(e) => {
-                        self.push_event(AppEvent::new(&format!("Cannot create ClipboardProvider context! Error={}", e), LevelCode::ERROR));
+                // There is 2 possibility when `enter` is triggered:
+                // - 1. Popup is opened and so it's going to copy command to clipboard
+                // - 2. Popup is not opened and it is opening the command popup
+                if self.show_command_popup {
+                    let Some(selected) = self.items.state.selected() else {
+                        self.push_event(AppEvent::new(&format!("Cannot get selected value from list!"), LevelCode::ERROR));
                         return
-                    }
-                };
-                ctx.set_contents(command_str.clone()).unwrap();
+                    };
+                    // Get item from list
+                    let Some(command) = self.items.items.get(selected).clone() else {
+                        self.push_event(AppEvent::new(&format!("Cannot retrieve value from item list!"), LevelCode::ERROR));
+                        return
+                    };
+                    let command_str = format!("{command}");
+                    if let Err(e) = write_co_clipboard(&command_str) {
+                        self.push_event(AppEvent::new(&format!("Error when writing to clipboard, error={}", e), LevelCode::ERROR));
+                        return
+                    };
+                    self.push_event(AppEvent::new(&format!("Value copied to clipboard: \"{}\"", command_str), LevelCode::DEBUG));
+                } else {
+                    self.show_command_popup = true;
+                }
             }
             _ => {}
         }
+    }
+
+    fn on_tick(&mut self) {
+        // Do something on tick
     }
 
     // Before quitting, clean some things

@@ -28,6 +28,7 @@ struct MyArgs {
 
 pub mod arsenal_terminal;
 pub mod arsenal_objects;
+pub mod misc;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
