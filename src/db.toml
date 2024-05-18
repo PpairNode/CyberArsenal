@@ -1,6 +1,7 @@
 title = "Pentest commands"
 
 max_events = 100
+destination = "127.0.0.1"
 
 [command.ping0]
 name_exe = "ping"
@@ -14,13 +15,8 @@ examples = [
 [command.nmap0]
 name_exe = "nmap"
 cmd_type = "pentest"
-explanation = "Scanning: version, SYN scan, no ping, all ports, save to file"
-scan_sv = "-sV"
-scan_ss = "-sS"
-scan_no_ping = "-Pn"
-scan_all_ports = "-p-"
-output_file = "-oN <output_file>"
-destination = "<destination>"
+explanation = "Version -sV, SYN scan -sS, no ping -Pn, all ports -p-, save to file -oN <file>"
+command = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
@@ -28,8 +24,8 @@ examples = [
 [command.objdump0]
 name_exe = "objdump"
 cmd_type = "reverse"
-binary = "-D <binary>"
-type = "[-M <type>]"
+explanation = ""
+command = "-D <binary> -M <type>"
 examples = [
     "obdjump -M intel -D bin",
     "obdjump -M intel -D bin | grep -A20 main"
