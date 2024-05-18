@@ -6,8 +6,7 @@ destination = "127.0.0.1"
 [command.ping0]
 name_exe = "ping"
 cmd_type = "network"
-verbose = "-v"
-dest = "<destination>"
+args = "-v <destination>"
 examples = [
     "ping -v 127.0.0.1"
 ]
@@ -16,7 +15,7 @@ examples = [
 name_exe = "nmap"
 cmd_type = "pentest"
 explanation = "Version -sV, SYN scan -sS, no ping -Pn, all ports -p-, save to file -oN <file>"
-command = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
+args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
@@ -25,7 +24,7 @@ examples = [
 name_exe = "objdump"
 cmd_type = "reverse"
 explanation = ""
-command = "-D <binary> -M <type>"
+args = "-D <binary> -M <type>"
 examples = [
     "obdjump -M intel -D bin",
     "obdjump -M intel -D bin | grep -A20 main"

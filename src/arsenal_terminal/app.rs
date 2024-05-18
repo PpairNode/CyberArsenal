@@ -22,7 +22,7 @@ pub struct ArsenalApp {
     pub auto_fill_commands: HashMap<String, String>,
     pub events: Vec<AppEvent>,
     pub search: String,
-    pub show_command_popup: bool,
+    pub show_command: Option<Command>,
     pub quit_app: bool
 }
 
@@ -34,7 +34,7 @@ impl ArsenalApp {
             auto_fill_commands: HashMap::new(),
             events: vec![],
             search: "".to_string(),
-            show_command_popup: false,
+            show_command: None,
             quit_app: false
         }
     }
@@ -60,21 +60,29 @@ impl ArsenalApp {
             "ping".to_string(),
             "network".to_string(),
             "Simple ping with verbose on".to_string(),
-            vec![
-                ("help".to_string(), "[-h]".to_string()),
-                ("verbose".to_string(), "[-v]".to_string()),
-                ("destination".to_string(), "<destination>".to_string())
-            ],
+            "-v <destination>".to_string(),
             vec!["ping 127.0.0.1".to_string(), "ping -v 127.0.0.1".to_string()]));
 
         self.push_event(AppEvent::new(&format!("Number of commands loaded: {}", self.items.items.len()), LevelCode::INFO));
     }
 
-    fn push_event(&mut self, event: AppEvent) {
+    pub fn push_event(&mut self, event: AppEvent) {
         if self.events.len() > self.max_events {
             _ = self.events.remove(0);
         }
         self.events.push(event);
+    }
+
+    pub fn get_selected_command(&self) -> Result<Command> {
+        let Some(selected) = self.items.state.selected() else {
+            anyhow::bail!("Cannot get selected value from list!")
+        };
+        // Get item from list
+        let Some(command) = self.items.items.get(selected).clone() else {
+            anyhow::bail!("Cannot retrieve value from item list!")
+        };
+
+        Ok(command.clone())
     }
 
     fn handle_event_key(&mut self, key: KeyEvent) {
@@ -90,7 +98,7 @@ impl ArsenalApp {
                 // There is 2 possibility when `down` is triggered:
                 // - 1. Popup is opened and so it's writing to command values to fill
                 // - 2. Popup is not opened and it's writing to search bar
-                if self.show_command_popup {
+                if self.show_command.is_some() {
                     
                 } else {
                     self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
@@ -103,7 +111,7 @@ impl ArsenalApp {
                 // There is 2 possibility when `down` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
-                if self.show_command_popup {
+                if self.show_command.is_some() {
                     
                 } else {
                     self.items.next()
@@ -113,7 +121,7 @@ impl ArsenalApp {
                 // There is 2 possibility when `up` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
-                if self.show_command_popup {
+                if self.show_command.is_some() {
                     
                 } else {
                     self.items.previous()
@@ -123,8 +131,8 @@ impl ArsenalApp {
                 // There is 2 possibility when `escape` is triggered:
                 // - 1. Popup is opened and so it's closing the popup
                 // - 2. Popup is not opened and it's quitting the program
-                if self.show_command_popup {
-                    self.show_command_popup = false;
+                if self.show_command.is_some() {
+                    self.show_command = None;
                 } else {
                     self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
                     self.quit_app = true;
@@ -134,7 +142,7 @@ impl ArsenalApp {
                 // There is 2 possibility when `enter` is triggered:
                 // - 1. Popup is opened and so it's going to copy command to clipboard
                 // - 2. Popup is not opened and it is opening the command popup
-                if self.show_command_popup {
+                if self.show_command.is_some() {
                     let Some(selected) = self.items.state.selected() else {
                         self.push_event(AppEvent::new(&format!("Cannot get selected value from list!"), LevelCode::ERROR));
                         return
@@ -151,7 +159,14 @@ impl ArsenalApp {
                     };
                     self.push_event(AppEvent::new(&format!("Value copied to clipboard: \"{}\"", command_str), LevelCode::DEBUG));
                 } else {
-                    self.show_command_popup = true;
+                    // Get command
+                    self.show_command = match self.get_selected_command() {
+                        Ok(c) => Some(c),
+                        Err(e) => {
+                            self.push_event(AppEvent::new(&format!("Cannot get selected command: {}", e), LevelCode::ERROR));
+                            None
+                        }
+                    };
                 }
             }
             _ => {}

@@ -7,7 +7,7 @@ use tui::{
     Frame,
 };
 
-use super::{app::ArsenalApp, event::LevelCode};
+use super::{app::ArsenalApp, event::{AppEvent, LevelCode}};
 
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
@@ -39,10 +39,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
     // BODY LEFT PANE
     // Iterate through all elements in the `items` app and append some debug text to it.
-    let commands: Vec<ListItem> = app
-        .items
-        .items
-        .iter()
+    let commands: Vec<ListItem> = app.items.items.iter()
         .map(|command| {
             ListItem::new(format!("{}", command)).style(Style::default())
         })
@@ -114,7 +111,30 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     f.render_widget(events_paragraph_pane, right_pane[1]);
 
     // If App command popup is opened, this should show the popup
-    if app.show_command_popup {
+    // let command = match app.get_selected_command() {
+    //     Ok(c) => c,
+    //     Err(e) => {
+    //         app.push_event(AppEvent::new(&format!("Cannot get selected command, error={}", e), LevelCode::ERROR));
+    //         return
+    //     }
+    // };
+    if app.show_command.is_some() {
+        // let command_values: Vec<ListItem> = command.get_input_list()
+        //     .map(|command| {
+        //         ListItem::new(format!("{}", command)).style(Style::default())
+        //     })
+        //     .collect();
+        // // Create a List from all list items and highlight the currently selected one
+        // let command_values_pane = List::new(command_values)
+        //     .block(Block::default().borders(Borders::ALL).title("Commands"))
+        //     .highlight_style(
+        //         Style::default()
+        //             .fg(Color::Black)
+        //             .bg(Color::LightGreen)
+        //             .add_modifier(Modifier::BOLD),
+        //     )
+        //     .highlight_symbol("> ");
+
         let block = Block::default().title("Popup Test").borders(Borders::ALL);
         let area = centered_rect(60, 20, f.size());
         f.render_widget(Clear, area); //this clears out the background

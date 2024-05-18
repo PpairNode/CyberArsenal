@@ -3,7 +3,7 @@ use anyhow::Result;
 use toml::Value;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CommandType {
     PROGRAMMING,
     PENTEST,
@@ -30,16 +30,17 @@ impl CommandType {
     }
 }
 
+#[derive(Clone)]
 pub struct Command {
     pub name: String,
     pub cmd_type: CommandType,
     pub explanation: String,
-    pub args: Vec<(String, String)>,
+    pub args: String,
     pub examples: Vec<String>
 }
 
 impl Command {
-    pub fn new(name: String, cmd_type: String, explanation: String, args: Vec<(String, String)>, examples: Vec<String>) -> Self {
+    pub fn new(name: String, cmd_type: String, explanation: String, args: String, examples: Vec<String>) -> Self {
 
         let cmd_type = CommandType::from_str(&cmd_type);
         Command {
@@ -70,10 +71,7 @@ impl Command {
 
 impl Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s: Vec<String> = self.args.iter()
-            .map(|(_, s)| s.clone())
-            .collect();
-        write!(f, "{} {}", self.name, s.join(" "))
+        write!(f, "{} {}", self.name, self.args)
     }
 }
 
@@ -89,15 +87,15 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let mut tmp_command = Command::new(k_command.to_string(), "unknown".to_string(), "".to_string(), vec![], vec![]);
+            let mut tmp_command = Command::new(k_command.to_string(), "unknown".to_string(), "".to_string(), "".to_string(), vec![]);
 
             let v_args = elt_commands.get(k_command).unwrap();
             let args_value = v_args.as_table();
             for args_map in args_value.iter() {
-                for arg in args_map.keys() {
-                    let arg_value = args_map.get(arg).unwrap();
+                for arg_key in args_map.keys() {
+                    let arg_value = args_map.get(arg_key).unwrap();
                     // Check few basic values
-                    if arg == "examples" {
+                    if arg_key == "examples" {
                         let Some(examples) = arg_value.as_array() else {
                             continue;
                         };
@@ -106,14 +104,14 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                         }
                         // Remove `",[,]` from examples as we do not need them for the presentation
                         // tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
-                    } else if arg == "name_exe"{
+                    } else if arg_key == "name_exe"{
                         tmp_command.name = arg_value.to_string().replace("\"", "");
-                    } else if arg == "cmd_type"{ 
+                    } else if arg_key == "cmd_type"{ 
                         tmp_command.cmd_type = CommandType::from_str(&arg_value.to_string().replace("\"", ""));
-                    } else if arg == "explanation"{ 
+                    } else if arg_key == "explanation"{ 
                         tmp_command.explanation = arg_value.to_string().replace("\"", "");
-                    } else {
-                        tmp_command.args.push((arg.clone().replace("\"", ""), arg_value.to_string().replace("\"", "")))
+                    } else if arg_key == "args" {
+                        tmp_command.args = arg_value.to_string().replace("\"", "");
                     }
                 }
             }
