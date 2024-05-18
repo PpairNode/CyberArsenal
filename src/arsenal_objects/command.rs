@@ -1,5 +1,6 @@
 use std::fmt::{self, Display};
 use anyhow::Result;
+use regex::Regex;
 use toml::Value;
 
 
@@ -31,16 +32,66 @@ impl CommandType {
 }
 
 #[derive(Clone)]
+// Structure used to represent modifications on a command arg
+pub struct ArgFill {
+    value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
+    default: Option<String>,    // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
+    modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
+}
+
+impl ArgFill {
+    pub fn new(arg: String) -> ArgFill {
+        let mut arg_fill = ArgFill { value: arg.clone(), default: None, modified: None };
+
+        let re = match Regex::new(r"<([a-Z0-9=-]+)>") {
+            Ok(r) => r,
+            Err(_) => {
+                return arg_fill
+            }
+        };
+        for (_, [cap]) in re.captures_iter(&arg).map(|c| c.extract()) {
+            let s = cap.split("=").map(|s| s.to_string()).collect::<Vec<String>>();
+            if s.len() == 2 {  // Value default set
+                arg_fill.value = s.get(0).unwrap().clone();
+                arg_fill.default = Some(s.get(1).unwrap().clone());
+            } else if s.len() == 1 {
+                arg_fill.value = s.get(0).unwrap().clone();
+            }
+        }
+
+        arg_fill
+    }
+}
+
+impl Display for ArgFill {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.modified.is_some() {
+            return write!(f, "{}", self.modified.clone().unwrap())
+        } else if self.default.is_some() {
+            return write!(f, "{}", self.default.clone().unwrap())
+        }
+
+        write!(f, "{}", self.value)
+    }
+}
+
+#[derive(Clone)]
 pub struct Command {
     pub name: String,
     pub cmd_type: CommandType,
     pub explanation: String,
     pub args: String,
+    pub args_fill: Vec<ArgFill>,
     pub examples: Vec<String>
 }
 
 impl Command {
     pub fn new(name: String, cmd_type: String, explanation: String, args: String, examples: Vec<String>) -> Self {
+
+        let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+        let args_fill = v.iter()
+            .map(|s| ArgFill::new(s.to_string()))
+            .collect();
 
         let cmd_type = CommandType::from_str(&cmd_type);
         Command {
@@ -48,6 +99,7 @@ impl Command {
             cmd_type,
             explanation,
             args,
+            args_fill,
             examples
         }
     }
@@ -59,13 +111,19 @@ impl Command {
             Type: {:?}\n\
             Explanation: {}\n\
             \
-            \n\
+            {}\n\
+            \
             Examples:\n > {}",
             self.name,
             self.cmd_type,
             self.explanation,
+            self.args,
             self.examples.join("\n > ")
         )
+    }
+
+    pub fn load_cmd_with_inputs(&self) -> String {
+        String::new()
     }
 }
 
