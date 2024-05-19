@@ -63,6 +63,21 @@ impl ArgFill {
         }
         arg_fill
     }
+
+    pub fn copy(self) -> String {
+        match self.is_input {
+            true => {
+                if self.modified.is_some() {
+                    self.modified.clone().unwrap()
+                } else if self.default.is_some() {
+                    self.default.clone().unwrap()
+                } else {
+                    self.value
+                }
+            },
+            false => self.value    
+        }
+    }
 }
 
 impl Display for ArgFill {
@@ -126,6 +141,15 @@ impl Command {
         )
     }
 
+    pub fn copy(&self) -> String {
+        let cmd = self.args_filled.iter()
+            .map(|arg| arg.clone().copy())
+            .collect::<Vec<String>>()
+            .join(" ");
+
+        format!("{} {}", self.name, cmd)
+    }
+
     pub fn get_all_args(&self) -> &Vec<ArgFill> {
         &self.args_filled
     }
@@ -139,7 +163,8 @@ impl Command {
 
 impl Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {}", self.name, self.args)
+        write!(f, "{}", self.copy())
+        // write!(f, "{} {}", self.name, self.args.)
     }
 }
 

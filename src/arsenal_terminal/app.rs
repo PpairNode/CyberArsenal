@@ -156,12 +156,13 @@ impl ArsenalApp {
                         self.push_event(AppEvent::new(&format!("Cannot retrieve value from item list!"), LevelCode::ERROR));
                         return
                     };
-                    let command_str = format!("{command}");
-                    if let Err(e) = write_co_clipboard(&command_str) {
+                    let final_cmd = command.copy();
+                    // let command_str = format!("{command}");
+                    if let Err(e) = write_co_clipboard(&final_cmd) {
                         self.push_event(AppEvent::new(&format!("Error when writing to clipboard, error={}", e), LevelCode::ERROR));
                         return
                     };
-                    self.push_event(AppEvent::new(&format!("Value copied to clipboard: \"{}\"", command_str), LevelCode::DEBUG));
+                    self.push_event(AppEvent::new(&format!("Value copied to clipboard: \"{}\"", final_cmd), LevelCode::DEBUG));
                 } else {
                     // Get command
                     self.show_command = match self.get_selected_command() {
