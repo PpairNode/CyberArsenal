@@ -22,7 +22,8 @@ pub struct ArsenalApp {
     pub auto_fill_commands: HashMap<String, String>,
     pub events: Vec<AppEvent>,
     pub search: String,
-    pub show_command: Option<StatefulList<ArgFill>>,
+    pub show_command: bool,
+    pub list_args: StatefulList<ArgFill>,
     pub quit_app: bool
 }
 
@@ -34,7 +35,8 @@ impl ArsenalApp {
             auto_fill_commands: HashMap::new(),
             events: vec![],
             search: "".to_string(),
-            show_command: None,
+            show_command: false,
+            list_args: StatefulList::with_items(vec![]),
             quit_app: false
         }
     }
@@ -98,7 +100,7 @@ impl ArsenalApp {
                 // There is 2 possibility when `down` is triggered:
                 // - 1. Popup is opened and so it's writing to command values to fill
                 // - 2. Popup is not opened and it's writing to search bar
-                if self.show_command.is_some() {
+                if self.show_command {
                     
                 } else {
                     self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
@@ -111,18 +113,18 @@ impl ArsenalApp {
                 // There is 2 possibility when `down` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
-                match &mut self.show_command {
-                    Some(c) => c.next(),
-                    None => self.items.next()
+                match self.show_command {
+                    true => self.list_args.next(),
+                    false => self.items.next()
                 }
             },
             KeyCode::Up => {
                 // There is 2 possibility when `up` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
-                match &mut self.show_command {
-                    Some(c) => c.previous(),
-                    None => self.items.previous()
+                match self.show_command {
+                    true => self.list_args.previous(),
+                    false => self.items.previous()
                 }
             },
             KeyCode::Esc => {
@@ -130,8 +132,11 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's closing the popup
                 // - 2. Popup is not opened and it's quitting the program
                 match self.show_command {
-                    Some(_) => self.show_command = None,
-                    None => {
+                    true => {
+                        self.show_command = false;
+                        self.list_args = StatefulList::with_items(vec![]);
+                    },
+                    false => {
                         self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
                         self.quit_app = true;
                     }
@@ -141,7 +146,7 @@ impl ArsenalApp {
                 // There is 2 possibility when `enter` is triggered:
                 // - 1. Popup is opened and so it's going to copy command to clipboard
                 // - 2. Popup is not opened and it is opening the command popup
-                if self.show_command.is_some() {
+                if self.show_command {
                     let Some(selected) = self.items.state.selected() else {
                         self.push_event(AppEvent::new(&format!("Cannot get selected value from list!"), LevelCode::ERROR));
                         return
@@ -163,11 +168,12 @@ impl ArsenalApp {
                         Ok(c) => {
                             let mut args_filled_list = StatefulList::with_items(c.get_input_args());
                             args_filled_list.state.select(Some(0));
-                            Some(args_filled_list)
+                            self.list_args = args_filled_list;
+                            true
                         },
                         Err(e) => {
                             self.push_event(AppEvent::new(&format!("Cannot get selected command: {}", e), LevelCode::ERROR));
-                            None
+                            false
                         }
                     };
                 }

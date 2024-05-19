@@ -11,6 +11,10 @@ examples = [
     "ping -v 127.0.0.1"
 ]
 
+[command.ls0]
+name_exe = "ls"
+cmd_type = "sysadmin"
+
 [command.nmap0]
 name_exe = "nmap"
 cmd_type = "pentest"

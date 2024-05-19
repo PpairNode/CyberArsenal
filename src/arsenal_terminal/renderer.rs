@@ -118,8 +118,8 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             return
         }
     };
-    match &app.show_command {
-        Some(arg_fill) => {
+    match app.show_command {
+        true => {
             // POPUP Centered
             let area = centered_rect(60, 20, f.size());
 
@@ -145,13 +145,13 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .block(command_paragraph_block);
 
             // COMMAND VALUES Block
-            let command_values: Vec<ListItem> = arg_fill.items.iter()
+            let command_values: Vec<ListItem> = app.list_args.items.iter()
                 .map(|value| {
                     ListItem::new(format!("{}", value)).style(Style::default())
                 })
                 .collect();
             // Create a List from all list items and highlight the currently selected one
-            let command_values_pane = List::new(command_values)
+            let command_value_list_pane = List::new(command_values)
                 .block(Block::default().borders(Borders::LEFT))
                 .highlight_style(
                     Style::default()
@@ -164,10 +164,10 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             // RENDERER
             f.render_widget(Clear, area); //this clears out the background
             f.render_widget(command_paragraph_pane, popup_layout[0]);
-            f.render_widget(command_values_pane, popup_layout[1]);
+            f.render_stateful_widget(command_value_list_pane, popup_layout[1], &mut app.list_args.state);
             f.render_widget(popup_block, popup_window[0]);
         },
-        None => {}
+        false => {}
     };
 }
 

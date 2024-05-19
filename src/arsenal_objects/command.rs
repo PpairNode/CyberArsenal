@@ -11,7 +11,7 @@ pub enum CommandType {
     REVERSE,
     FORENSICS,
     CRYPTO,
-    ADMINSYS,
+    SYSADMIN,
     NETWORK,
     UNKNOWN,
 }
@@ -24,7 +24,7 @@ impl CommandType {
             "forensics" => CommandType::FORENSICS,
             "pentest" => CommandType::PENTEST,
             "crypto" => CommandType::CRYPTO,
-            "adminsys" => CommandType::ADMINSYS,
+            "sysadmin" => CommandType::SYSADMIN,
             "network" => CommandType::NETWORK,
             _ => CommandType::UNKNOWN
         }
