@@ -31,44 +31,50 @@ impl CommandType {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 // Structure used to represent modifications on a command arg
 pub struct ArgFill {
     value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
+    is_input: bool,             // If this value has to be an input
     default: Option<String>,    // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
     modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
 }
 
 impl ArgFill {
     pub fn new(arg: String) -> ArgFill {
-        let mut arg_fill = ArgFill { value: arg.clone(), default: None, modified: None };
+        let mut arg_fill = ArgFill { value: arg.clone(), is_input: false, default: None, modified: None };
 
-        let re = match Regex::new(r"<([a-Z0-9=-]+)>") {
+        let re = match Regex::new(r"<([a-zA-Z0-9=-_.]+)>") {
             Ok(r) => r,
             Err(_) => {
                 return arg_fill
             }
         };
+
         for (_, [cap]) in re.captures_iter(&arg).map(|c| c.extract()) {
             let s = cap.split("=").map(|s| s.to_string()).collect::<Vec<String>>();
             if s.len() == 2 {  // Value default set
-                arg_fill.value = s.get(0).unwrap().clone();
+                arg_fill.value = format!("<{}>", s.get(0).unwrap().clone());
                 arg_fill.default = Some(s.get(1).unwrap().clone());
             } else if s.len() == 1 {
-                arg_fill.value = s.get(0).unwrap().clone();
+                arg_fill.value = format!("<{}>", s.get(0).unwrap().clone());
             }
+            arg_fill.is_input = true;
         }
-
         arg_fill
     }
 }
 
 impl Display for ArgFill {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.modified.is_some() {
-            return write!(f, "{}", self.modified.clone().unwrap())
-        } else if self.default.is_some() {
-            return write!(f, "{}", self.default.clone().unwrap())
+        if self.is_input {
+            if self.modified.is_some() {
+                return write!(f, "{} = {}", self.value, self.modified.clone().unwrap())
+            } else if self.default.is_some() {
+                return write!(f, "{} = {}", self.value, self.default.clone().unwrap())
+            } else {
+                return write!(f, "{} = ", self.value);
+            }    
         }
 
         write!(f, "{}", self.value)
@@ -81,15 +87,14 @@ pub struct Command {
     pub cmd_type: CommandType,
     pub explanation: String,
     pub args: String,
-    pub args_fill: Vec<ArgFill>,
+    pub args_filled: Vec<ArgFill>,
     pub examples: Vec<String>
 }
 
 impl Command {
     pub fn new(name: String, cmd_type: String, explanation: String, args: String, examples: Vec<String>) -> Self {
-
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
-        let args_fill = v.iter()
+        let args_filled: Vec<ArgFill> = v.iter()
             .map(|s| ArgFill::new(s.to_string()))
             .collect();
 
@@ -99,13 +104,12 @@ impl Command {
             cmd_type,
             explanation,
             args,
-            args_fill,
+            args_filled: args_filled,
             examples
         }
     }
 
     pub fn info(&self) -> String {
-        // let s1 = vec!["check", "check2"].join(" \n ");
         format!(
             "Command: {}\n\
             Type: {:?}\n\
@@ -122,8 +126,14 @@ impl Command {
         )
     }
 
-    pub fn load_cmd_with_inputs(&self) -> String {
-        String::new()
+    pub fn get_all_args(&self) -> &Vec<ArgFill> {
+        &self.args_filled
+    }
+
+    pub fn get_input_args(&self) -> Vec<ArgFill> {
+        self.args_filled.iter()
+            .filter_map(|arg| if arg.is_input { Some(arg.clone()) } else { None })
+            .collect()
     }
 }
 
@@ -145,7 +155,11 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let mut tmp_command = Command::new(k_command.to_string(), "unknown".to_string(), "".to_string(), "".to_string(), vec![]);
+            let mut name = k_command.clone();
+            let mut cmd_type = "".to_string();
+            let mut explanation = "".to_string();
+            let mut args = "".to_string();
+            let mut cmd_examples = vec![];
 
             let v_args = elt_commands.get(k_command).unwrap();
             let args_value = v_args.as_table();
@@ -158,23 +172,23 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                             continue;
                         };
                         for example in examples.iter() {
-                            tmp_command.examples.push(example.to_string().replace("\"", ""));
+                            cmd_examples.push(example.to_string().replace("\"", ""));
                         }
                         // Remove `",[,]` from examples as we do not need them for the presentation
                         // tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
                     } else if arg_key == "name_exe"{
-                        tmp_command.name = arg_value.to_string().replace("\"", "");
+                        name = arg_value.to_string().replace("\"", "");
                     } else if arg_key == "cmd_type"{ 
-                        tmp_command.cmd_type = CommandType::from_str(&arg_value.to_string().replace("\"", ""));
+                        cmd_type = arg_value.to_string().replace("\"", "");
                     } else if arg_key == "explanation"{ 
-                        tmp_command.explanation = arg_value.to_string().replace("\"", "");
+                        explanation = arg_value.to_string().replace("\"", "");
                     } else if arg_key == "args" {
-                        tmp_command.args = arg_value.to_string().replace("\"", "");
+                        args = arg_value.to_string().replace("\"", "");
                     }
                 }
             }
 
-            commands.push(tmp_command);
+            commands.push(Command::new(name, cmd_type, explanation, args, cmd_examples));
         }
     }
 

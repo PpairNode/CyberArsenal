@@ -111,35 +111,64 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     f.render_widget(events_paragraph_pane, right_pane[1]);
 
     // If App command popup is opened, this should show the popup
-    // let command = match app.get_selected_command() {
-    //     Ok(c) => c,
-    //     Err(e) => {
-    //         app.push_event(AppEvent::new(&format!("Cannot get selected command, error={}", e), LevelCode::ERROR));
-    //         return
-    //     }
-    // };
-    if app.show_command.is_some() {
-        // let command_values: Vec<ListItem> = command.get_input_list()
-        //     .map(|command| {
-        //         ListItem::new(format!("{}", command)).style(Style::default())
-        //     })
-        //     .collect();
-        // // Create a List from all list items and highlight the currently selected one
-        // let command_values_pane = List::new(command_values)
-        //     .block(Block::default().borders(Borders::ALL).title("Commands"))
-        //     .highlight_style(
-        //         Style::default()
-        //             .fg(Color::Black)
-        //             .bg(Color::LightGreen)
-        //             .add_modifier(Modifier::BOLD),
-        //     )
-        //     .highlight_symbol("> ");
+    let command = match app.get_selected_command() {
+        Ok(c) => c,
+        Err(e) => {
+            app.push_event(AppEvent::new(&format!("Cannot get selected command, error={}", e), LevelCode::ERROR));
+            return
+        }
+    };
+    match &app.show_command {
+        Some(arg_fill) => {
+            // POPUP Centered
+            let area = centered_rect(60, 20, f.size());
 
-        let block = Block::default().title("Popup Test").borders(Borders::ALL);
-        let area = centered_rect(60, 20, f.size());
-        f.render_widget(Clear, area); //this clears out the background
-        f.render_widget(block, area);
-    }
+            // POPUP Window
+            let popup_window = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Percentage(100)])
+                .split(area);
+            let popup_block = Block::default()
+                .title("Popup CMD")
+                .borders(Borders::ALL);
+
+            let popup_layout = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Length(3), Constraint::Min(95)])
+                .split(area);
+
+            // COMMAND Block
+            let command_paragraph_block = Block::default()
+                .borders(Borders::ALL);
+            let command_paragraph_pane = Paragraph::new(format!("$ {}", command))
+                .wrap(Wrap { trim: true })
+                .block(command_paragraph_block);
+
+            // COMMAND VALUES Block
+            let command_values: Vec<ListItem> = arg_fill.items.iter()
+                .map(|value| {
+                    ListItem::new(format!("{}", value)).style(Style::default())
+                })
+                .collect();
+            // Create a List from all list items and highlight the currently selected one
+            let command_values_pane = List::new(command_values)
+                .block(Block::default().borders(Borders::LEFT))
+                .highlight_style(
+                    Style::default()
+                        .fg(Color::Black)
+                        .bg(Color::LightGreen)
+                        .add_modifier(Modifier::BOLD),
+                )
+                .highlight_symbol("> ");
+
+            // RENDERER
+            f.render_widget(Clear, area); //this clears out the background
+            f.render_widget(command_paragraph_pane, popup_layout[0]);
+            f.render_widget(command_values_pane, popup_layout[1]);
+            f.render_widget(popup_block, popup_window[0]);
+        },
+        None => {}
+    };
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {

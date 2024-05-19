@@ -10,7 +10,7 @@ use tui::{
 };
 use anyhow::Result;
 
-use crate::arsenal_objects::command::{load_values_into_commands, Command};
+use crate::arsenal_objects::command::{load_values_into_commands, ArgFill, Command};
 use crate::misc::inputs::write_co_clipboard;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 use super::event::LevelCode;
@@ -22,7 +22,7 @@ pub struct ArsenalApp {
     pub auto_fill_commands: HashMap<String, String>,
     pub events: Vec<AppEvent>,
     pub search: String,
-    pub show_command: Option<Command>,
+    pub show_command: Option<StatefulList<ArgFill>>,
     pub quit_app: bool
 }
 
@@ -111,31 +111,30 @@ impl ArsenalApp {
                 // There is 2 possibility when `down` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
-                if self.show_command.is_some() {
-                    
-                } else {
-                    self.items.next()
+                match &mut self.show_command {
+                    Some(c) => c.next(),
+                    None => self.items.next()
                 }
             },
             KeyCode::Up => {
                 // There is 2 possibility when `up` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
-                if self.show_command.is_some() {
-                    
-                } else {
-                    self.items.previous()
+                match &mut self.show_command {
+                    Some(c) => c.previous(),
+                    None => self.items.previous()
                 }
             },
             KeyCode::Esc => {
                 // There is 2 possibility when `escape` is triggered:
                 // - 1. Popup is opened and so it's closing the popup
                 // - 2. Popup is not opened and it's quitting the program
-                if self.show_command.is_some() {
-                    self.show_command = None;
-                } else {
-                    self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
-                    self.quit_app = true;
+                match self.show_command {
+                    Some(_) => self.show_command = None,
+                    None => {
+                        self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
+                        self.quit_app = true;
+                    }
                 }
             }
             KeyCode::Enter => {
@@ -161,7 +160,11 @@ impl ArsenalApp {
                 } else {
                     // Get command
                     self.show_command = match self.get_selected_command() {
-                        Ok(c) => Some(c),
+                        Ok(c) => {
+                            let mut args_filled_list = StatefulList::with_items(c.get_input_args());
+                            args_filled_list.state.select(Some(0));
+                            Some(args_filled_list)
+                        },
                         Err(e) => {
                             self.push_event(AppEvent::new(&format!("Cannot get selected command: {}", e), LevelCode::ERROR));
                             None
