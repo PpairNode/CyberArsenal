@@ -10,7 +10,7 @@ use tui::{
 };
 use anyhow::Result;
 
-use crate::arsenal_objects::command::{load_values_into_commands, ArgFill, Command};
+use crate::arsenal_objects::command::{load_values_into_commands, CommandArg, Command};
 use crate::misc::inputs::write_co_clipboard;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 use super::event::LevelCode;
@@ -22,7 +22,7 @@ pub struct ArsenalApp {
     pub events: Vec<AppEvent>,
     pub search: String,
     pub show_command: bool,
-    pub list_args: StatefulList<ArgFill>,
+    pub list_args: StatefulList<CommandArg>,
     pub quit_app: bool
 }
 

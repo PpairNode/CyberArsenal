@@ -33,16 +33,16 @@ impl CommandType {
 
 #[derive(Debug, Clone)]
 // Structure used to represent modifications on a command arg
-pub struct ArgFill {
+pub struct CommandArg {
     value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
     is_input: bool,             // If this value has to be an input
     default: Option<String>,    // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
     pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
 }
 
-impl ArgFill {
-    pub fn new(arg: String) -> ArgFill {
-        let mut arg_fill = ArgFill { value: arg.clone(), is_input: false, default: None, modified: None };
+impl CommandArg {
+    pub fn new(arg: String) -> CommandArg {
+        let mut arg_fill = CommandArg { value: arg.clone(), is_input: false, default: None, modified: None };
 
         let re = match Regex::new(r"<([a-zA-Z0-9=-_.]+)>") {
             Ok(r) => r,
@@ -80,7 +80,7 @@ impl ArgFill {
     }
 }
 
-impl Display for ArgFill {
+impl Display for CommandArg {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.is_input {
             if self.modified.is_some() {
@@ -103,7 +103,7 @@ pub struct Command {
     pub cmd_type: CommandType,
     pub explanation: String,
     pub args: String,
-    pub args_filled: Vec<ArgFill>,
+    pub cmd_args: Vec<CommandArg>,
     pub examples: Vec<String>
 }
 
@@ -113,8 +113,8 @@ impl Command {
         unsafe { ID = ID + 1 };
 
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
-        let args_filled: Vec<ArgFill> = v.iter()
-            .map(|s| ArgFill::new(s.to_string()))
+        let args_filled: Vec<CommandArg> = v.iter()
+            .map(|s| CommandArg::new(s.to_string()))
             .collect();
 
         let cmd_type = CommandType::from_str(&cmd_type);
@@ -124,7 +124,7 @@ impl Command {
             cmd_type,
             explanation,
             args,
-            args_filled,
+            cmd_args: args_filled,
             examples
         }
     }
@@ -135,20 +135,20 @@ impl Command {
             Type: {:?}\n\
             Explanation: {}\n\
             \
-            {}\n\
+            {} {}\n\
             \
             Examples:\n > {}",
             self.id,
             self.name,
             self.cmd_type,
             self.explanation,
-            self.args,
+            self.name,self.args,
             self.examples.join("\n > ")
         )
     }
 
     pub fn copy(&self) -> String {
-        let cmd = self.args_filled.iter()
+        let cmd = self.cmd_args.iter()
             .map(|arg| arg.clone().copy())
             .collect::<Vec<String>>()
             .join(" ");
@@ -156,12 +156,12 @@ impl Command {
         format!("{} {}", self.name, cmd)
     }
 
-    pub fn get_all_args(&self) -> &Vec<ArgFill> {
-        &self.args_filled
+    pub fn get_all_args(&self) -> &Vec<CommandArg> {
+        &self.cmd_args
     }
 
-    pub fn get_input_args(&self) -> Vec<ArgFill> {
-        self.args_filled.iter()
+    pub fn get_input_args(&self) -> Vec<CommandArg> {
+        self.cmd_args.iter()
             .filter_map(|arg| if arg.is_input { Some(arg.clone()) } else { None })
             .collect()
     }
