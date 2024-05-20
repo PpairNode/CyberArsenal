@@ -22,7 +22,7 @@ pub struct ArsenalApp {
     pub events: Vec<AppEvent>,
     pub search: String,
     pub show_command: bool,
-    pub list_args: StatefulList<CommandArg>,
+    pub list_cmd_args: StatefulList<CommandArg>,
     pub quit_app: bool
 }
 
@@ -34,7 +34,7 @@ impl ArsenalApp {
             events: vec![],
             search: "".to_string(),
             show_command: false,
-            list_args: StatefulList::with_items(vec![]),
+            list_cmd_args: StatefulList::with_items(vec![]),
             quit_app: false
         }
     }
@@ -99,9 +99,9 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's writing to command values to fill
                 // - 2. Popup is not opened and it's writing to search bar
                 if self.show_command {
-                    match self.list_args.state.selected() {
+                    match self.list_cmd_args.state.selected() {
                         Some(i) => {
-                            match self.list_args.items.get_mut(i) {
+                            match self.list_cmd_args.items.get_mut(i) {
                                 Some(e) => {
                                     e.modified = match e.modified.clone() {
                                         Some(mut s) => {
@@ -131,7 +131,7 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
                 match self.show_command {
-                    true => self.list_args.next(),
+                    true => self.list_cmd_args.next(),
                     false => self.items.next()
                 }
             },
@@ -140,7 +140,7 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's switching between command values to fill
                 // - 2. Popup is not opened and it's switching between commands
                 match self.show_command {
-                    true => self.list_args.previous(),
+                    true => self.list_cmd_args.previous(),
                     false => self.items.previous()
                 }
             },
@@ -151,7 +151,7 @@ impl ArsenalApp {
                 match self.show_command {
                     true => {
                         self.show_command = false;
-                        self.list_args = StatefulList::with_items(vec![]);
+                        self.list_cmd_args = StatefulList::with_items(vec![]);
                     },
                     false => {
                         self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
@@ -186,7 +186,7 @@ impl ArsenalApp {
                         Ok(c) => {
                             let mut args_filled_list = StatefulList::with_items(c.get_input_args());
                             args_filled_list.state.select(Some(0));
-                            self.list_args = args_filled_list;
+                            self.list_cmd_args = args_filled_list;
                             true
                         },
                         Err(e) => {

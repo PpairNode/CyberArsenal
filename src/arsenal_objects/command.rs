@@ -113,7 +113,7 @@ impl Command {
         unsafe { ID = ID + 1 };
 
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
-        let args_filled: Vec<CommandArg> = v.iter()
+        let cmd_args: Vec<CommandArg> = v.iter()
             .map(|s| CommandArg::new(s.to_string()))
             .collect();
 
@@ -124,7 +124,7 @@ impl Command {
             cmd_type,
             explanation,
             args,
-            cmd_args: args_filled,
+            cmd_args,
             examples
         }
     }
@@ -162,7 +162,7 @@ impl Command {
 
     pub fn get_input_args(&self) -> Vec<CommandArg> {
         self.cmd_args.iter()
-            .filter_map(|arg| if arg.is_input { Some(arg.clone()) } else { None })
+            .filter_map(|cmd_arg| if cmd_arg.is_input { Some(cmd_arg.clone()) } else { None })
             .collect()
     }
 }
