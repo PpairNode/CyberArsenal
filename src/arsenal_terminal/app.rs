@@ -18,9 +18,8 @@ use super::event::LevelCode;
 
 pub struct ArsenalApp {
     pub max_events: usize,
-    pub items: StatefulList<Command>,
     pub events: Vec<AppEvent>,
-    pub search: String,
+    pub search_commands: SearchCommands,
     pub chosen_command: Option<ChosenCommand>,
     pub quit_app: bool
 }
@@ -48,13 +47,28 @@ impl From<&Command> for ChosenCommand {
     }
 }
 
+pub struct SearchCommands {
+    pub search: String,
+    pub commands: Vec<Command>,
+    pub listful_cmds: StatefulList<Command>
+}
+
+impl SearchCommands {
+    fn new() -> Self {
+        SearchCommands {
+            search: "".to_string(),
+            commands: vec![],
+            listful_cmds: StatefulList::with_items(vec![])
+        }
+    }
+}
+
 impl ArsenalApp {
     pub fn new(max_events: usize) -> ArsenalApp {
         ArsenalApp {
             max_events,
-            items: StatefulList::with_items(vec![]),
             events: vec![],
-            search: "".to_string(),
+            search_commands: SearchCommands::new(),
             chosen_command: None,
             quit_app: false
         }
@@ -70,21 +84,21 @@ impl ArsenalApp {
 
         // Check and Load values
         let mut commands = load_values_into_commands(value)?;
-        self.items.items.append(&mut commands);
+        self.search_commands.listful_cmds.items.append(&mut commands);
 
         self.push_event(AppEvent::new(&format!("Settings loaded from: {}", &settings), LevelCode::INFO));
         Ok(())
     }
 
     pub fn load_example_commands(&mut self) {
-        self.items.items.push(Command::new(
+        self.search_commands.listful_cmds.items.push(Command::new(
             "ping".to_string(),
             "network".to_string(),
             "Simple ping with verbose on".to_string(),
             "-v <destination>".to_string(),
             vec!["ping 127.0.0.1".to_string(), "ping -v 127.0.0.1".to_string()]));
 
-        self.push_event(AppEvent::new(&format!("Number of commands loaded: {}", self.items.items.len()), LevelCode::INFO));
+        self.push_event(AppEvent::new(&format!("Number of commands loaded: {}", self.search_commands.listful_cmds.items.len()), LevelCode::INFO));
     }
 
     pub fn push_event(&mut self, event: AppEvent) {
@@ -94,16 +108,20 @@ impl ArsenalApp {
         self.events.push(event);
     }
 
-    pub fn get_selected_command(&self) -> Result<Command> {
-        let Some(selected) = self.items.state.selected() else {
-            anyhow::bail!("Cannot get selected value from list!")
+    pub fn set_chosen_command(&mut self) {
+        let Some(selected) = self.search_commands.listful_cmds.state.selected() else {
+            self.push_event(AppEvent::new(&format!("Cannot get selected command id"), LevelCode::ERROR));
+            self.chosen_command = None;
+            return;
         };
         // Get item from list
-        let Some(command) = self.items.items.get(selected).clone() else {
-            anyhow::bail!("Cannot retrieve value from item list!")
+        let Some(command) = self.search_commands.listful_cmds.items.get(selected).clone() else {
+            self.push_event(AppEvent::new(&format!("Cannot get selected command"), LevelCode::ERROR));
+            self.chosen_command = None;
+            return;
         };
 
-        Ok(command.clone())
+        self.chosen_command = Some(ChosenCommand::from(command));
     }
 
     fn handle_event_key(&mut self, key: KeyEvent) {
@@ -147,7 +165,7 @@ impl ArsenalApp {
                     }
                     None => {
                         self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
-                        self.search.push(x);
+                        self.search_commands.search.push(x);
                     }
                 }
             }
@@ -181,7 +199,7 @@ impl ArsenalApp {
                         // Refresh list after modifications of command
                         chosen.refresh_list();
                     },
-                    None => _ = self.search.pop()
+                    None => _ = self.search_commands.search.pop()
                 }
             },
             KeyCode::Down => {
@@ -190,7 +208,7 @@ impl ArsenalApp {
                 // - 2. Popup is not opened and it's switching between commands
                 match &mut self.chosen_command {
                     Some(c) => c.listful_args.next(),
-                    None => self.items.next()
+                    None => self.search_commands.listful_cmds.next()
                 }
             },
             KeyCode::Up => {
@@ -199,7 +217,7 @@ impl ArsenalApp {
                 // - 2. Popup is not opened and it's switching between commands
                 match &mut self.chosen_command {
                     Some(c) => c.listful_args.previous(),
-                    None => self.items.previous()
+                    None => self.search_commands.listful_cmds.previous()
                 }
             },
             KeyCode::Esc => {
@@ -229,16 +247,8 @@ impl ArsenalApp {
                         self.push_event(AppEvent::new(&format!("Value copied to clipboard: \"{}\"", final_cmd), LevelCode::DEBUG));
                     },
                     None => {
-                        // Get command
-                        self.chosen_command = match self.get_selected_command() {
-                            Ok(c) => {
-                                Some(ChosenCommand::from(&c))
-                            },
-                            Err(e) => {
-                                self.push_event(AppEvent::new(&format!("Cannot get selected command: {}", e), LevelCode::ERROR));
-                                None
-                            }
-                        };
+                        // Set new ChosenCommand
+                        self.set_chosen_command();
                     }
                 }
             }

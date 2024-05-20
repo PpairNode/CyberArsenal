@@ -21,7 +21,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     let search_pane = Block::default()
         .title("Search CMD")
         .borders(Borders::ALL);
-    let search_paragraph_pane = Paragraph::new(format!(">> {}", app.search.to_string()))
+    let search_paragraph_pane = Paragraph::new(format!(">> {}", app.search_commands.search.to_string()))
         .block(search_pane)
         .wrap(Wrap { trim: true });
 
@@ -39,7 +39,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
     // BODY LEFT PANE
     // Iterate through all elements in the `items` app and append some debug text to it.
-    let commands: Vec<ListItem> = app.items.items.iter()
+    let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
             ListItem::new(format!("{}", command)).style(Style::default())
         })
@@ -60,9 +60,9 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         .title("Info")
         .borders(Borders::ALL);
 
-    let info_paragraph_pane = match app.items.state.selected() {
+    let info_paragraph_pane = match app.search_commands.listful_cmds.state.selected() {
         Some(s) => {
-            match app.items.items.get(s) {
+            match app.search_commands.listful_cmds.items.get(s) {
                 Some(c) => Paragraph::new(c.info()),
                 None => Paragraph::new("")
             }
@@ -104,7 +104,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
     f.render_widget(search_paragraph_pane, window[0]);
     // RENDER BODY LEFT PANE
-    f.render_stateful_widget(commands_list_pane, body[0], &mut app.items.state);
+    f.render_stateful_widget(commands_list_pane, body[0], &mut app.search_commands.listful_cmds.state);
     // RENDER BODY RIGHT UPPER PANE (info)
     f.render_widget(info_paragraph_pane, right_pane[0]);
     // RENDER BODY RIGHT LOWER PANE (events)
