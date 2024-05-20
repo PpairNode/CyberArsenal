@@ -22,6 +22,7 @@ pub struct ArsenalApp {
     pub events: Vec<AppEvent>,
     pub search: String,
     pub show_command: bool,
+    pub chosen_command: Option<Command>,
     pub list_cmd_args: StatefulList<CommandArg>,
     pub quit_app: bool
 }
@@ -34,6 +35,7 @@ impl ArsenalApp {
             events: vec![],
             search: "".to_string(),
             show_command: false,
+            chosen_command: None,
             list_cmd_args: StatefulList::with_items(vec![]),
             quit_app: false
         }
@@ -85,6 +87,18 @@ impl ArsenalApp {
         Ok(command.clone())
     }
 
+    pub fn get_mut_selected_arg(&mut self) -> Option<&mut CommandArg> {
+        let idx = match self.list_cmd_args.state.selected() {
+            Some(i) => i,
+            None => return None
+        };
+        let cmd_arg = match self.list_cmd_args.items.get_mut(idx) {
+            Some(c) => c,
+            None => return None
+        };
+        Some(cmd_arg)
+    }
+
     fn handle_event_key(&mut self, key: KeyEvent) {
         if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
             // ^C => Should quit app
@@ -99,18 +113,25 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's writing to command values to fill
                 // - 2. Popup is not opened and it's writing to search bar
                 if self.show_command {
-                    match self.list_cmd_args.state.selected() {
-                        Some(i) => {
-                            match self.list_cmd_args.items.get_mut(i) {
-                                Some(e) => {
-                                    e.modified = match e.modified.clone() {
-                                        Some(mut s) => {
-                                            s.push(x);
-                                            Some(s)
-                                        },
-                                        None => {
-                                            Some(x.to_string())
-                                        }
+                    // CommandArg modifier
+                    let cmd_arg = match self.get_mut_selected_arg() {
+                        Some(c) => c,
+                        None => return
+                    };
+                    match &mut cmd_arg.modified {
+                        Some(s) => s.push(x),
+                        None => cmd_arg.modified = Some(x.to_string())
+                    };
+                    let id = cmd_arg.id;  // Avoid the 2nd mut borrow
+
+                    // Command modifier
+                    match &mut self.chosen_command {
+                        Some(c) => {
+                            match c.cmd_args.get_mut(id) {
+                                Some(c) => {
+                                    match &mut c.modified {
+                                        Some(s) => s.push(x),
+                                        None => c.modified = Some(x.to_string())
                                     }
                                 },
                                 None => {}
@@ -118,14 +139,49 @@ impl ArsenalApp {
                         },
                         None => {}
                     }
-                    
                 } else {
                     self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
                     self.search.push(x);
                 }
             }
             // KeyCode::Left => app.items.unselect(),
-            KeyCode::Backspace => _ = self.search.pop(),
+            KeyCode::Backspace => _ = {
+                if self.show_command {
+                    let cmd_arg = match self.get_mut_selected_arg() {
+                        Some(c) => c,
+                        None => return
+                    };
+                    match &mut cmd_arg.modified {
+                        Some(s) => {
+                            _ = s.pop();
+                            if s.is_empty() { cmd_arg.modified = None }
+                        },
+                        None => cmd_arg.modified = None
+                    };
+                    let id = cmd_arg.id;  // Avoid the 2nd mut borrow
+
+                    // Command modifier
+                    match &mut self.chosen_command {
+                        Some(c) => {
+                            match c.cmd_args.get_mut(id) {
+                                Some(c) => {
+                                    match &mut c.modified {
+                                        Some(s) => {
+                                            _ = s.pop();
+                                            if s.is_empty() { c.modified = None }
+                                        },
+                                        None => c.modified = None
+                                    }
+                                },
+                                None => {}
+                            }
+                        },
+                        None => {}
+                    }
+                } else {
+                    self.search.pop();
+                }
+            },
             KeyCode::Down => {
                 // There is 2 possibility when `down` is triggered:
                 // - 1. Popup is opened and so it's switching between command values to fill
@@ -151,6 +207,7 @@ impl ArsenalApp {
                 match self.show_command {
                     true => {
                         self.show_command = false;
+                        self.chosen_command = None;
                         self.list_cmd_args = StatefulList::with_items(vec![]);
                     },
                     false => {
@@ -187,6 +244,7 @@ impl ArsenalApp {
                             let mut args_filled_list = StatefulList::with_items(c.get_input_args());
                             args_filled_list.state.select(Some(0));
                             self.list_cmd_args = args_filled_list;
+                            self.chosen_command = Some(c.clone());
                             true
                         },
                         Err(e) => {

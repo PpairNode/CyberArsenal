@@ -7,7 +7,7 @@ use tui::{
     Frame,
 };
 
-use super::{app::ArsenalApp, event::{AppEvent, LevelCode}};
+use super::{app::ArsenalApp, event::LevelCode};
 
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
@@ -111,13 +111,13 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     f.render_widget(events_paragraph_pane, right_pane[1]);
 
     // If App command popup is opened, this should show the popup
-    let command = match app.get_selected_command() {
-        Ok(c) => c,
-        Err(e) => {
-            app.push_event(AppEvent::new(&format!("Cannot get selected command, error={}", e), LevelCode::ERROR));
-            return
-        }
-    };
+    // let command = match app.get_selected_command() {
+    //     Ok(c) => c,
+    //     Err(e) => {
+    //         app.push_event(AppEvent::new(&format!("Cannot get selected command, error={}", e), LevelCode::ERROR));
+    //         return
+    //     }
+    // };
     match app.show_command {
         true => {
             // POPUP Centered
@@ -138,6 +138,10 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .split(area);
 
             // COMMAND Block
+            let command = match &app.chosen_command {
+                Some(c) => format!("{}", c),
+                None => "".to_string()
+            };
             let command_paragraph_block = Block::default()
                 .borders(Borders::ALL);
             let command_paragraph_pane = Paragraph::new(format!("$ {}", command))

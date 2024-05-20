@@ -34,7 +34,7 @@ impl CommandType {
 #[derive(Debug, Clone)]
 // Structure used to represent modifications on a command arg
 pub struct CommandArg {
-    id: usize,                      // Used to know which argument is being modified
+    pub id: usize,                  // Used to know which argument is being modified
     value: String,                  // Litteral value, e.g. '<port=4444>'. This value is always set up.
     is_input: bool,                 // If this value has to be an input
     default: Option<String>,        // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
