@@ -3,8 +3,11 @@
 CyberArsenal is an inventory, reminder and launcher for linux/windows commands of all types (forensics, pentest, development, sysadmin, ...).
 
 ## Demonstration
+To run the tool, for now it is only available through cargo locally: `cargo run -- -s src/db.toml`
+
 Here is a quick demo about the tool:
-[CyberArsenal](docs/cyberarsenal.gif)
+
+![CyberArsenal](docs/cyberarsenal.gif)
 
 ## CyberArsenal
 - Search bar
