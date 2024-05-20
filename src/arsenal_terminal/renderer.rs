@@ -118,8 +118,8 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     //         return
     //     }
     // };
-    match app.show_command {
-        true => {
+    match &mut app.chosen_command {
+        Some(chosen) => {
             // POPUP Centered
             let area = centered_rect(60, 20, f.size());
 
@@ -138,10 +138,8 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .split(area);
 
             // COMMAND Block
-            let command = match &app.chosen_command {
-                Some(c) => format!("{}", c),
-                None => "".to_string()
-            };
+            let command = format!("{}", chosen.command);
+
             let command_paragraph_block = Block::default()
                 .borders(Borders::ALL);
             let command_paragraph_pane = Paragraph::new(format!("$ {}", command))
@@ -149,7 +147,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .block(command_paragraph_block);
 
             // COMMAND VALUES Block
-            let command_args: Vec<ListItem> = app.list_cmd_args.items.iter()
+            let command_args: Vec<ListItem> = chosen.listful_args.items.iter()
                 .map(|cmd_arg| {
                     ListItem::new(format!("{}", cmd_arg)).style(Style::default())
                 })
@@ -168,10 +166,10 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             // RENDERER
             f.render_widget(Clear, area); //this clears out the background
             f.render_widget(command_paragraph_pane, popup_layout[0]);
-            f.render_stateful_widget(command_arg_list_pane, popup_layout[1], &mut app.list_cmd_args.state);
+            f.render_stateful_widget(command_arg_list_pane, popup_layout[1], &mut chosen.listful_args.state);
             f.render_widget(popup_block, popup_window[0]);
         },
-        false => {}
+        None => {}
     };
 }
 

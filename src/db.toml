@@ -19,7 +19,7 @@ cmd_type = "sysadmin"
 name_exe = "nmap"
 cmd_type = "pentest"
 explanation = "Version -sV, SYN scan -sS, no ping -Pn, all ports -p-, save to file -oN <file>"
-args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
+args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1> <test>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
