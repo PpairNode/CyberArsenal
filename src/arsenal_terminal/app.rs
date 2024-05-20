@@ -1,7 +1,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use toml::Value;
 use std::{
-    collections::HashMap, fs::File, io, time::{Duration, Instant}
+    fs::File, io, time::{Duration, Instant}
 };
 use std::io::prelude::*;
 use tui::{
@@ -19,7 +19,6 @@ use super::event::LevelCode;
 pub struct ArsenalApp {
     pub max_events: usize,
     pub items: StatefulList<Command>,
-    pub auto_fill_commands: HashMap<String, String>,
     pub events: Vec<AppEvent>,
     pub search: String,
     pub show_command: bool,
@@ -32,7 +31,6 @@ impl ArsenalApp {
         ArsenalApp {
             max_events,
             items: StatefulList::with_items(vec![]),
-            auto_fill_commands: HashMap::new(),
             events: vec![],
             search: "".to_string(),
             show_command: false,
@@ -101,6 +99,25 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's writing to command values to fill
                 // - 2. Popup is not opened and it's writing to search bar
                 if self.show_command {
+                    match self.list_args.state.selected() {
+                        Some(i) => {
+                            match self.list_args.items.get_mut(i) {
+                                Some(e) => {
+                                    e.modified = match e.modified.clone() {
+                                        Some(mut s) => {
+                                            s.push(x);
+                                            Some(s)
+                                        },
+                                        None => {
+                                            Some(x.to_string())
+                                        }
+                                    }
+                                },
+                                None => {}
+                            }
+                        },
+                        None => {}
+                    }
                     
                 } else {
                     self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));

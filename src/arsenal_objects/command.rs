@@ -37,7 +37,7 @@ pub struct ArgFill {
     value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
     is_input: bool,             // If this value has to be an input
     default: Option<String>,    // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
-    modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
+    pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
 }
 
 impl ArgFill {
@@ -98,6 +98,7 @@ impl Display for ArgFill {
 
 #[derive(Clone)]
 pub struct Command {
+    pub id: usize,
     pub name: String,
     pub cmd_type: CommandType,
     pub explanation: String,
@@ -108,6 +109,9 @@ pub struct Command {
 
 impl Command {
     pub fn new(name: String, cmd_type: String, explanation: String, args: String, examples: Vec<String>) -> Self {
+        static mut ID: usize = 0;
+        unsafe { ID = ID + 1 };
+
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
         let args_filled: Vec<ArgFill> = v.iter()
             .map(|s| ArgFill::new(s.to_string()))
@@ -115,24 +119,26 @@ impl Command {
 
         let cmd_type = CommandType::from_str(&cmd_type);
         Command {
+            id: unsafe { ID },
             name,
             cmd_type,
             explanation,
             args,
-            args_filled: args_filled,
+            args_filled,
             examples
         }
     }
 
     pub fn info(&self) -> String {
         format!(
-            "Command: {}\n\
+            "Command [ID={}]: {}\n\
             Type: {:?}\n\
             Explanation: {}\n\
             \
             {}\n\
             \
             Examples:\n > {}",
+            self.id,
             self.name,
             self.cmd_type,
             self.explanation,
