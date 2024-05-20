@@ -221,14 +221,13 @@ impl ArsenalApp {
                 // - 1. Popup is opened and so it's going to copy command to clipboard
                 // - 2. Popup is not opened and it is opening the command popup
                 if self.show_command {
-                    let Some(selected) = self.items.state.selected() else {
-                        self.push_event(AppEvent::new(&format!("Cannot get selected value from list!"), LevelCode::ERROR));
-                        return
-                    };
-                    // Get item from list
-                    let Some(command) = self.items.items.get(selected).clone() else {
-                        self.push_event(AppEvent::new(&format!("Cannot retrieve value from item list!"), LevelCode::ERROR));
-                        return
+                    // Get chosen command
+                    let command = match &self.chosen_command {
+                        Some(c) => c,
+                        None => {
+                            self.push_event(AppEvent::new(&format!("Cannot retrieve chosen command!"), LevelCode::ERROR));
+                            return
+                        }
                     };
                     let final_cmd = command.copy();
                     // let command_str = format!("{command}");
