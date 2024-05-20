@@ -18,10 +18,16 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         .split(f.size());
 
     // SEARCH PARAGRAPH
+    let search_spans: Vec<Spans> = vec![
+        Spans::from(vec![
+            Span::styled(">> ", Style::default()),
+            Span::styled(format!("{}", app.search_commands.search.to_string()), Style::default().fg(Color::LightRed))
+        ])
+    ];
     let search_pane = Block::default()
         .title("Search CMD")
         .borders(Borders::ALL);
-    let search_paragraph_pane = Paragraph::new(format!(">> {}", app.search_commands.search.to_string()))
+    let search_paragraph_pane = Paragraph::new(search_spans)
         .block(search_pane)
         .wrap(Wrap { trim: true });
 
@@ -41,7 +47,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Iterate through all elements in the `items` app and append some debug text to it.
     let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
-            ListItem::new(format!("{}", command)).style(Style::default())
+            ListItem::new(format!("{}", command)).style(Style::default().fg(Color::LightBlue))
         })
         .collect();
     // Create a List from all list items and highlight the currently selected one
@@ -59,11 +65,82 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     let info_pane = Block::default()
         .title("Info")
         .borders(Borders::ALL);
-
     let info_paragraph_pane = match app.search_commands.listful_cmds.state.selected() {
         Some(s) => {
             match app.search_commands.listful_cmds.items.get(s) {
-                Some(c) => Paragraph::new(c.info()),
+                Some(c) => {
+                    let mut info_spans: Vec<Spans> = vec![
+                        Spans::from(vec![
+                            Span::styled("Command:", Style::default().fg(Color::LightBlue)),
+                            Span::styled(format!("{}\n", c.name), Style::default().fg(Color::Green))
+                        ]),
+                        Spans::from(vec![
+                            Span::styled("TYPE:", Style::default().fg(Color::LightBlue)),
+                            Span::styled(format!("[{:<11?}]", c.cmd_type), Style::default().fg(Color::Green)),
+                        ]),
+                        Spans::from(vec![
+                            Span::raw("")
+                        ])
+                    ];
+
+                    // Add Explanation if any
+                    if !c.explanation.is_empty() {
+                        info_spans.extend(vec![
+                            Spans::from(vec![
+                                Span::styled("Explanation:", Style::default().fg(Color::LightBlue).add_modifier(Modifier::UNDERLINED))
+                            ]),
+                            Spans::from(vec![
+                                Span::styled(format!("{}", c.explanation), Style::default().fg(Color::LightBlue))
+                            ]),
+                            Spans::from(vec![
+                                Span::raw("")
+                            ])
+                        ]);
+                    }
+
+                    info_spans.extend(vec![
+                        Spans::from(vec![
+                            Span::styled("Full Command:", Style::default().fg(Color::LightBlue).add_modifier(Modifier::UNDERLINED))
+                        ]),
+                        Spans::from(vec![
+                            Span::styled(format!("{} {}", c.name, c.args), Style::default().fg(Color::LightCyan))
+                        ]),
+                        Spans::from(vec![
+                            Span::raw("")
+                        ])
+                    ]);
+
+                    // Add Examples if any
+                    if !c.examples.is_empty() {
+                        info_spans.extend(vec![
+                            Spans::from(vec![
+                                Span::styled("Examples:", Style::default().fg(Color::LightBlue).add_modifier(Modifier::UNDERLINED))
+                            ]),
+                            Spans::from(vec![
+                                Span::from("\n-\n".repeat(right_pane[1].width as usize - 2)),  // -2 => for event_paragraph_pane border
+                            ])
+                        ]);
+
+                        let example_spans: Vec<Vec<Spans>> = c.examples.iter()
+                            .map(|s| {
+                                vec![
+                                    Spans::from(vec![
+                                        Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
+                                    ]),
+                                    Spans::from(vec![
+                                        Span::from("\n-\n".repeat(right_pane[1].width as usize - 2)),  // -2 => for event_paragraph_pane border
+                                    ])
+                                ]
+                            })
+                            .collect();
+
+                        for e in example_spans {
+                            info_spans.extend(e);
+                        }
+                    }
+
+                    Paragraph::new(info_spans)
+                },
                 None => Paragraph::new("")
             }
         },
@@ -111,17 +188,16 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     f.render_widget(events_paragraph_pane, right_pane[1]);
 
     // If App command popup is opened, this should show the popup
-    // let command = match app.get_selected_command() {
-    //     Ok(c) => c,
-    //     Err(e) => {
-    //         app.push_event(AppEvent::new(&format!("Cannot get selected command, error={}", e), LevelCode::ERROR));
-    //         return
-    //     }
-    // };
     match &mut app.chosen_command {
         Some(chosen) => {
             // POPUP Centered
             let area = centered_rect(60, 20, f.size());
+            // Create a rectangle inside the rectangle
+            let mut area2 = area.clone();
+            area2.x += 1;
+            area2.y += 1;
+            area2.height -= 2;
+            area2.width -= 2;
 
             // POPUP Window
             let popup_window = Layout::default()
@@ -135,26 +211,31 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             let popup_layout = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Length(3), Constraint::Min(95)])
-                .split(area);
+                .split(area2);
 
             // COMMAND Block
-            let command = format!("{}", chosen.command);
-
+            let command_spans: Vec<Spans> = vec![
+                Spans::from(vec![
+                    Span::styled(">> ", Style::default()),
+                    Span::styled(format!("{}", chosen.command), Style::default().fg(Color::LightRed))
+                ])
+            ];
             let command_paragraph_block = Block::default()
-                .borders(Borders::ALL);
-            let command_paragraph_pane = Paragraph::new(format!("$ {}", command))
+                .borders(Borders::BOTTOM);
+            let command_paragraph_pane = Paragraph::new(command_spans)
+                .style(Style::default())
                 .wrap(Wrap { trim: true })
                 .block(command_paragraph_block);
 
             // COMMAND VALUES Block
             let command_args: Vec<ListItem> = chosen.listful_args.items.iter()
                 .map(|cmd_arg| {
-                    ListItem::new(format!("{}", cmd_arg)).style(Style::default())
+                    ListItem::new(format!("{}", cmd_arg)).style(Style::default().fg(Color::LightBlue))
                 })
                 .collect();
             // Create a List from all list items and highlight the currently selected one
             let command_arg_list_pane = List::new(command_args)
-                .block(Block::default().borders(Borders::LEFT))
+                .block(Block::default().borders(Borders::NONE))
                 .highlight_style(
                     Style::default()
                         .fg(Color::Black)

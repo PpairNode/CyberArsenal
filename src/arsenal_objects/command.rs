@@ -31,23 +31,6 @@ impl CommandType {
     }
 }
 
-impl Display for CommandType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let s = match self {
-            CommandType::PROGRAMMING => "programming".to_string(),
-            CommandType::REVERSE => "reverse".to_string(),
-            CommandType::FORENSICS => "forensics".to_string(),
-            CommandType::PENTEST => "pentest".to_string(),
-            CommandType::CRYPTO => "crypto".to_string(),
-            CommandType::SYSADMIN => "sysadmin".to_string(),
-            CommandType::NETWORK => "network".to_string(),
-            CommandType::UNKNOWN => "unknown".to_string()
-        };
-
-        write!(f, "{}", s)
-    }
-}
-
 #[derive(Debug, Clone)]
 // Structure used to represent modifications on a command arg
 pub struct CommandArg {
@@ -154,14 +137,13 @@ impl Command {
 
     pub fn info(&self) -> String {
         format!(
-            "Command [ID={}]: {}\n\
-            Type: {}\n\
-            Explanation: {}\n\
+            "Command:{}\n\
+            TYPE:{:?}\n\
+            Explanation:\n{}\n\
             \
             {} {}\n\
             \
             Examples:\n > {}",
-            self.id,
             self.name,
             self.cmd_type,
             self.explanation,
@@ -193,7 +175,6 @@ impl Command {
 impl Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.copy())
-        // write!(f, "{} {}", self.name, self.args.)
     }
 }
 

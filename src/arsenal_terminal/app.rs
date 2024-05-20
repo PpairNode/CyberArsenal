@@ -73,7 +73,7 @@ impl SearchCommands {
                         Some(c.clone())
                     } else if c.args.contains(&self.search) {  // Filter commands: ARGS
                         Some(c.clone())
-                    } else if format!("{:?}", c.cmd_type).to_lowercase().contains(&self.search) {  // Filter commands: TYPE
+                    } else if format!("{:?}", c.cmd_type).contains(&self.search) {  // Filter commands: TYPE
                         Some(c.clone())
                     } else {
                         None

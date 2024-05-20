@@ -19,7 +19,7 @@ cmd_type = "sysadmin"
 name_exe = "nmap"
 cmd_type = "pentest"
 explanation = "Version -sV, SYN scan -sS, no ping -Pn, all ports -p-, save to file -oN <file>"
-args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1> <test>"
+args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
@@ -27,8 +27,8 @@ examples = [
 [command.objdump0]
 name_exe = "objdump"
 cmd_type = "reverse"
-explanation = ""
-args = "-D <binary> -M <type>"
+explanation = "Display information from object <binary> in <type> format"
+args = "-D <binary> -M <type=intel>"
 examples = [
     "obdjump -M intel -D bin",
     "obdjump -M intel -D bin | grep -A20 main"
