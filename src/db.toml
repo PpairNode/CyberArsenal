@@ -24,6 +24,15 @@ examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
 
+[command.nmap1]
+name_exe = "nmap"
+cmd_type = "pentest"
+explanation = "Version -sV, default script -sC"
+args = "-sC -sV <ip=127.0.0.1>"
+examples = [
+    "nmap -sC -sV 127.0.0.1"
+]
+
 [command.objdump0]
 name_exe = "objdump"
 cmd_type = "reverse"

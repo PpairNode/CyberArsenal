@@ -191,7 +191,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     match &mut app.chosen_command {
         Some(chosen) => {
             // POPUP Centered
-            let area = centered_rect(60, 20, f.size());
+            let area = centered_rect(60, 40, f.size());
             // Create a rectangle inside the rectangle
             let mut area2 = area.clone();
             area2.x += 1;
