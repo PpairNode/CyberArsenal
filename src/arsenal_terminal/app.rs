@@ -61,6 +61,32 @@ impl SearchCommands {
             listful_cmds: StatefulList::with_items(vec![])
         }
     }
+
+    fn refresh_list(&mut self) {
+        let mut commands = vec![];
+        if self.search.is_empty() {  // No filter
+            commands = self.commands.clone();
+        } else {  // Filter
+            commands.extend(self.commands.iter()
+                .filter_map(|c| {
+                    if c.name.contains(&self.search) {  // Filter commands: NAME
+                        Some(c.clone())
+                    } else if c.args.contains(&self.search) {  // Filter commands: ARGS
+                        Some(c.clone())
+                    } else if format!("{:?}", c.cmd_type).to_lowercase().contains(&self.search) {  // Filter commands: TYPE
+                        Some(c.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<Command>>()
+            );
+        }
+
+        // Refresh List
+        self.listful_cmds = StatefulList::with_items(commands);
+        _ = self.listful_cmds.state.select(Some(0)); // When search is modified, id become 0 as list is refreshed
+    }
 }
 
 impl ArsenalApp {
@@ -83,8 +109,9 @@ impl ArsenalApp {
         self.push_event(AppEvent::new(&format!("Settings: {}", &value), LevelCode::INFO));
 
         // Check and Load values
-        let mut commands = load_values_into_commands(value)?;
-        self.search_commands.listful_cmds.items.append(&mut commands);
+        // let mut commands = load_values_into_commands(value)?;
+        self.search_commands.commands = load_values_into_commands(value)?;
+        self.search_commands.refresh_list();
 
         self.push_event(AppEvent::new(&format!("Settings loaded from: {}", &settings), LevelCode::INFO));
         Ok(())
@@ -166,6 +193,7 @@ impl ArsenalApp {
                     None => {
                         self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
                         self.search_commands.search.push(x);
+                        self.search_commands.refresh_list();
                     }
                 }
             }
@@ -199,7 +227,10 @@ impl ArsenalApp {
                         // Refresh list after modifications of command
                         chosen.refresh_list();
                     },
-                    None => _ = self.search_commands.search.pop()
+                    None => {
+                        _ = self.search_commands.search.pop();
+                        self.search_commands.refresh_list();
+                    }
                 }
             },
             KeyCode::Down => {
