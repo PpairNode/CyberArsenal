@@ -40,5 +40,6 @@ explanation = "Display information from object <binary> in <type> format"
 args = "-D <binary> -M <type=intel>"
 examples = [
     "obdjump -M intel -D bin",
-    "obdjump -M intel -D bin | grep -A20 main"
+    "obdjump -M intel -D bin | grep -A20 main",
+    "objdump -dj .rodata loop -M intel"
 ]

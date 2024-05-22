@@ -24,6 +24,7 @@ struct MyArgs {
     ///To store path
     settings: String,
 }
+use home;
 
 
 pub mod arsenal_terminal;
@@ -46,8 +47,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     let tick_rate = Duration::from_millis(250);
     let mut app = ArsenalApp::new(100);
 
-    if args.settings != "" {
-        app.load_settings(args.settings)?;
+    // Try loading settings
+    if args.settings != "" {  // Settings by option in args
+        _ = app.load_settings(args.settings);
+    } else {  // Settings present in user home directory (~/.config/cyberarsenal/settings.toml)
+        match home::home_dir() {
+            Some(path) if !path.as_os_str().is_empty() => {
+                match path.to_str() {
+                    Some(path_home_dir) => {
+                        let settings_path = format!("{}/.config/cyberarsenal/settings.toml", path_home_dir);
+                        _ = app.load_settings(settings_path);
+                    },
+                    None => {}
+                };
+            },
+            _ => {},
+        }
     }
 
     let res = run_app(&mut terminal, app, tick_rate);
