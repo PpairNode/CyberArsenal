@@ -50,7 +50,14 @@ args = "-w <list_path=file.txt:FHOST> -u <url=http://localhost/> -H <header='Hos
 examples = [
     "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
 ]
-
+[command.sqlmap0]
+name_exe = "sqlmap"
+cmd_type = "pentest"
+explanation = ""
+args = "sqlmap -u <url='http://127.0.0.1/login'> --data <data>"
+examples = [
+    "sqlmap -u 'http://searcher.htb/search' --data 'engine=Accuweather&query=*'"
+]
 
 # ===== REVERSE COMMANDS =====
 [command.objdump0]
