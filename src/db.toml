@@ -42,8 +42,8 @@ args = "-sC -sV <ip=127.0.0.1>"
 examples = [
     "nmap -sC -sV 127.0.0.1"
 ]
-[command.fuff0]
-name_exe = "fuff"
+[command.ffuf0]
+name_exe = "ffuf"
 cmd_type = "pentest"
 explanation = "Bruteforcing subdomain tool | -w: path to list of domain to try | -u url of website to bruteforce | -H: header to add | -t: number of threads"
 args = "-w <list_path=file.txt:FHOST> -u <url=http://localhost/> -H <header='Host:FHOST.localhost'> -t 100"
