@@ -45,7 +45,7 @@ impl CommandArg {
     pub fn new(id: usize, arg: String) -> CommandArg {
         let mut cmd_arg = CommandArg { id, value: arg.clone(), is_input: false, default: None, modified: None };
 
-        let re = match Regex::new(r"<([a-zA-Z0-9=-_.]+)>") {
+        let re = match Regex::new(r"<([a-zA-Z0-9=-_.:']+)>") {
             Ok(r) => r,
             Err(_) => {
                 return cmd_arg

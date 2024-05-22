@@ -1,8 +1,15 @@
 title = "Pentest commands"
 
+# Basic configurations
 max_events = 100
 destination = "127.0.0.1"
 
+
+# ============================
+#         ALL COMMANDS 
+# ============================
+
+# ===== NETWORK COMMANDS =====
 [command.ping0]
 name_exe = "ping"
 cmd_type = "network"
@@ -11,10 +18,14 @@ examples = [
     "ping -v 127.0.0.1"
 ]
 
+
+# ===== SYSADMIN COMMANDS =====
 [command.ls0]
 name_exe = "ls"
 cmd_type = "sysadmin"
 
+
+# ===== PENTEST COMMANDS =====
 [command.nmap0]
 name_exe = "nmap"
 cmd_type = "pentest"
@@ -23,7 +34,6 @@ args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
-
 [command.nmap1]
 name_exe = "nmap"
 cmd_type = "pentest"
@@ -32,7 +42,17 @@ args = "-sC -sV <ip=127.0.0.1>"
 examples = [
     "nmap -sC -sV 127.0.0.1"
 ]
+[command.fuff0]
+name_exe = "fuff"
+cmd_type = "pentest"
+explanation = "Bruteforcing subdomain tool | -w: path to list of domain to try | -u url of website to bruteforce | -H: header to add | -t: number of threads"
+args = "-w <list_path=file.txt:FHOST> -u <url=http://localhost/> -H <header='Host:FHOST.localhost'> -t 100"
+examples = [
+    "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
+]
 
+
+# ===== REVERSE COMMANDS =====
 [command.objdump0]
 name_exe = "objdump"
 cmd_type = "reverse"
