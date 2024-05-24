@@ -53,7 +53,7 @@ impl CommandArg {
         };
 
         for (_, [cap]) in re.captures_iter(&arg).map(|c| c.extract()) {
-            let s = cap.split("=").map(|s| s.to_string()).collect::<Vec<String>>();
+            let s = cap.split("|").map(|s| s.to_string()).collect::<Vec<String>>();
             if s.len() == 2 {  // Value default set
                 cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
                 cmd_arg.default = Some(s.get(1).unwrap().clone());
