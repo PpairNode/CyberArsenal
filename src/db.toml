@@ -36,8 +36,11 @@ examples = [
 
 
 # ===== SYSADMIN COMMANDS =====
-
-
+[command.shell0]
+name_exe = "python3"
+cmd_types = "sysadmin"
+explanation = "Upgrade shell for more flexibility"
+args = "-c 'import os; os.system(\"/bin/bash -p\")'"
 
 # ===== PENTEST COMMANDS =====
 [command.nmap0]
@@ -71,6 +74,22 @@ explanation = "SQL injection of username/password"
 args = "-u <url|'http://127.0.0.1/login'> --data <data|'username=admin&password=password'>"
 examples = [
     "sqlmap -u 'http://searcher.htb/search' --data 'username=admin&password=password'"
+]
+[command.dirb0]
+name_exe = "dirb"
+cmd_types = "pentest"
+explanation = "Bruteforce url paths"
+args = "<url|http://127.0.0.1/> <list>"
+examples = [
+    "dirb http://10.10.11.242/ /opt/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt"
+]
+[command.find0]
+name_exe = "find"
+cmd_types = "pentest"
+explanation = "Find binaries with SUID bit set"
+args = "/ -perm -4000 2> /dev/null"
+examples = [
+    "find / -perm -4000 2> /dev/null"
 ]
 
 

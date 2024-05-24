@@ -3,6 +3,8 @@ use anyhow::Result;
 use regex::Regex;
 use toml::Value;
 
+use crate::misc::inputs::replace_first_last_quote;
+
 
 #[derive(Debug, Clone)]
 pub enum CommandType {
@@ -223,18 +225,16 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                             continue;
                         };
                         for example in examples.iter() {
-                            cmd_examples.push(example.to_string().replace("\"", ""));
+                            cmd_examples.push(replace_first_last_quote(&example.to_string()));
                         }
-                        // Remove `",[,]` from examples as we do not need them for the presentation
-                        // tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
                     } else if arg_key == "name_exe"{
-                        name = arg_value.to_string().replace("\"", "");
+                        name = replace_first_last_quote(&arg_value.to_string());
                     } else if arg_key == "cmd_types"{ 
-                        cmd_type = arg_value.to_string().replace("\"", "");
+                        cmd_type = replace_first_last_quote(&arg_value.to_string());
                     } else if arg_key == "explanation"{ 
-                        explanation = arg_value.to_string().replace("\"", "");
+                        explanation = replace_first_last_quote(&arg_value.to_string());
                     } else if arg_key == "args" {
-                        args = arg_value.to_string().replace("\"", "");
+                        args = replace_first_last_quote(&arg_value.to_string());
                     }
                 }
             }

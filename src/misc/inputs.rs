@@ -12,3 +12,14 @@ pub fn write_co_clipboard(command: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub fn replace_first_last_quote(text: &str) -> String {
+    let mut text = text.to_string();
+    if text.starts_with("\"") {
+        text.remove(0);
+    }
+    if text.ends_with("\"") {
+        text.pop();
+    }
+    text
+}
