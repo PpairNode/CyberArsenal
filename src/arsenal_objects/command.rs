@@ -37,7 +37,9 @@ impl CommandType {
 // Structure used to represent modifications on a command arg
 pub struct CommandArg {
     pub id: usize,                  // Used to know which argument is being modified
+    pre: String,                    // Pre value before a <match>. Example: TEST<match>
     pub value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
+    post: String,                   // Post value after a <match>. Example: <match>TEST
     is_input: bool,                 // If this value has to be an input
     default: Option<String>,        // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
     pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
@@ -45,17 +47,17 @@ pub struct CommandArg {
 
 impl CommandArg {
     pub fn new(id: usize, arg: String) -> CommandArg {
-        let mut cmd_arg = CommandArg { id, value: arg.clone(), is_input: false, default: None, modified: None };
+        let mut cmd_arg = CommandArg { id, pre: "".to_string(), value: arg.clone(), post: "".to_string(), is_input: false, default: None, modified: None };
 
         // Character and regex for matching input arguments of commands
-        let re = match Regex::new(r"<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>") {
+        let re = match Regex::new(r"(.*)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)") {
             Ok(r) => r,
             Err(_) => {
                 return cmd_arg
             }
         };
 
-        for (_, [cap]) in re.captures_iter(&arg).map(|c| c.extract()) {
+        for (_, [pre, cap, post]) in re.captures_iter(&arg).map(|c| c.extract()) {
             let s = cap.split("|").map(|s| s.to_string()).collect::<Vec<String>>();
             if s.len() == 2 {  // Value default set
                 cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
@@ -64,22 +66,24 @@ impl CommandArg {
                 cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
             }
             cmd_arg.is_input = true;
+            cmd_arg.pre = pre.to_string();
+            cmd_arg.post = post.to_string();
         }
         cmd_arg
     }
 
-    pub fn copy(self) -> String {
+    pub fn copy(&self) -> String {
         match self.is_input {
             true => {
                 if self.modified.is_some() {
-                    self.modified.clone().unwrap()
+                    format!("{}{}{}", self.pre, self.modified.clone().unwrap(), self.post)
                 } else if self.default.is_some() {
-                    self.default.clone().unwrap()
+                    format!("{}{}{}", self.pre, self.default.clone().unwrap(), self.post)
                 } else {
-                    self.value
+                    format!("{}{}{}", self.pre, self.value, self.post)
                 }
             },
-            false => self.value
+            false => self.value.clone()
         }
     }
 }
@@ -87,12 +91,13 @@ impl CommandArg {
 impl Display for CommandArg {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.is_input {
+            // If input also add pre/post string to complete entire value
             if self.modified.is_some() {
-                return write!(f, "({}) {} = {}", self.id, self.value, self.modified.clone().unwrap())
+                return write!(f, "({}) {}{}{} = {}{}{}", self.id, self.pre, self.value, self.post, self.pre, self.modified.clone().unwrap(), self.post)
             } else if self.default.is_some() {
-                return write!(f, "({}) {} = {}", self.id, self.value, self.default.clone().unwrap())
+                return write!(f, "({}) {}{}{} = {}{}{}", self.id, self.pre, self.value, self.post, self.pre, self.default.clone().unwrap(), self.post)
             } else {
-                return write!(f, "({}) {} = ", self.id, self.value);
+                return write!(f, "({}) {}{}{} = ", self.id, self.pre, self.value, self.post);
             }    
         }
 
@@ -163,7 +168,7 @@ impl Command {
 
     pub fn copy_raw(&self) -> String {
         let cmd = self.cmd_args.iter()
-            .map(|arg| arg.clone().value)
+            .map(|arg| format!("{}{}{}", arg.pre, arg.value, arg.post))
             .collect::<Vec<String>>()
             .join(" ");
 
@@ -172,7 +177,7 @@ impl Command {
 
     pub fn copy_basic(&self) -> String {
         let cmd = self.cmd_args.iter()
-            .map(|arg| arg.clone().copy())
+            .map(|arg| arg.copy())
             .collect::<Vec<String>>()
             .join(" ");
 
