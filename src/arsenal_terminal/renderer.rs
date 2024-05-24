@@ -91,14 +91,27 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                         info_spans.extend(vec![
                             Spans::from(vec![
                                 Span::styled("Explanation:", Style::default().fg(Color::LightBlue))
-                            ]),
-                            Spans::from(vec![
-                                Span::styled(format!("{}", c.explanation), Style::default().fg(Color::LightCyan))
-                            ]),
-                            Spans::from(vec![
-                                Span::raw("")
                             ])
                         ]);
+
+                        let explanation_line_spans: Vec<Vec<Spans>> = c.explanation.split("\n")
+                            .map(|s| {
+                                vec![
+                                    Spans::from(vec![
+                                        Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
+                                    ])
+                                ]
+                            })
+                            .collect();
+
+                            for e in explanation_line_spans {
+                                info_spans.extend(e);
+                            }
+                            info_spans.extend(vec![
+                                Spans::from(vec![
+                                    Span::raw("")
+                                ])
+                            ]);
                     }
 
                     info_spans.extend(vec![
