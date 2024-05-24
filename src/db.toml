@@ -67,6 +67,11 @@ args = "ufw allow from <target>"
 examples = [
     "ufw allow from 192.168.0.101"
 ]
+[command.icacls0]
+name_exe = "icacls"
+cmd_types = "sysadmin"
+explanation = "Check file/folder permission for users"
+args = "<path>"
 
 # ===== PENTEST COMMANDS =====
 [command.nmap0]
