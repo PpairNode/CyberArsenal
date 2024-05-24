@@ -10,19 +10,11 @@ destination = "127.0.0.1"
 # ============================
 
 # ===== NETWORK COMMANDS =====
-[command.ping0]
-name_exe = "ping"
-cmd_type = "network"
-args = "-v <destination>"
-examples = [
-    "ping -v 127.0.0.1"
-]
+
 
 
 # ===== SYSADMIN COMMANDS =====
-[command.ls0]
-name_exe = "ls"
-cmd_type = "sysadmin"
+
 
 
 # ===== PENTEST COMMANDS =====
@@ -30,7 +22,7 @@ cmd_type = "sysadmin"
 name_exe = "nmap"
 cmd_type = "pentest"
 explanation = "Version -sV, SYN scan -sS, no ping -Pn, all ports -p-, save to file -oN <file>"
-args = "-sV -sS -Pn -p- -oN <output_file=scan.txt> <destination=127.0.0.1>"
+args = "-sV -sS -Pn -p- -oN <output_file|scan.txt> <destination|127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
@@ -38,7 +30,7 @@ examples = [
 name_exe = "nmap"
 cmd_type = "pentest"
 explanation = "Version -sV, default script -sC"
-args = "-sC -sV <ip=127.0.0.1>"
+args = "-sC -sV <ip|127.0.0.1>"
 examples = [
     "nmap -sC -sV 127.0.0.1"
 ]
@@ -46,7 +38,7 @@ examples = [
 name_exe = "ffuf"
 cmd_type = "pentest"
 explanation = "Bruteforcing subdomain tool | -w: path to list of domain to try | -u url of website to bruteforce | -H: header to add | -t: number of threads"
-args = "-w <list_path=file.txt:FHOST> -u <url=http://localhost/> -H <header='Host:FHOST.localhost'> -t 100"
+args = "-w <list_path|file.txt:FHOST> -u <url|http://localhost/> -H <header|'Host:FHOST.localhost'> -t 100"
 examples = [
     "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
 ]
@@ -54,7 +46,7 @@ examples = [
 name_exe = "sqlmap"
 cmd_type = "pentest"
 explanation = ""
-args = "sqlmap -u <url='http://127.0.0.1/login'> --data <data>"
+args = "sqlmap -u <url|'http://127.0.0.1/login'> --data <data|username=admin&password=password>"
 examples = [
     "sqlmap -u 'http://searcher.htb/search' --data 'engine=Accuweather&query=*'"
 ]
@@ -64,7 +56,7 @@ examples = [
 name_exe = "objdump"
 cmd_type = "reverse"
 explanation = "Display information from object <binary> in <type> format"
-args = "-D <binary> -M <type=intel>"
+args = "-D <binary> -M <type|intel>"
 examples = [
     "obdjump -M intel -D bin",
     "obdjump -M intel -D bin | grep -A20 main",
