@@ -59,6 +59,14 @@ examples = [
     "link set dev eth0 down",
     "link set dev eth0 up"
 ]
+[command.ufw0]
+name_exe = "ufw"
+cmd_types = "sysadmin"
+explanation = "Allow ip to contacted our machine"
+args = "ufw allow from <target>"
+examples = [
+    "ufw allow from 192.168.0.101"
+]
 
 # ===== PENTEST COMMANDS =====
 [command.nmap0]
