@@ -28,20 +28,19 @@ cmd_type = "reverse"
 explanation = "Display information from object <binary> in <type> format"
 args = "-D <binary> -M <type=intel>"
 examples = [
-    "obdjump -M intel -D bin",
-    "obdjump -M intel -D bin | grep -A20 main"
+    "obdjump -M intel -D a.out"
 ]
 ```
 
 A `[command.xxx]` block will load this as a command.
 All command keys are optional inside a command block.
 Understandable keys are:
-- `name_exe`
-- `cmd_type`
-- `explanation`
+- `name_exe`: name of the command
+- `cmd_types`: A `|` separated list of types for the command (supported are `pentest|forensics|programming|reverse|crypto|network|sysadmin`)
+- `explanation`: an explanation of the command
 - `args`: all arguments of this command
     - An arg between `<k>`, will have a `k` key which can be modified from the tool.
-    - An arg prompted like this `<k=v>`, has a auto-filled `k` key with the `v` value by default.
+    - An arg prompted like this `<k|v>`, has a auto-filled `k` key with the `v` value by default.
 - `examples`: array of examples of how to use the command
 
 ## Authors
