@@ -73,7 +73,7 @@ impl SearchCommands {
                         Some(c.clone())
                     } else if c.args.contains(&self.search) {  // Filter commands: ARGS
                         Some(c.clone())
-                    } else if format!("{:?}", c.cmd_type).contains(&self.search) {  // Filter commands: TYPE
+                    } else if format!("{:?}", c.cmd_types).contains(&self.search) {  // Filter commands: TYPE
                         Some(c.clone())
                     } else {
                         None
@@ -269,7 +269,7 @@ impl ArsenalApp {
                 // - 2. Popup is not opened and it is opening the command popup
                 match &self.chosen_command {
                     Some(c) => {
-                        let final_cmd = c.command.copy();
+                        let final_cmd = c.command.copy_basic();
                         // let command_str = format!("{command}");
                         if let Err(e) = write_co_clipboard(&final_cmd) {
                             self.push_event(AppEvent::new(&format!("Error when writing to clipboard, error={}", e), LevelCode::ERROR));

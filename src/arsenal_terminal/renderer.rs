@@ -47,7 +47,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Iterate through all elements in the `items` app and append some debug text to it.
     let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
-            ListItem::new(format!("{}", command)).style(Style::default().fg(Color::LightBlue))
+            ListItem::new(command.copy_raw()).style(Style::default().fg(Color::LightBlue))
         })
         .collect();
     // Create a List from all list items and highlight the currently selected one
@@ -76,7 +76,10 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                         ]),
                         Spans::from(vec![
                             Span::styled("TYPE:", Style::default().fg(Color::LightBlue)),
-                            Span::styled(format!("[{:<11?}]", c.cmd_type), Style::default().fg(Color::Green)),
+                            Span::styled(format!("{:<11}", 
+                                c.cmd_types.iter()
+                                    .map(|cmd_type| format!("{:?}", cmd_type))
+                                    .collect::<Vec<String>>().join(" ")), Style::default().fg(Color::Green)),
                         ]),
                         Spans::from(vec![
                             Span::raw("")
@@ -87,10 +90,10 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                     if !c.explanation.is_empty() {
                         info_spans.extend(vec![
                             Spans::from(vec![
-                                Span::styled("Explanation:", Style::default().fg(Color::LightBlue).add_modifier(Modifier::UNDERLINED))
+                                Span::styled("Explanation:", Style::default().fg(Color::LightBlue))
                             ]),
                             Spans::from(vec![
-                                Span::styled(format!("{}", c.explanation), Style::default().fg(Color::LightBlue))
+                                Span::styled(format!("{}", c.explanation), Style::default().fg(Color::LightCyan))
                             ]),
                             Spans::from(vec![
                                 Span::raw("")
@@ -100,10 +103,10 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
                     info_spans.extend(vec![
                         Spans::from(vec![
-                            Span::styled("Full Command:", Style::default().fg(Color::LightBlue).add_modifier(Modifier::UNDERLINED))
+                            Span::styled("Full Command:", Style::default().fg(Color::LightBlue))
                         ]),
                         Spans::from(vec![
-                            Span::styled(format!("{} {}", c.name, c.args), Style::default().fg(Color::LightCyan))
+                            Span::styled(c.copy_raw(), Style::default().fg(Color::LightCyan))
                         ]),
                         Spans::from(vec![
                             Span::raw("")
@@ -114,7 +117,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                     if !c.examples.is_empty() {
                         info_spans.extend(vec![
                             Spans::from(vec![
-                                Span::styled("Examples:", Style::default().fg(Color::LightBlue).add_modifier(Modifier::UNDERLINED))
+                                Span::styled("Examples:", Style::default().fg(Color::LightBlue))
                             ]),
                             Spans::from(vec![
                                 Span::from("\n-\n".repeat(right_pane[1].width as usize - 2)),  // -2 => for event_paragraph_pane border
@@ -217,7 +220,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             let command_spans: Vec<Spans> = vec![
                 Spans::from(vec![
                     Span::styled(">> ", Style::default()),
-                    Span::styled(format!("{}", chosen.command), Style::default().fg(Color::LightRed))
+                    Span::styled(chosen.command.copy_basic(), Style::default().fg(Color::LightRed))
                 ])
             ];
             let command_paragraph_block = Block::default()

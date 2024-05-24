@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Parse arguments
     let args: MyArgs = arg::parse_args();
 
-    // setup terminal
+    // Setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen)?;
@@ -66,17 +66,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let res = run_app(&mut terminal, app, tick_rate);
+    if let Err(err) = res {
+        println!("{:?}", err)
+    }
 
-    // restore terminal
+    // Restore terminal
     disable_raw_mode()?;
     execute!(
         terminal.backend_mut(),
         LeaveAlternateScreen)?;
     terminal.show_cursor()?;
-
-    if let Err(err) = res {
-        println!("{:?}", err)
-    }
 
     Ok(())
 }

@@ -35,7 +35,7 @@ impl CommandType {
 // Structure used to represent modifications on a command arg
 pub struct CommandArg {
     pub id: usize,                  // Used to know which argument is being modified
-    value: String,                  // Litteral value, e.g. '<port=4444>'. This value is always set up.
+    pub value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
     is_input: bool,                 // If this value has to be an input
     default: Option<String>,        // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
     pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
@@ -45,7 +45,8 @@ impl CommandArg {
     pub fn new(id: usize, arg: String) -> CommandArg {
         let mut cmd_arg = CommandArg { id, value: arg.clone(), is_input: false, default: None, modified: None };
 
-        let re = match Regex::new(r"<([a-zA-Z0-9=-_.:'*/]+)>") {
+        // Character and regex for matching input arguments of commands
+        let re = match Regex::new(r"<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>") {
             Ok(r) => r,
             Err(_) => {
                 return cmd_arg
@@ -76,7 +77,7 @@ impl CommandArg {
                     self.value
                 }
             },
-            false => self.value    
+            false => self.value
         }
     }
 }
@@ -85,11 +86,11 @@ impl Display for CommandArg {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.is_input {
             if self.modified.is_some() {
-                return write!(f, "({}){} = {}", self.id, self.value, self.modified.clone().unwrap())
+                return write!(f, "({}) {} = {}", self.id, self.value, self.modified.clone().unwrap())
             } else if self.default.is_some() {
-                return write!(f, "({}){} = {}", self.id, self.value, self.default.clone().unwrap())
+                return write!(f, "({}) {} = {}", self.id, self.value, self.default.clone().unwrap())
             } else {
-                return write!(f, "({}){} = ", self.id, self.value);
+                return write!(f, "({}) {} = ", self.id, self.value);
             }    
         }
 
@@ -101,7 +102,7 @@ impl Display for CommandArg {
 pub struct Command {
     pub id: usize,
     pub name: String,
-    pub cmd_type: CommandType,
+    pub cmd_types: Vec<CommandType>,
     pub explanation: String,
     pub args: String,
     pub cmd_args: Vec<CommandArg>,
@@ -109,7 +110,7 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new(name: String, cmd_type: String, explanation: String, args: String, examples: Vec<String>) -> Self {
+    pub fn new(name: String, cmd_types: String, explanation: String, args: String, examples: Vec<String>) -> Self {
         static mut ID: usize = 0;
         unsafe { ID = ID + 1 };
 
@@ -123,11 +124,14 @@ impl Command {
             })
             .collect();
 
-        let cmd_type = CommandType::from_str(&cmd_type);
+        let cmd_types_vector: Vec<CommandType> = cmd_types.split("|").into_iter()
+            .map(|cmd_type| CommandType::from_str(&cmd_type))
+            .collect();
+
         Command {
             id: unsafe { ID },
             name,
-            cmd_type,
+            cmd_types: cmd_types_vector,
             explanation,
             args,
             cmd_args,
@@ -138,21 +142,33 @@ impl Command {
     pub fn info(&self) -> String {
         format!(
             "Command:{}\n\
-            TYPE:{:?}\n\
+            TYPE:{}\n\
             Explanation:\n{}\n\
             \
             {} {}\n\
             \
             Examples:\n > {}",
             self.name,
-            self.cmd_type,
+            self.cmd_types.iter()
+                .map(|cmd_type| format!("{:?}", cmd_type))
+                .collect::<Vec<String>>().join(" "),
             self.explanation,
-            self.name,self.args,
+            self.name,
+            self.copy_raw(),
             self.examples.join("\n > ")
         )
     }
 
-    pub fn copy(&self) -> String {
+    pub fn copy_raw(&self) -> String {
+        let cmd = self.cmd_args.iter()
+            .map(|arg| arg.clone().value)
+            .collect::<Vec<String>>()
+            .join(" ");
+
+        format!("{} {}", self.name, cmd)
+    }
+
+    pub fn copy_basic(&self) -> String {
         let cmd = self.cmd_args.iter()
             .map(|arg| arg.clone().copy())
             .collect::<Vec<String>>()
@@ -174,7 +190,7 @@ impl Command {
 
 impl Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.copy())
+        write!(f, "{}", self.copy_basic())
     }
 }
 
@@ -213,7 +229,7 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                         // tmp_command.examples.push(arg_value.to_string().replace("\"", "").replace("[", "").replace("]", ""));
                     } else if arg_key == "name_exe"{
                         name = arg_value.to_string().replace("\"", "");
-                    } else if arg_key == "cmd_type"{ 
+                    } else if arg_key == "cmd_types"{ 
                         cmd_type = arg_value.to_string().replace("\"", "");
                     } else if arg_key == "explanation"{ 
                         explanation = arg_value.to_string().replace("\"", "");

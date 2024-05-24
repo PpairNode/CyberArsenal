@@ -20,15 +20,15 @@ destination = "127.0.0.1"
 # ===== PENTEST COMMANDS =====
 [command.nmap0]
 name_exe = "nmap"
-cmd_type = "pentest"
-explanation = "Version -sV, SYN scan -sS, no ping -Pn, all ports -p-, save to file -oN <file>"
+cmd_types = "pentest|network"
+explanation = "Scanning all ports with SYN scan and saving in file"
 args = "-sV -sS -Pn -p- -oN <output_file|scan.txt> <destination|127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
 [command.nmap1]
 name_exe = "nmap"
-cmd_type = "pentest"
+cmd_types = "pentest"
 explanation = "Version -sV, default script -sC"
 args = "-sC -sV <ip|127.0.0.1>"
 examples = [
@@ -36,29 +36,29 @@ examples = [
 ]
 [command.ffuf0]
 name_exe = "ffuf"
-cmd_type = "pentest"
-explanation = "Bruteforcing subdomain tool | -w: path to list of domain to try | -u url of website to bruteforce | -H: header to add | -t: number of threads"
+cmd_types = "pentest"
+explanation = "Bruteforce subdomain"
 args = "-w <list_path|file.txt:FHOST> -u <url|http://localhost/> -H <header|'Host:FHOST.localhost'> -t 100"
 examples = [
     "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
 ]
 [command.sqlmap0]
 name_exe = "sqlmap"
-cmd_type = "pentest"
-explanation = ""
-args = "sqlmap -u <url|'http://127.0.0.1/login'> --data <data|username=admin&password=password>"
+cmd_types = "pentest"
+explanation = "SQL injection of username/password"
+args = "-u <url|'http://127.0.0.1/login'> --data <data|'username=admin&password=password'>"
 examples = [
-    "sqlmap -u 'http://searcher.htb/search' --data 'engine=Accuweather&query=*'"
+    "sqlmap -u 'http://searcher.htb/search' --data 'username=admin&password=password'"
 ]
+
 
 # ===== REVERSE COMMANDS =====
 [command.objdump0]
 name_exe = "objdump"
-cmd_type = "reverse"
-explanation = "Display information from object <binary> in <type> format"
+cmd_types = "reverse"
+explanation = "Display information from the binary in <type> format"
 args = "-D <binary> -M <type|intel>"
 examples = [
     "obdjump -M intel -D bin",
-    "obdjump -M intel -D bin | grep -A20 main",
     "objdump -dj .rodata loop -M intel"
 ]
