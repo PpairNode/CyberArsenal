@@ -10,7 +10,29 @@ destination = "127.0.0.1"
 # ============================
 
 # ===== NETWORK COMMANDS =====
+[command.evilwinrm0]
+name_exe = "evil-winrm"
+cmd_types = "network"
+args = "-i <ip|127.0.0.1> -u <username> -p <password>"
+explanation = """
+Connect to an Windows machine. Few problem may occur with this tool, then do: `export OPENSSL_CONF=/home/user/evilwinrm.conf` 
 
+This file (.conf) must contains this:
+```
+openssl_conf = openssl_init
+[openssl_init]
+providers = provider_sect
+[provider_sect]
+default = default_sect
+legacy = legacy_sect
+[default_sect]
+activate = 1
+[legacy_sect]
+activate = 1
+```"""
+examples = [
+    "evil-winrm -i 127.0.0.1 -u 'domain\\username' -p 'password'"
+]
 
 
 # ===== SYSADMIN COMMANDS =====
