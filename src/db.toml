@@ -63,7 +63,7 @@ examples = [
 name_exe = "ufw"
 cmd_types = "sysadmin"
 explanation = "Allow ip to contacted our machine"
-args = "ufw allow from <target>"
+args = "allow from <target>"
 examples = [
     "ufw allow from 192.168.0.101"
 ]
@@ -91,6 +91,14 @@ examples = [
     "nmap -sC -sV 127.0.0.1"
 ]
 [command.ffuf0]
+name_exe = "ffuf"
+cmd_types = "pentest"
+explanation = "Bruteforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work"
+args = "-w <list_path|file.txt> -u <url|http://localhost>/FUZZ/ -t 100"
+examples = [
+    "ffuf -u http://localhost/FUZZ/ -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt"
+]
+[command.ffuf1]
 name_exe = "ffuf"
 cmd_types = "pentest"
 explanation = "Bruteforce subdomain"
