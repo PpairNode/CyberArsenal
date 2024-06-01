@@ -33,6 +33,26 @@ activate = 1
 examples = [
     "evil-winrm -i 127.0.0.1 -u 'domain\\username' -p 'password'"
 ]
+[command.remmina0]
+name_exe = "remmina"
+cmd_types = "network"
+args = "-c rdp://<user:password>@<ip|127.0.0.1>"
+explanation = """
+Connect with GUI to an Windows machine with RDP protocol.
+"""
+examples = [
+    "remmina -c rdp://user:password@127.0.0.1"
+]
+[command.xfreerdp0]
+name_exe = "xfreerdp"
+cmd_types = "network"
+args = "/u:<user> /p:<password> /v:<ip|127.0.0.1>"
+explanation = """
+Connect with GUI to an Windows machine with RDP protocol.
+"""
+examples = [
+    "xfreerdp /u:user /p:password /v:127.0.0.1"
+]
 
 
 # ===== SYSADMIN COMMANDS =====
@@ -89,6 +109,22 @@ explanation = "Version -sV, default script -sC"
 args = "-sC -sV <ip|127.0.0.1>"
 examples = [
     "nmap -sC -sV 127.0.0.1"
+]
+[command.dnsenum0]
+name_exe = "dnsenum"
+cmd_types = "pentest|network"
+explanation = "DNS Enumeration"
+args = "<hostname>"
+examples = [
+    "dnsenum example.com"
+]
+[command.host0]
+name_exe = "host"
+cmd_types = "pentest|network"
+explanation = "DNS Enumeration with type handling"
+args = "-t <type|any> <hostname>"
+examples = [
+    "dnsenum -t mx example.com"
 ]
 [command.ffuf0]
 name_exe = "ffuf"
@@ -148,6 +184,16 @@ $ hashid <hash>"""
 args = "-m <type> <hashfile|hash.txt> <wordlist|/usr/share/wordlists/rockyou.txt>"
 examples = [
     "hashcat -m 3200 hash.txt /usr/share/wordlists/rockyou.txt"
+]
+[command.pspy64s0]
+name_exe = "pspy64s"
+cmd_types = "pentest"
+explanation = """
+Pspy is a command line tool designed to snoop on processes without need for root permissions.
+It allows you to see commands run by other users, cron jobs, etc. as they execute."""
+args = "-i <milli|100>"
+examples = [
+    "pspy64s -i 100"
 ]
 
 # ===== REVERSE COMMANDS =====
