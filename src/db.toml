@@ -98,7 +98,7 @@ args = "<path>"
 name_exe = "nmap"
 cmd_types = "pentest|network"
 explanation = "Scanning all ports with SYN scan and saving in file"
-args = "-sV -sS -Pn -p- -oN <output_file|scan.txt> <destination|127.0.0.1>"
+args = "-n -sV -sS -Pn -p- -oN <output_file|scan.txt> <destination|127.0.0.1>"
 examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
@@ -106,9 +106,17 @@ examples = [
 name_exe = "nmap"
 cmd_types = "pentest|network"
 explanation = "Version -sV, default script -sC"
-args = "-sC -sV <ip|127.0.0.1>"
+args = "-n -sC -sV <ip|127.0.0.1>"
 examples = [
     "nmap -sC -sV 127.0.0.1"
+]
+[command.nmap2]
+name_exe = "nmap"
+cmd_types = "pentest|network"
+explanation = "SMB OS discovery"
+args = "-n -p139,445 --script smb-os-discovery <ip|127.0.0.1>"
+examples = [
+    "nmap -n -p139,445 --script smb-os-discovery  127.0.0.1"
 ]
 [command.dnsenum0]
 name_exe = "dnsenum"
@@ -117,6 +125,34 @@ explanation = "DNS Enumeration"
 args = "<hostname>"
 examples = [
     "dnsenum example.com"
+]
+[command.enum4linux0]
+name_exe = "enum4linux"
+cmd_types = "pentest|network"
+explanation = "SMB Enumeration"
+args = "<hostname>"
+examples = [
+    "enum4linux example.com"
+]
+[command.onesixtyone0]
+name_exe = "onesixtyone"
+cmd_types = "pentest|network"
+explanation = "SNMP Bruteforce Attack"
+args = "-c <communities_file> -i <ips_file>"
+examples = [
+    "onesixtyone -c communities.txt -i ips.txt"
+]
+[command.snmpwalk0]
+name_exe = "snmpwalk"
+cmd_types = "pentest|network"
+explanation = "SNMP Enumeration"
+args = "-c <community|public> -v1 -t 10 <ip|127.0.0.1>"
+examples = [
+    "snmpwalk -c public -v1 -t 10 127.0.0.1  # Enumerate entire MIB Tree",
+    "snmpwalk -c public -v1 127.0.0.1 1.3.6.1.4.1.77.1.2.25  # Enumerate all users on the Windows machine",
+    "snmpwalk -c public -v1 192.168.50.151 1.3.6.1.2.1.25.4.2.1.2  # List all machine running processes",
+    "snmpwalk -c public -v1 192.168.50.151 1.3.6.1.2.1.25.6.3.1.2  # List all machine installed softwares",
+    "snmpwalk -c public -v1 192.168.50.151 1.3.6.1.2.1.6.13.1.3  # List all machine TCP listening ports"
 ]
 [command.host0]
 name_exe = "host"
