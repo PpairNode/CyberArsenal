@@ -3,7 +3,7 @@ use anyhow::Result;
 use regex::Regex;
 use toml::Value;
 
-use crate::misc::inputs::replace_first_last_quote;
+use crate::misc::inputs::IntelligentStringBuilder;
 
 
 #[derive(Debug, Clone)]
@@ -225,21 +225,25 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                 for arg_key in args_map.keys() {
                     let arg_value = args_map.get(arg_key).unwrap();
                     // Check few basic values
+                    let mut isb = IntelligentStringBuilder::new(arg_value.to_string());
+                    let val = isb.delete_first_quote().delete_last_quote().replace_backslash_quote_with_quote().build();
+
                     if arg_key == "examples" {
                         let Some(examples) = arg_value.as_array() else {
                             continue;
                         };
                         for example in examples.iter() {
-                            cmd_examples.push(replace_first_last_quote(&example.to_string()));
+                            let mut isb = IntelligentStringBuilder::new(example.to_string());
+                            cmd_examples.push(isb.delete_first_quote().delete_last_quote().replace_backslash_quote_with_quote().build());
                         }
                     } else if arg_key == "name_exe"{
-                        name = replace_first_last_quote(&arg_value.to_string());
+                        name = val;
                     } else if arg_key == "cmd_types"{ 
-                        cmd_type = replace_first_last_quote(&arg_value.to_string());
+                        cmd_type = val;
                     } else if arg_key == "explanation"{ 
-                        explanation = replace_first_last_quote(&arg_value.to_string());
+                        explanation = val;
                     } else if arg_key == "args" {
-                        args = replace_first_last_quote(&arg_value.to_string());
+                        args = val;
                     }
                 }
             }

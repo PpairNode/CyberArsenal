@@ -110,7 +110,13 @@ impl ArsenalApp {
 
         // Check and Load values
         // let mut commands = load_values_into_commands(value)?;
-        self.search_commands.commands = load_values_into_commands(value)?;
+        self.search_commands.commands = match load_values_into_commands(value) {
+            Ok(lc) => lc,
+            Err(e) => {
+                self.push_event(AppEvent::new(&format!("LOAD FAILED: value {}", e), LevelCode::INFO));
+                return Err(e)
+            }
+        };
         self.search_commands.refresh_list();
 
         self.push_event(AppEvent::new(&format!("Settings loaded from: {}", &settings), LevelCode::INFO));
