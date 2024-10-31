@@ -47,7 +47,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Iterate through all elements in the `items` app and append some debug text to it.
     let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
-            ListItem::new(command.copy_raw()).style(Style::default().fg(Color::LightBlue))
+            ListItem::new(command.copy_raw_shifted()).style(Style::default().fg(Color::LightBlue))
         })
         .collect();
     // Create a List from all list items and highlight the currently selected one
@@ -72,7 +72,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                     let mut info_spans: Vec<Spans> = vec![
                         Spans::from(vec![
                             Span::styled("Command:", Style::default().fg(Color::LightBlue)),
-                            Span::styled(format!("{}\n", c.name), Style::default().fg(Color::Green))
+                            Span::styled(format!("{}\n", c.name_cmd), Style::default().fg(Color::Green))
                         ]),
                         Spans::from(vec![
                             Span::styled("TYPE:", Style::default().fg(Color::LightBlue)),

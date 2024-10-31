@@ -69,9 +69,11 @@ impl SearchCommands {
         } else {  // Filter
             commands.extend(self.commands.iter()
                 .filter_map(|c| {
-                    if c.name.contains(&self.search) {  // Filter commands: NAME
+                    if c.name.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME
                         Some(c.clone())
-                    } else if c.args.contains(&self.search) {  // Filter commands: ARGS
+                    } else if c.name_cmd.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME_CMD
+                        Some(c.clone())
+                    } else if c.args.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: ARGS
                         Some(c.clone())
                     } else if format!("{:?}", c.cmd_types).contains(&self.search) {  // Filter commands: TYPE
                         Some(c.clone())
@@ -125,6 +127,7 @@ impl ArsenalApp {
 
     pub fn load_example_commands(&mut self) {
         self.search_commands.listful_cmds.items.push(Command::new(
+            "ping0".to_string(),
             "ping".to_string(),
             "network".to_string(),
             "Simple ping with verbose on".to_string(),

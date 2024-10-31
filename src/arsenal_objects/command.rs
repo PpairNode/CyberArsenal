@@ -108,7 +108,8 @@ impl Display for CommandArg {
 #[derive(Clone)]
 pub struct Command {
     pub id: usize,
-    pub name: String,
+    pub name: String,  // Real name as the name in brackets `[command.xxx]` => xxx
+    pub name_cmd: String,
     pub cmd_types: Vec<CommandType>,
     pub explanation: String,
     pub args: String,
@@ -117,7 +118,7 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new(name: String, cmd_types: String, explanation: String, args: String, examples: Vec<String>) -> Self {
+    pub fn new(name: String, name_cmd: String, cmd_types: String, explanation: String, args: String, examples: Vec<String>) -> Self {
         static mut ID: usize = 0;
         unsafe { ID = ID + 1 };
 
@@ -138,6 +139,7 @@ impl Command {
         Command {
             id: unsafe { ID },
             name,
+            name_cmd,
             cmd_types: cmd_types_vector,
             explanation,
             args,
@@ -155,12 +157,12 @@ impl Command {
             {} {}\n\
             \
             Examples:\n > {}",
-            self.name,
+            self.name_cmd,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
             self.explanation,
-            self.name,
+            self.name_cmd,
             self.copy_raw(),
             self.examples.join("\n > ")
         )
@@ -172,7 +174,16 @@ impl Command {
             .collect::<Vec<String>>()
             .join(" ");
 
-        format!("{} {}", self.name, cmd)
+        format!("{} {}", self.name_cmd, cmd)
+    }
+
+    pub fn copy_raw_shifted(&self) -> String {
+        let cmd = self.cmd_args.iter()
+            .map(|arg| format!("{}{}{}", arg.pre, arg.value, arg.post))
+            .collect::<Vec<String>>()
+            .join(" ");
+
+        format!("[{:<20}] {} {}", self.name, self.name_cmd, cmd)
     }
 
     pub fn copy_basic(&self) -> String {
@@ -181,7 +192,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join(" ");
 
-        format!("{} {}", self.name, cmd)
+        format!("{} {}", self.name_cmd, cmd)
     }
 
     pub fn get_all_args(&self) -> &Vec<CommandArg> {
@@ -213,11 +224,14 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let mut name = k_command.clone();
+            let name = k_command.clone();
+            let mut name_cmd = k_command.clone();
             let mut cmd_type = "".to_string();
             let mut explanation = "".to_string();
             let mut args = "".to_string();
             let mut cmd_examples = vec![];
+
+            // k_command.get();
 
             let v_args = elt_commands.get(k_command).unwrap();
             let args_value = v_args.as_table();
@@ -237,7 +251,7 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                             cmd_examples.push(isb.delete_first_quote().delete_last_quote().replace_backslash_quote_with_quote().build());
                         }
                     } else if arg_key == "name_exe"{
-                        name = val;
+                        name_cmd = val;
                     } else if arg_key == "cmd_types"{ 
                         cmd_type = val;
                     } else if arg_key == "explanation"{ 
@@ -248,7 +262,7 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                 }
             }
 
-            commands.push(Command::new(name, cmd_type, explanation, args, cmd_examples));
+            commands.push(Command::new(name, name_cmd, cmd_type, explanation, args, cmd_examples));
         }
     }
 
