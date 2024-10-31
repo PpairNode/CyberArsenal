@@ -224,14 +224,12 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let name = k_command.clone();
+            let name = k_command.clone().replace("-", " ");
             let mut name_cmd = k_command.clone();
             let mut cmd_type = "".to_string();
             let mut explanation = "".to_string();
             let mut args = "".to_string();
             let mut cmd_examples = vec![];
-
-            // k_command.get();
 
             let v_args = elt_commands.get(k_command).unwrap();
             let args_value = v_args.as_table();
