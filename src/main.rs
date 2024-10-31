@@ -1,19 +1,24 @@
-use arsenal_terminal::app::{run_app, ArsenalApp};
-use crossterm::{
-    // event::{DisableMouseCapture, EnableMouseCapture},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use std::{
-    error::Error,
-    io,
-    time::Duration,
-};
-use tui::{
-    backend::CrosstermBackend,
-    Terminal
-};
+use arsenal_terminal::app::ArsenalApp;
+use std::error::Error;
 use arg::Args;
+
+#[cfg(not(feature = "nogui"))]
+use std::io;
+#[cfg(not(feature = "nogui"))]
+use arsenal_terminal::app::run_app;
+#[cfg(not(feature = "nogui"))]
+use std::time::Duration;
+#[cfg(not(feature = "nogui"))]
+use tui::{backend::CrosstermBackend, Terminal};
+#[cfg(not(feature = "nogui"))]
+use crossterm::{execute, terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen}};
+
+pub mod arsenal_terminal;
+pub mod arsenal_objects;
+pub mod misc;
+
+
+
 #[derive(Args, Debug)]
 struct MyArgs {
     #[arg(short, long, default_value="false")]
@@ -24,12 +29,6 @@ struct MyArgs {
     ///To store path
     settings: String,
 }
-use home;
-
-
-pub mod arsenal_terminal;
-pub mod arsenal_objects;
-pub mod misc;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -37,44 +36,42 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args: MyArgs = arg::parse_args();
 
     // Setup terminal
+    #[cfg(not(feature = "nogui"))]
     enable_raw_mode()?;
+    #[cfg(not(feature = "nogui"))]
     let mut stdout = io::stdout();
+    #[cfg(not(feature = "nogui"))]
     execute!(stdout, EnterAlternateScreen)?;
+    #[cfg(not(feature = "nogui"))]
     let backend = CrosstermBackend::new(stdout);
+    #[cfg(not(feature = "nogui"))]
     let mut terminal = Terminal::new(backend)?;
 
-    // create app and run it
+    // Create application
+    #[cfg(not(feature = "nogui"))]
     let tick_rate = Duration::from_millis(250);
     let mut app = ArsenalApp::new(100);
 
-    // Try loading settings
-    if args.settings != "" {  // Settings by option in args
-        _ = app.load_settings(args.settings);
-    } else {  // Settings present in user home directory (~/.config/cyberarsenal/settings.toml)
-        match home::home_dir() {
-            Some(path) if !path.as_os_str().is_empty() => {
-                match path.to_str() {
-                    Some(path_home_dir) => {
-                        let settings_path = format!("{}/.config/cyberarsenal/settings.toml", path_home_dir);
-                        _ = app.load_settings(settings_path);
-                    },
-                    None => {}
-                };
-            },
-            _ => {},
+    // Loading settings in application or error
+    if let Err(e) = app.load_settings(args.settings) {
+        eprintln!("load_settings failed, error={}", e);
+        return Ok(())
+    };
+
+    // Run application
+    #[cfg(not(feature = "nogui"))] {
+        let res = run_app(&mut terminal, app, tick_rate);
+        if let Err(err) = res {
+            println!("{:?}", err)
         }
     }
 
-    let res = run_app(&mut terminal, app, tick_rate);
-    if let Err(err) = res {
-        println!("{:?}", err)
-    }
-
     // Restore terminal
+    #[cfg(not(feature = "nogui"))]
     disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen)?;
+    #[cfg(not(feature = "nogui"))]
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+    #[cfg(not(feature = "nogui"))]
     terminal.show_cursor()?;
 
     Ok(())

@@ -40,50 +40,83 @@ pub struct CommandArg {
     pre: String,                    // Pre value before a <match>. Example: TEST<match>
     pub value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
     post: String,                   // Post value after a <match>. Example: <match>TEST
+    pub follow_char: Option<char>,          // If value is sticked to next, we shouldn't add a space. Example: <cur_match>/<next_match>
     is_input: bool,                 // If this value has to be an input
     default: Option<String>,        // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
     pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
 }
 
 impl CommandArg {
-    pub fn new(id: usize, arg: String) -> CommandArg {
-        let mut cmd_arg = CommandArg { id, pre: "".to_string(), value: arg.clone(), post: "".to_string(), is_input: false, default: None, modified: None };
+    pub fn new(id: usize, args: String) -> Vec<CommandArg> {
+        let mut cmd_arg_vec = Vec::<CommandArg>::new();
 
         // Character and regex for matching input arguments of commands
+        // ([^:<>].*)(<[a-zA-Z0-9-.:'!@#$%\^&*\(\){}\[\]\/|_=+]+>)([^:<>].*) <= supposed to work flawlessely but no
+        // (.*)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)
+        // Maybe should extract this regex for loading => takes a while
         let re = match Regex::new(r"(.*)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)") {
             Ok(r) => r,
             Err(_) => {
-                return cmd_arg
+                return vec![CommandArg { id, pre: "".to_string(), value: args, post: "".to_string(), follow_char: Some(' '), is_input: false, default: None, modified: None }]
             }
         };
 
-        for (_, [pre, cap, post]) in re.captures_iter(&arg).map(|c| c.extract()) {
-            let s = cap.split("|").map(|s| s.to_string()).collect::<Vec<String>>();
-            if s.len() == 2 {  // Value default set
-                cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
-                cmd_arg.default = Some(s.get(1).unwrap().clone());
-            } else if s.len() == 1 {
-                cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
+        // Split because the regex which is supposed to work only works once
+        let cmd_args = args.split_inclusive(">");
+        let mut tmp_id = id;
+
+        let size_cmd_args = cmd_args.clone().count();
+        let mut idx = 0;
+        for s_full in cmd_args {
+            for (_, [pre, cap, post]) in re.captures_iter(s_full).map(|c| c.extract()) {
+                let s = cap.split("|").map(|s| s.to_string()).collect::<Vec<String>>();
+
+                let mut cmd_arg = CommandArg { id, pre: "".to_string(), value: "".to_string(), post: "".to_string(), follow_char: Some(' '), is_input: false, default: None, modified: None };
+                cmd_arg.id = tmp_id;
+                if s.len() == 2 {  // Value default set
+                    cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
+                    cmd_arg.default = Some(s.get(1).unwrap().clone());
+                } else if s.len() == 1 {
+                    cmd_arg.value = format!("<{}>", s.get(0).unwrap().clone());
+                }
+                cmd_arg.is_input = true;
+                cmd_arg.pre = pre.to_string();
+                cmd_arg.post = post.to_string();
+
+                idx += 1;
+                if idx < size_cmd_args {
+                    cmd_arg.follow_char = None;
+                }
+                cmd_arg_vec.push(cmd_arg.clone());
+                tmp_id += 1;
             }
-            cmd_arg.is_input = true;
-            cmd_arg.pre = pre.to_string();
-            cmd_arg.post = post.to_string();
         }
-        cmd_arg
+
+        if cmd_arg_vec.is_empty() {
+            return vec![CommandArg { id, pre: "".to_string(), value: args, post: "".to_string(), follow_char: Some(' '), is_input: false, default: None, modified: None }]
+        }
+        cmd_arg_vec
     }
 
     pub fn copy(&self) -> String {
         match self.is_input {
             true => {
                 if self.modified.is_some() {
-                    format!("{}{}{}", self.pre, self.modified.clone().unwrap(), self.post)
+                    format!("{}{}{}{}", self.pre, self.modified.clone().unwrap(), self.post, self.get_follow_char())
                 } else if self.default.is_some() {
-                    format!("{}{}{}", self.pre, self.default.clone().unwrap(), self.post)
+                    format!("{}{}{}{}", self.pre, self.default.clone().unwrap(), self.post, self.get_follow_char())
                 } else {
-                    format!("{}{}{}", self.pre, self.value, self.post)
+                    format!("{}{}{}{}", self.pre, self.value, self.post, self.get_follow_char())
                 }
             },
-            false => self.value.clone()
+            false => format!("{}{}", self.value.clone(), self.get_follow_char())
+        }
+    }
+
+    pub fn get_follow_char(&self) -> String {
+        match self.follow_char {
+            Some(c) => c.to_string(),
+            None => "".to_string()
         }
     }
 }
@@ -124,13 +157,12 @@ impl Command {
 
         let mut id = 0;
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
-        let cmd_args: Vec<CommandArg> = v.iter()
-            .map(|s| {
-                let cmd_arg = CommandArg::new(id, s.to_string());
-                id += 1;
-                cmd_arg
-            })
-            .collect();
+        let mut cmd_args: Vec<CommandArg> = vec![];
+        for e in v {
+            let mut cmd_arg_vec = CommandArg::new(id, e.to_string());
+            id += cmd_arg_vec.len();
+            cmd_args.append(&mut cmd_arg_vec);
+        }
 
         let cmd_types_vector: Vec<CommandType> = cmd_types.split("|").into_iter()
             .map(|cmd_type| CommandType::from_str(&cmd_type))
@@ -170,18 +202,18 @@ impl Command {
 
     pub fn copy_raw(&self) -> String {
         let cmd = self.cmd_args.iter()
-            .map(|arg| format!("{}{}{}", arg.pre, arg.value, arg.post))
+            .map(|arg| format!("{}{}{}{}", arg.pre, arg.value, arg.post, arg.get_follow_char()))
             .collect::<Vec<String>>()
-            .join(" ");
+            .join("");
 
         format!("{} {}", self.name_cmd, cmd)
     }
 
     pub fn copy_raw_shifted(&self) -> String {
         let cmd = self.cmd_args.iter()
-            .map(|arg| format!("{}{}{}", arg.pre, arg.value, arg.post))
+            .map(|arg| format!("{}{}{}{}", arg.pre, arg.value, arg.post, arg.get_follow_char()))
             .collect::<Vec<String>>()
-            .join(" ");
+            .join("");
 
         format!("[{:<20}] {} {}", self.name, self.name_cmd, cmd)
     }
@@ -190,7 +222,7 @@ impl Command {
         let cmd = self.cmd_args.iter()
             .map(|arg| arg.copy())
             .collect::<Vec<String>>()
-            .join(" ");
+            .join("");
 
         format!("{} {}", self.name_cmd, cmd)
     }
@@ -224,7 +256,7 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
 
     for elt_commands in commands_value.as_table().iter() {
         for k_command in elt_commands.keys() {
-            let name = k_command.clone().replace("-", " ");
+            let name = k_command.clone().replace("-", " ");  // 
             let mut name_cmd = k_command.clone();
             let mut cmd_type = "".to_string();
             let mut explanation = "".to_string();

@@ -1,7 +1,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 use toml::Value;
 use std::{
-    fs::File, io, time::{Duration, Instant}
+    fs::File, time::{Duration, Instant}
 };
 use std::io::prelude::*;
 use tui::{
@@ -102,7 +102,30 @@ impl ArsenalApp {
         }
     }
 
-    pub fn load_settings(&mut self, settings: String) -> Result<()> {
+    pub fn load_settings(&mut self, settings_path: String) -> Result<()> {
+        let settings_path = match settings_path.len() {
+            0 => None,
+            _ => Some(settings_path)
+        };
+
+        let settings = match settings_path {
+            Some(s) => s,
+            None => {
+                match home::home_dir() {
+                    Some(path) if !path.as_os_str().is_empty() => {
+                        match path.to_str() {
+                            Some(path_home_dir) => {
+                                let settings_path = format!("{}/.config/cyberarsenal/settings.toml", path_home_dir);
+                                settings_path
+                            },
+                            None => anyhow::bail!("Could not load path from home user")
+                        }
+                    },
+                    _ => anyhow::bail!("Could not load path from home user"),
+                }
+            }
+        };
+
         let mut file = File::open(&settings).map_err(|e| anyhow::format_err!("File::open() err={}", e))?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
@@ -311,7 +334,7 @@ pub fn run_app<B: Backend>(
     terminal: &mut Terminal<B>,
     mut app: ArsenalApp,
     tick_rate: Duration,
-) -> io::Result<()> {
+) -> std::io::Result<()> {
     let mut last_tick = Instant::now();
     loop {
         terminal.draw(|f| renderer::render(f, &mut app))?;
