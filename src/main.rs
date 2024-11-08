@@ -1,5 +1,5 @@
 use arsenal_terminal::app::ArsenalApp;
-use std::error::Error;
+use std::{error::Error, io::Stdout};
 use arg::Args;
 
 #[cfg(not(feature = "nogui"))]
@@ -31,6 +31,19 @@ struct MyArgs {
 }
 
 
+#[cfg(not(feature = "nogui"))]
+fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<()> {
+    // Restore terminal
+    #[cfg(not(feature = "nogui"))]
+    disable_raw_mode()?;
+    #[cfg(not(feature = "nogui"))]
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+    #[cfg(not(feature = "nogui"))]
+    terminal.show_cursor()?;
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     // Parse arguments
     let args: MyArgs = arg::parse_args();
@@ -55,6 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Loading settings in application or error
     if let Err(e) = app.load_settings(args.settings) {
         eprintln!("load_settings failed, error={}", e);
+        #[cfg(feature = "nogui")]
         return Ok(())
     };
 
@@ -68,11 +82,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Restore terminal
     #[cfg(not(feature = "nogui"))]
-    disable_raw_mode()?;
-    #[cfg(not(feature = "nogui"))]
-    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-    #[cfg(not(feature = "nogui"))]
-    terminal.show_cursor()?;
+    let _ = restore_terminal(&mut terminal);
 
     Ok(())
 }

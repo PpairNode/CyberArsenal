@@ -63,6 +63,19 @@ impl CommandArg {
 
         // Split because the regex which is supposed to work only works once
         let cmd_args = args.split_inclusive(">");
+        let cmd_args_clone = cmd_args.clone();
+        let final_post_command = match cmd_args_clone.last() {
+            None => "".to_string(),
+            Some(s) => {
+                if !s.contains(">") {
+                    s.to_string()
+                } else {
+                    "".to_string()
+                }
+            }
+        };
+
+
         let mut tmp_id = id;
 
         let size_cmd_args = cmd_args.clone().count();
@@ -87,6 +100,11 @@ impl CommandArg {
                 if idx < size_cmd_args {
                     cmd_arg.follow_char = None;
                 }
+
+                // Add last string
+                if idx == size_cmd_args - 1 && !final_post_command.contains('>') {
+                    cmd_arg.post = final_post_command.clone();
+                }
                 cmd_arg_vec.push(cmd_arg.clone());
                 tmp_id += 1;
             }
@@ -95,6 +113,7 @@ impl CommandArg {
         if cmd_arg_vec.is_empty() {
             return vec![CommandArg { id, pre: "".to_string(), value: args, post: "".to_string(), follow_char: Some(' '), is_input: false, default: None, modified: None }]
         }
+
         cmd_arg_vec
     }
 
