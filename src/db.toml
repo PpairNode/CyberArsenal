@@ -18,8 +18,9 @@ destination = "127.0.0.1"
 name_exe = "evil-winrm"
 cmd_types = "network"
 args = "-i <ip|127.0.0.1> -u <username> -p <password>"
-short_desc = """
-Connect to an Windows machine. Few problem may occur with this tool, then do: `export OPENSSL_CONF=/home/user/evilwinrm.conf` 
+short_desc = "Connect to an Windows machine using WinRM protocol"
+details = """
+Few problem may occur with this tool, then do: `export OPENSSL_CONF=/home/user/evilwinrm.conf` 
 
 This file (.conf) must contains this:
 ```
@@ -42,9 +43,7 @@ examples = [
 name_exe = "remmina"
 cmd_types = "network"
 args = "-c rdp://<user:password>@<ip|127.0.0.1>"
-short_desc = """
-Connect with GUI to an Windows machine with RDP protocol.
-"""
+short_desc = "Connect with GUI to an Windows machine with RDP protocol."
 examples = [
     "remmina -c rdp://user:password@127.0.0.1"
 ]
@@ -53,9 +52,7 @@ examples = [
 name_exe = "xfreerdp"
 cmd_types = "network"
 args = "/cert:ignore /u:<user> /p:<password> /v:<ip|127.0.0.1>"
-short_desc = """
-Connect with GUI to an Windows machine with RDP protocol.
-"""
+short_desc = "Connect with GUI to an Windows machine with RDP protocol."
 examples = [
     "xfreerdp /u:user /p:password /v:127.0.0.1"
 ]
@@ -64,9 +61,7 @@ examples = [
 name_exe = "xfreerdp"
 cmd_types = "network"
 args = "/cert:<status|ignore> /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1>"
-short_desc = """
-Connect with GUI to an Windows machine with RDP protocol.
-"""
+short_desc = "Connect with GUI to an Windows machine with RDP protocol."
 examples = [
     "xfreerdp /u:user /p:password /v:127.0.0.1"
 ]
@@ -75,9 +70,7 @@ examples = [
 name_exe = "pwsh-preview"
 cmd_types = "misc"
 args = "-c '[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(\"<command>\"))'"
-short_desc = """
-Convert command to Base64String with PowerShell.
-"""
+short_desc = "Convert command to Base64String with PowerShell."
 examples = [
     "pwsh-preview -c 'Convert::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(\"ping 127.0.0.1\"))'"
 ]
@@ -86,9 +79,7 @@ examples = [
 name_exe = "ssh"
 cmd_types = "network"
 args = "-o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' <conn|user@127.0.0.1>"
-short_desc = """
-Connect with SSH without saving nor checking known host.
-"""
+short_desc = "Connect with SSH without saving nor checking known host."
 examples = [
     "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' user@127.0.0.1"
 ]
@@ -97,9 +88,8 @@ examples = [
 name_exe = "smbserver.py"
 cmd_types = "network"
 args = "<share_name|test> <share_path|/tmp/share/> -smb2support  -username <user|user> -password <password|password>"
-short_desc = """
-From the Windows computer:
-
+short_desc = "Open an SMB server for multi-purpose actions"
+details = """
 net use \\\\127.0.0.1\\test /user:test test
 copy SAM \\\\127.0.0.1\\test\\SAM
 copy SYSTEM \\\\127.0.0.1\\test\\SYSTEM
@@ -271,7 +261,8 @@ examples = [
 [command.FFUF-0]
 name_exe = "ffuf"
 cmd_types = "pentest"
-short_desc = """Bruteforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work.
+short_desc = "Bruteforce website"
+details = """Brutforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work.
 There is also a filter response size to avoid false positives.
 """
 args = "-w <list_path|file.txt> -u http://<url|localhost>/FUZZ/ -t 100 -fs <response-size|1000>"
@@ -345,7 +336,8 @@ examples = [
 [command.Hashcat]
 name_exe = "hashcat"
 cmd_types = "pentest"
-short_desc = """
+short_desc = "Cracking hashes software"
+details = """
 Crack password of a chosen <type>.
 This can be combined with hashid to find type of hash:
 $ hashid <hash>"""
@@ -357,7 +349,8 @@ examples = [
 [command.PsPy64s0]
 name_exe = "pspy64s"
 cmd_types = "pentest"
-short_desc = """
+short_desc = "Check on processes during execution"
+details = """
 Pspy is a command line tool designed to snoop on processes without need for root permissions.
 It allows you to see commands run by other users, cron jobs, etc. as they execute."""
 args = "-i <milli|100>"
@@ -367,8 +360,9 @@ examples = [
 
 [command.Nmap-3]
 name_exe = "cat"
-cmd_types = "pentest"
-short_desc = """
+cmd_types = "sysadmin"
+short_desc = ""
+details = """
 Search in the nmap NSE scripts for vuln (can search the impact of the script - safe/intrusive).
 There is also an example of reloading the script.db file if a new '.nse' file was added."""
 args = "/usr/share/nmap/scripts/script.db | grep '<search|safe>'"
