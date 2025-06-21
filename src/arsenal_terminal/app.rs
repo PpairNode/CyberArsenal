@@ -9,11 +9,11 @@ use tui::{
     Terminal,
 };
 use anyhow::Result;
+use tracing::{debug, error, info};
 
 use crate::arsenal_objects::command::{load_values_into_commands, CommandArg, Command};
 use crate::misc::inputs::write_co_clipboard;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
-use super::event::LevelCode;
 
 
 pub struct ArsenalApp {
@@ -131,20 +131,20 @@ impl ArsenalApp {
         file.read_to_string(&mut contents)?;
 
         let value = contents.parse::<Value>()?;
-        self.push_event(AppEvent::new(&format!("Settings: {}", &value), LevelCode::INFO));
+        // info!("Settings: {value}");  // Too much data to log
 
         // Check and Load values
         // let mut commands = load_values_into_commands(value)?;
         self.search_commands.commands = match load_values_into_commands(value) {
             Ok(lc) => lc,
             Err(e) => {
-                self.push_event(AppEvent::new(&format!("LOAD FAILED: value {}", e), LevelCode::INFO));
+                info!("LOAD FAILED: value {e}");
                 return Err(e)
             }
         };
         self.search_commands.refresh_list();
 
-        self.push_event(AppEvent::new(&format!("Settings loaded from: {}", &settings), LevelCode::INFO));
+        info!("Settings loaded from: {settings}");
         Ok(())
     }
 
@@ -154,10 +154,11 @@ impl ArsenalApp {
             "ping".to_string(),
             "network".to_string(),
             "Simple ping with verbose on".to_string(),
+            "...".to_string(),
             "-v <destination>".to_string(),
             vec!["ping 127.0.0.1".to_string(), "ping -v 127.0.0.1".to_string()]));
 
-        self.push_event(AppEvent::new(&format!("Number of commands loaded: {}", self.search_commands.listful_cmds.items.len()), LevelCode::INFO));
+        info!("Number of commands loaded: {}", self.search_commands.listful_cmds.items.len());
     }
 
     pub fn push_event(&mut self, event: AppEvent) {
@@ -169,13 +170,13 @@ impl ArsenalApp {
 
     pub fn set_chosen_command(&mut self) {
         let Some(selected) = self.search_commands.listful_cmds.state.selected() else {
-            self.push_event(AppEvent::new(&format!("Cannot get selected command id"), LevelCode::ERROR));
+            debug!("Cannot get selected command id");
             self.chosen_command = None;
             return;
         };
         // Get item from list
         let Some(command) = self.search_commands.listful_cmds.items.get(selected).clone() else {
-            self.push_event(AppEvent::new(&format!("Cannot get selected command"), LevelCode::ERROR));
+            debug!("Cannot get selected command");
             self.chosen_command = None;
             return;
         };
@@ -186,7 +187,7 @@ impl ArsenalApp {
     fn handle_event_key(&mut self, key: KeyEvent) {
         if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
             // ^C => Should quit app
-            self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
+            info!("Quitting program!");
             self.quit_app = true;
             return
         }
@@ -223,7 +224,7 @@ impl ArsenalApp {
                         chosen.refresh_list();
                     }
                     None => {
-                        self.push_event(AppEvent::new(&format!("KeyCode: {}", x), LevelCode::TRACE));
+                        debug!("KeyCode: {x}");
                         self.search_commands.search.push(x);
                         self.search_commands.refresh_list();
                     }
@@ -290,7 +291,7 @@ impl ArsenalApp {
                 match &mut self.chosen_command {
                     Some(_) => self.chosen_command = None,
                     None => {
-                        self.push_event(AppEvent::new(&format!("Quitting program!"), LevelCode::INFO));
+                        info!("Quitting program!");
                         self.quit_app = true;
                     }
                 }
@@ -304,10 +305,10 @@ impl ArsenalApp {
                         let final_cmd = c.command.copy_basic();
                         // let command_str = format!("{command}");
                         if let Err(e) = write_co_clipboard(&final_cmd) {
-                            self.push_event(AppEvent::new(&format!("Error when writing to clipboard, error={}", e), LevelCode::ERROR));
+                            error!("Error when writing to clipboard, error={e}");
                             return
                         };
-                        self.push_event(AppEvent::new(&format!("Value copied to clipboard: \"{}\"", final_cmd), LevelCode::DEBUG));
+                        debug!("Value copied to clipboard: \"{final_cmd}\"");
                     },
                     None => {
                         // Set new ChosenCommand

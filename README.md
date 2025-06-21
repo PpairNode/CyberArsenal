@@ -25,7 +25,8 @@ max_events = 100
 [command.objdump0]
 name_exe = "objdump"
 cmd_type = "reverse"
-explanation = "Display information from object <binary> in <type> format"
+short_desc = "Display information from object <binary> in <type> format"
+details = "..."
 args = "-D <binary> -M <type=intel>"
 examples = [
     "obdjump -M intel -D a.out"
@@ -37,7 +38,8 @@ All command keys are optional inside a command block.
 Understandable keys are:
 - `name_exe`: name of the command
 - `cmd_types`: A `|` separated list of types for the command (supported are `pentest|forensics|programming|reverse|crypto|network|sysadmin`)
-- `explanation`: an explanation of the command
+- `short_desc`: an short description of the command
+- `details`: details if the tool need more info
 - `args`: all arguments of this command
     - An arg between `<k>`, will have a `k` key which can be modified from the tool.
     - An arg prompted like this `<k|v>`, has a auto-filled `k` key with the `v` value by default.

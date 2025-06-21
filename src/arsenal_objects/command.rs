@@ -163,14 +163,15 @@ pub struct Command {
     pub name: String,  // Real name as the name in brackets `[command.xxx]` => xxx
     pub name_cmd: String,
     pub cmd_types: Vec<CommandType>,
-    pub explanation: String,
+    pub short_desc: String,
+    pub details: String,
     pub args: String,
     pub cmd_args: Vec<CommandArg>,
     pub examples: Vec<String>
 }
 
 impl Command {
-    pub fn new(name: String, name_cmd: String, cmd_types: String, explanation: String, args: String, examples: Vec<String>) -> Self {
+    pub fn new(name: String, name_cmd: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
         static mut ID: usize = 0;
         unsafe { ID = ID + 1 };
 
@@ -192,7 +193,8 @@ impl Command {
             name,
             name_cmd,
             cmd_types: cmd_types_vector,
-            explanation,
+            short_desc,
+            details,
             args,
             cmd_args,
             examples
@@ -204,6 +206,7 @@ impl Command {
             "Command:{}\n\
             TYPE:{}\n\
             Explanation:\n{}\n\
+            Details:\n{}\n\
             \
             {} {}\n\
             \
@@ -212,10 +215,28 @@ impl Command {
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
-            self.explanation,
+            self.short_desc,
+            self.details,
             self.name_cmd,
             self.copy_raw(),
             self.examples.join("\n > ")
+        )
+    }
+
+    pub fn short(&self) -> String {
+        format!(
+            "Command:{}\n\
+            TYPE:{}\n\
+            Explanation:\n{}\n\
+            \
+            {} {}\n",
+            self.name_cmd,
+            self.cmd_types.iter()
+                .map(|cmd_type| format!("{:?}", cmd_type))
+                .collect::<Vec<String>>().join(" "),
+            self.short_desc,
+            self.name_cmd,
+            self.copy_raw()
         )
     }
 
@@ -278,7 +299,8 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
             let name = k_command.clone().replace("-", " ");  // 
             let mut name_cmd = k_command.clone();
             let mut cmd_type = "".to_string();
-            let mut explanation = "".to_string();
+            let mut short_desc = "".to_string();
+            let mut details = "".to_string();
             let mut args = "".to_string();
             let mut cmd_examples = vec![];
 
@@ -303,15 +325,17 @@ pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
                         name_cmd = val;
                     } else if arg_key == "cmd_types"{ 
                         cmd_type = val;
-                    } else if arg_key == "explanation"{ 
-                        explanation = val;
+                    } else if arg_key == "short_desc"{ 
+                        short_desc = val;
+                    } else if arg_key == "details"{ 
+                        details = val;
                     } else if arg_key == "args" {
                         args = val;
                     }
                 }
             }
 
-            commands.push(Command::new(name, name_cmd, cmd_type, explanation, args, cmd_examples));
+            commands.push(Command::new(name, name_cmd, cmd_type, short_desc, details, args, cmd_examples));
         }
     }
 

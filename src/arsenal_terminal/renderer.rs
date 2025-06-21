@@ -7,14 +7,14 @@ use tui::{
     Frame,
 };
 
-use super::{app::ArsenalApp, event::LevelCode};
+use super::app::ArsenalApp;
 
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // COMPLETE WINDOW
     let window = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(95)])
+        .constraints([Constraint::Length(3), Constraint::Max(89), Constraint::Max(7)])
         .split(f.size());
 
     // SEARCH PARAGRAPH
@@ -34,14 +34,14 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // BODY
     let body = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)]) 
+        .constraints([Constraint::Percentage(100)]) 
         .split(window[1]);
 
     // BODY RIGHT PANE
-    let right_pane = Layout::default()
+    let footer = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
-        .split(body[1]);
+        .constraints([Constraint::Percentage(100)])
+        .split(window[2]);
 
     // BODY LEFT PANE
     // Iterate through all elements in the `items` app and append some debug text to it.
@@ -61,7 +61,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         )
         .highlight_symbol("> ");
 
-    // BODY RIGHT UPPER PANE
+    // INFO PANE
     let info_pane = Block::default()
         .title("Info")
         .borders(Borders::ALL);
@@ -87,14 +87,14 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                     ];
 
                     // Add Explanation if any
-                    if !c.explanation.is_empty() {
+                    if !c.short_desc.is_empty() {
                         info_spans.extend(vec![
                             Spans::from(vec![
                                 Span::styled("Explanation:", Style::default().fg(Color::LightBlue))
                             ])
                         ]);
 
-                        let explanation_line_spans: Vec<Vec<Spans>> = c.explanation.split("\n")
+                        let explanation_line_spans: Vec<Vec<Spans>> = c.short_desc.split("\n")
                             .map(|s| {
                                 vec![
                                     Spans::from(vec![
@@ -114,46 +114,46 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                             ]);
                     }
 
-                    info_spans.extend(vec![
-                        Spans::from(vec![
-                            Span::styled("Full Command:", Style::default().fg(Color::LightBlue))
-                        ]),
-                        Spans::from(vec![
-                            Span::styled(c.copy_raw(), Style::default().fg(Color::LightCyan))
-                        ]),
-                        Spans::from(vec![
-                            Span::raw("")
-                        ])
-                    ]);
+                    // info_spans.extend(vec![
+                    //     Spans::from(vec![
+                    //         Span::styled("Full Command:", Style::default().fg(Color::LightBlue))
+                    //     ]),
+                    //     Spans::from(vec![
+                    //         Span::styled(c.copy_raw(), Style::default().fg(Color::LightCyan))
+                    //     ]),
+                    //     Spans::from(vec![
+                    //         Span::raw("")
+                    //     ])
+                    // ]);
 
-                    // Add Examples if any
-                    if !c.examples.is_empty() {
-                        info_spans.extend(vec![
-                            Spans::from(vec![
-                                Span::styled("Examples:", Style::default().fg(Color::LightBlue))
-                            ]),
-                            Spans::from(vec![
-                                Span::from("\n-\n".repeat(right_pane[1].width as usize - 2)),  // -2 => for event_paragraph_pane border
-                            ])
-                        ]);
+                    // // Add Examples if any
+                    // if !c.examples.is_empty() {
+                    //     info_spans.extend(vec![
+                    //         Spans::from(vec![
+                    //             Span::styled("Examples:", Style::default().fg(Color::LightBlue))
+                    //         ]),
+                    //         Spans::from(vec![
+                    //             Span::from("\n-\n".repeat(footer[0].width as usize - 2)),  // -2 => for event_paragraph_pane border
+                    //         ])
+                    //     ]);
 
-                        let example_spans: Vec<Vec<Spans>> = c.examples.iter()
-                            .map(|s| {
-                                vec![
-                                    Spans::from(vec![
-                                        Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
-                                    ]),
-                                    Spans::from(vec![
-                                        Span::from("\n-\n".repeat(right_pane[1].width as usize - 2)),  // -2 => for event_paragraph_pane border
-                                    ])
-                                ]
-                            })
-                            .collect();
+                    //     let example_spans: Vec<Vec<Spans>> = c.examples.iter()
+                    //         .map(|s| {
+                    //             vec![
+                    //                 Spans::from(vec![
+                    //                     Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
+                    //                 ]),
+                    //                 Spans::from(vec![
+                    //                     Span::from("\n-\n".repeat(footer[0].width as usize - 2)),  // -2 => for event_paragraph_pane border
+                    //                 ])
+                    //             ]
+                    //         })
+                    //         .collect();
 
-                        for e in example_spans {
-                            info_spans.extend(e);
-                        }
-                    }
+                    //     for e in example_spans {
+                    //         info_spans.extend(e);
+                    //     }
+                    // }
 
                     Paragraph::new(info_spans)
                 },
@@ -165,43 +165,15 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         .block(info_pane)
         .wrap(Wrap { trim: true });
 
-    // BODY RIGHT LOWER PANE
-    let events_spans: Vec<Spans> = 
-        app.events.iter()
-            .rev()
-            .map(|app_event| {
-                // Colorcode the level depending on its type
-                let s = match app_event.level {
-                    LevelCode::CRITICAL => Style::default().fg(Color::Red),
-                    LevelCode::ERROR => Style::default().fg(Color::Magenta),
-                    LevelCode::WARNING => Style::default().fg(Color::Yellow),
-                    LevelCode::INFO => Style::default().fg(Color::Blue),
-                    _ => Style::default(),
-                };
-                // Add a example datetime and apply proper spacing between them
-                Spans::from(vec![
-                    Span::from("-".repeat(right_pane[1].width as usize - 2)),  // -2 => for event_paragraph_pane border
-                    Span::styled(format!("[{:<9}]", app_event.level), s),
-                    Span::styled(
-                        format!("[{}]", app_event.datetime.format("%Y-%m-%d %T")),
-                        Style::default().add_modifier(Modifier::DIM),
-                    ),
-                    Span::raw(app_event.text.clone())
-                ])
-            }).collect();
 
-    let events_paragraph_pane = Paragraph::new(events_spans)
-        .block(Block::default().title("Logs").borders(Borders::ALL))
-        .style(Style::default())
-        .wrap(Wrap { trim: true });
-
+    // ========== RENDERER ==========
+    // RENDER SEARCH PANE
     f.render_widget(search_paragraph_pane, window[0]);
     // RENDER BODY LEFT PANE
     f.render_stateful_widget(commands_list_pane, body[0], &mut app.search_commands.listful_cmds.state);
-    // RENDER BODY RIGHT UPPER PANE (info)
-    f.render_widget(info_paragraph_pane, right_pane[0]);
-    // RENDER BODY RIGHT LOWER PANE (events)
-    f.render_widget(events_paragraph_pane, right_pane[1]);
+    // RENDER INFO PANE
+    f.render_widget(info_paragraph_pane, footer[0]);
+
 
     // If App command popup is opened, this should show the popup
     match &mut app.chosen_command {
@@ -261,7 +233,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .highlight_symbol("> ");
 
             // RENDERER
-            f.render_widget(Clear, area); //this clears out the background
+            f.render_widget(Clear, area);  // this clears out the background
             f.render_widget(command_paragraph_pane, popup_layout[0]);
             f.render_stateful_widget(command_arg_list_pane, popup_layout[1], &mut chosen.listful_args.state);
             f.render_widget(popup_block, popup_window[0]);
