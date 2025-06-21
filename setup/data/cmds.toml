@@ -1,0 +1,37 @@
+title = "Pentest commands"
+
+# Basic configurations
+max_events = 100
+destination = "127.0.0.1"
+
+
+# ============================ #
+#                              #
+#         ALL COMMANDS         #
+#                              #
+# ============================ #
+
+# ===== NETWORK COMMANDS ===== #
+# ============================ #
+
+[command.SSH]
+name_exe = "ssh"
+cmd_types = "network"
+args = "-o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' <conn|user@127.0.0.1>"
+short_desc = "Connect with SSH without saving nor checking known host."
+examples = [
+    "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' user@127.0.0.1"
+]
+
+# ===== REVERSE COMMANDS =====
+# ============================ #
+
+[command.Objdump]
+name_exe = "objdump"
+cmd_types = "reverse"
+short_desc = "Display information from the binary in <type> format"
+args = "-D <binary> -M <type|intel>"
+examples = [
+    "obdjump -M intel -D bin",
+    "objdump -dj .rodata loop -M intel"
+]
