@@ -7,8 +7,9 @@ use tui::{
     Frame,
 };
 
-use super::app::ArsenalApp;
 
+use super::app::ArsenalApp;
+use super::panes::info;
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // COMPLETE WINDOW
@@ -65,105 +66,13 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     let info_pane = Block::default()
         .title("Info")
         .borders(Borders::ALL);
+    
     let info_paragraph_pane = match app.search_commands.listful_cmds.state.selected() {
         Some(s) => {
-            match app.search_commands.listful_cmds.items.get(s) {
-                Some(c) => {
-                    let mut info_spans: Vec<Spans> = vec![
-                        Spans::from(vec![
-                            Span::styled("Command:", Style::default().fg(Color::LightBlue)),
-                            Span::styled(format!("{}\n", c.name_exe), Style::default().fg(Color::Green))
-                        ]),
-                        Spans::from(vec![
-                            Span::styled("TYPE:", Style::default().fg(Color::LightBlue)),
-                            Span::styled(format!("{:<11}", 
-                                c.cmd_types.iter()
-                                    .map(|cmd_type| format!("{:?}", cmd_type))
-                                    .collect::<Vec<String>>().join(" ")), Style::default().fg(Color::Green)),
-                        ]),
-                        Spans::from(vec![
-                            Span::raw("")
-                        ])
-                    ];
-
-                    // Add Explanation if any
-                    if !c.short_desc.is_empty() {
-                        info_spans.extend(vec![
-                            Spans::from(vec![
-                                Span::styled("Explanation:", Style::default().fg(Color::LightBlue))
-                            ])
-                        ]);
-
-                        let explanation_line_spans: Vec<Vec<Spans>> = c.short_desc.split("\n")
-                            .map(|s| {
-                                vec![
-                                    Spans::from(vec![
-                                        Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
-                                    ])
-                                ]
-                            })
-                            .collect();
-
-                            for e in explanation_line_spans {
-                                info_spans.extend(e);
-                            }
-                            info_spans.extend(vec![
-                                Spans::from(vec![
-                                    Span::raw("")
-                                ])
-                            ]);
-                    }
-
-                    // info_spans.extend(vec![
-                    //     Spans::from(vec![
-                    //         Span::styled("Full Command:", Style::default().fg(Color::LightBlue))
-                    //     ]),
-                    //     Spans::from(vec![
-                    //         Span::styled(c.copy_raw(), Style::default().fg(Color::LightCyan))
-                    //     ]),
-                    //     Spans::from(vec![
-                    //         Span::raw("")
-                    //     ])
-                    // ]);
-
-                    // // Add Examples if any
-                    // if !c.examples.is_empty() {
-                    //     info_spans.extend(vec![
-                    //         Spans::from(vec![
-                    //             Span::styled("Examples:", Style::default().fg(Color::LightBlue))
-                    //         ]),
-                    //         Spans::from(vec![
-                    //             Span::from("\n-\n".repeat(footer[0].width as usize - 2)),  // -2 => for event_paragraph_pane border
-                    //         ])
-                    //     ]);
-
-                    //     let example_spans: Vec<Vec<Spans>> = c.examples.iter()
-                    //         .map(|s| {
-                    //             vec![
-                    //                 Spans::from(vec![
-                    //                     Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
-                    //                 ]),
-                    //                 Spans::from(vec![
-                    //                     Span::from("\n-\n".repeat(footer[0].width as usize - 2)),  // -2 => for event_paragraph_pane border
-                    //                 ])
-                    //             ]
-                    //         })
-                    //         .collect();
-
-                    //     for e in example_spans {
-                    //         info_spans.extend(e);
-                    //     }
-                    // }
-
-                    Paragraph::new(info_spans)
-                },
-                None => Paragraph::new("")
-            }
+            info::create_info_paragraph_pane(app.search_commands.listful_cmds.items.get(s), info_pane)
         },
         None => Paragraph::new("")
-    }
-        .block(info_pane)
-        .wrap(Wrap { trim: true });
+    };
 
 
     // ========== RENDERER ==========
