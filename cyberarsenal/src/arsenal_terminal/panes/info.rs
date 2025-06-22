@@ -12,7 +12,7 @@ use crate::arsenal_objects::command::Command;
 
 
 
-pub fn create_info_paragraph_pane<'a>(command: Option<&Command>, block: Block<'a>) -> Paragraph<'a> {
+pub fn create_info_paragraph_pane_light<'a>(command: Option<&Command>, block: Block<'a>) -> Paragraph<'a> {
     let Some(command) = command else {
         return Paragraph::new("")
     };
@@ -62,46 +62,37 @@ pub fn create_info_paragraph_pane<'a>(command: Option<&Command>, block: Block<'a
             ]);
     }
 
-    // info_spans.extend(vec![
-    //     Spans::from(vec![
-    //         Span::styled("Full Command:", Style::default().fg(Color::LightBlue))
-    //     ]),
-    //     Spans::from(vec![
-    //         Span::styled(c.copy_raw(), Style::default().fg(Color::LightCyan))
-    //     ]),
-    //     Spans::from(vec![
-    //         Span::raw("")
-    //     ])
-    // ]);
+    let info_paraghraph_pane = Paragraph::new(info_spans)
+        .block(block)
+        .wrap(Wrap { trim: true });
 
-    // // Add Examples if any
-    // if !c.examples.is_empty() {
-    //     info_spans.extend(vec![
-    //         Spans::from(vec![
-    //             Span::styled("Examples:", Style::default().fg(Color::LightBlue))
-    //         ]),
-    //         Spans::from(vec![
-    //             Span::from("\n-\n".repeat(footer[0].width as usize - 2)),  // -2 => for event_paragraph_pane border
-    //         ])
-    //     ]);
+    info_paraghraph_pane
+}
 
-    //     let example_spans: Vec<Vec<Spans>> = c.examples.iter()
-    //         .map(|s| {
-    //             vec![
-    //                 Spans::from(vec![
-    //                     Span::styled(format!("{}", s), Style::default().fg(Color::LightCyan))
-    //                 ]),
-    //                 Spans::from(vec![
-    //                     Span::from("\n-\n".repeat(footer[0].width as usize - 2)),  // -2 => for event_paragraph_pane border
-    //                 ])
-    //             ]
-    //         })
-    //         .collect();
 
-    //     for e in example_spans {
-    //         info_spans.extend(e);
-    //     }
-    // }
+pub fn create_examples_paragraph_pane<'a>(command: Option<&Command>, block: Block<'a>) -> Paragraph<'a> {
+    let Some(command) = command else {
+        return Paragraph::new("")
+    };
+    
+    let mut info_spans: Vec<Spans> = vec![];
+
+    // Add Examples if any
+    if !command.examples.is_empty() {
+        let example_spans: Vec<Vec<Spans>> = command.examples.iter()
+            .map(|s| {
+                vec![
+                    Spans::from(vec![
+                        Span::styled(format!("> {}", s), Style::default().fg(Color::LightCyan))
+                    ]),
+                ]
+            })
+            .collect();
+
+        for e in example_spans {
+            info_spans.extend(e);
+        }
+    }
 
     let info_paraghraph_pane = Paragraph::new(info_spans)
         .block(block)

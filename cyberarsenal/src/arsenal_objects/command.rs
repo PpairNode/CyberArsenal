@@ -43,7 +43,7 @@ pub struct CommandArg {
     pub value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
     post: String,                   // Post value after a <match>. Example: <match>TEST
     pub follow_char: Option<char>,          // If value is sticked to next, we shouldn't add a space. Example: <cur_match>/<next_match>
-    is_input: bool,                 // If this value has to be an input
+    pub is_input: bool,                 // If this value has to be an input
     default: Option<String>,        // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
     pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
 }

@@ -8,6 +8,8 @@ use tui::{
 };
 
 
+use crate::arsenal_objects::command::CommandArg;
+
 use super::app::ArsenalApp;
 use super::panes::info;
 use super::panes::search;
@@ -67,7 +69,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     
     let info_paragraph_pane = match app.search_commands.listful_cmds.state.selected() {
         Some(s) => {
-            info::create_info_paragraph_pane(app.search_commands.listful_cmds.items.get(s), info_pane)
+            info::create_info_paragraph_pane_light(app.search_commands.listful_cmds.items.get(s), info_pane)
         },
         None => Paragraph::new("")
     };
@@ -86,7 +88,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     match &mut app.chosen_command {
         Some(chosen) => {
             // POPUP Centered
-            let area = centered_rect(60, 40, f.size());
+            let area = centered_rect(70, 70, f.size());
             // Create a rectangle inside the rectangle
             let mut area2 = area.clone();
             area2.x += 1;
@@ -103,20 +105,21 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .title("Popup CMD")
                 .borders(Borders::ALL);
 
+            let input_args: Vec<&CommandArg> = chosen.command.cmd_args.iter().filter(|c| c.is_input).collect();
             let popup_layout = Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([Constraint::Length(3), Constraint::Min(95)])
+                .constraints([Constraint::Min(3), Constraint::Length(input_args.len() as u16 + 1), Constraint::Max(15)])
                 .split(area2);
 
             // COMMAND Block
+            let text = chosen.command.copy_basic();
             let command_spans: Vec<Spans> = vec![
                 Spans::from(vec![
                     Span::styled(">> ", Style::default()),
-                    Span::styled(chosen.command.copy_basic(), Style::default().fg(Color::LightRed))
+                    Span::styled(text, Style::default().fg(Color::LightRed))
                 ])
             ];
-            let command_paragraph_block = Block::default()
-                .borders(Borders::BOTTOM);
+            let command_paragraph_block = Block::default();
             let command_paragraph_pane = Paragraph::new(command_spans)
                 .style(Style::default())
                 .wrap(Wrap { trim: true })
@@ -130,7 +133,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .collect();
             // Create a List from all list items and highlight the currently selected one
             let command_arg_list_pane = List::new(command_args)
-                .block(Block::default().borders(Borders::NONE))
+                .block(Block::default().borders(Borders::TOP).title("Arguments"))
                 .highlight_style(
                     Style::default()
                         .fg(Color::Black)
@@ -139,10 +142,22 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 )
                 .highlight_symbol("> ");
 
+            let examples_pane = Block::default()
+                .title("Examples")
+                .borders(Borders::TOP);
+            
+            let examples_paragraph_pane = match app.search_commands.listful_cmds.state.selected() {
+                Some(s) => {
+                    info::create_examples_paragraph_pane(app.search_commands.listful_cmds.items.get(s), examples_pane)
+                },
+                None => Paragraph::new("")
+            };
+
             // RENDERER
             f.render_widget(Clear, area);  // this clears out the background
             f.render_widget(command_paragraph_pane, popup_layout[0]);
             f.render_stateful_widget(command_arg_list_pane, popup_layout[1], &mut chosen.listful_args.state);
+            f.render_widget(examples_paragraph_pane, popup_layout[2]);
             f.render_widget(popup_block, popup_window[0]);
         },
         None => {}
