@@ -72,7 +72,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                     let mut info_spans: Vec<Spans> = vec![
                         Spans::from(vec![
                             Span::styled("Command:", Style::default().fg(Color::LightBlue)),
-                            Span::styled(format!("{}\n", c.name_cmd), Style::default().fg(Color::Green))
+                            Span::styled(format!("{}\n", c.name_exe), Style::default().fg(Color::Green))
                         ]),
                         Spans::from(vec![
                             Span::styled("TYPE:", Style::default().fg(Color::LightBlue)),

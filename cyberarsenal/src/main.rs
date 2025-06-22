@@ -56,6 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Loading settings in application or error
     if let Err(e) = app.load_settings(args.settings) {
         error!("load_settings failed, error={}", e);
+        let _ = restore_terminal(&mut terminal);
         return Ok(())
     };
 

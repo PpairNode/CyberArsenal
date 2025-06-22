@@ -1,9 +1,9 @@
 use std::fmt::{self, Display};
 use anyhow::Result;
 use regex::Regex;
-use toml::Value;
+use rusqlite::Connection;
+use tracing::{debug, info};
 
-use crate::misc::inputs::IntelligentStringBuilder;
 
 
 #[derive(Debug, Clone)]
@@ -15,19 +15,21 @@ pub enum CommandType {
     CRYPTO,
     SYSADMIN,
     NETWORK,
+    NONE,
     UNKNOWN,
 }
 
 impl CommandType {
     pub fn from_str(s: &str) -> Self {
         match s {
-            "programming" | "" => CommandType::PROGRAMMING,
+            "programming" => CommandType::PROGRAMMING,
             "reverse" => CommandType::REVERSE,
             "forensics" => CommandType::FORENSICS,
             "pentest" => CommandType::PENTEST,
             "crypto" => CommandType::CRYPTO,
             "sysadmin" => CommandType::SYSADMIN,
             "network" => CommandType::NETWORK,
+            "" => CommandType::NONE,
             _ => CommandType::UNKNOWN
         }
     }
@@ -161,7 +163,7 @@ impl Display for CommandArg {
 pub struct Command {
     pub id: usize,
     pub name: String,  // Real name as the name in brackets `[command.xxx]` => xxx
-    pub name_cmd: String,
+    pub name_exe: String,
     pub cmd_types: Vec<CommandType>,
     pub short_desc: String,
     pub details: String,
@@ -171,16 +173,13 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new(name: String, name_cmd: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
-        static mut ID: usize = 0;
-        unsafe { ID = ID + 1 };
-
-        let mut id = 0;
+    pub fn new(id: usize, name: String, name_cmd: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
+        let mut cmd_id = 0;
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
         let mut cmd_args: Vec<CommandArg> = vec![];
         for e in v {
-            let mut cmd_arg_vec = CommandArg::new(id, e.to_string());
-            id += cmd_arg_vec.len();
+            let mut cmd_arg_vec = CommandArg::new(cmd_id, e.to_string());
+            cmd_id += cmd_arg_vec.len();  // CommandArg::new() returns a vector because it can have multiple fields to fill. Add len of vec to id 
             cmd_args.append(&mut cmd_arg_vec);
         }
 
@@ -189,9 +188,9 @@ impl Command {
             .collect();
 
         Command {
-            id: unsafe { ID },
+            id,
             name,
-            name_cmd,
+            name_exe: name_cmd,
             cmd_types: cmd_types_vector,
             short_desc,
             details,
@@ -211,13 +210,13 @@ impl Command {
             {} {}\n\
             \
             Examples:\n > {}",
-            self.name_cmd,
+            self.name_exe,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
             self.short_desc,
             self.details,
-            self.name_cmd,
+            self.name_exe,
             self.copy_raw(),
             self.examples.join("\n > ")
         )
@@ -230,12 +229,12 @@ impl Command {
             Explanation:\n{}\n\
             \
             {} {}\n",
-            self.name_cmd,
+            self.name_exe,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
             self.short_desc,
-            self.name_cmd,
+            self.name_exe,
             self.copy_raw()
         )
     }
@@ -246,7 +245,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join("");
 
-        format!("{} {}", self.name_cmd, cmd)
+        format!("{} {}", self.name_exe, cmd)
     }
 
     pub fn copy_raw_shifted(&self) -> String {
@@ -255,7 +254,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join("");
 
-        format!("[{:<20}] {} {}", self.name, self.name_cmd, cmd)
+        format!("[{:<20}] {} {}", self.name, self.name_exe, cmd)
     }
 
     pub fn copy_basic(&self) -> String {
@@ -264,7 +263,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join("");
 
-        format!("{} {}", self.name_cmd, cmd)
+        format!("{} {}", self.name_exe, cmd)
     }
 
     pub fn get_all_args(&self) -> &Vec<CommandArg> {
@@ -284,60 +283,71 @@ impl Display for Command {
     }
 }
 
-pub fn load_values_into_commands(value: Value) -> Result<Vec<Command>> {
-    let mut commands: Vec<Command> = vec![];
+pub fn load_values_into_commands_from_db(name: &str) -> Result<Vec<Command>> {
+    let conn = Connection::open(name)?;
 
-    let Some(table) = value.as_table() else {
-        anyhow::bail!("Value as table error");
-    };
-    let Some(commands_value) = table.get("command") else {
-        anyhow::bail!("Value does not contain command!");
-    };
+    let mut cmd_statement = conn.prepare("SELECT id, name, name_exe, short_desc, details FROM commands;")?;
+    let commands: Vec<Command> = cmd_statement.query_map([], |row| {
+        let id: usize = row.get(0)?;
+        let name = row.get(1)?;
+        let name_exe = row.get(2)?;
+        let short_desc = row.get(3)?;
+        let details = row.get(4)?;
 
-    for elt_commands in commands_value.as_table().iter() {
-        for k_command in elt_commands.keys() {
-            let name = k_command.clone().replace("-", " ");  // 
-            let mut name_cmd = k_command.clone();
-            let mut cmd_type = "".to_string();
-            let mut short_desc = "".to_string();
-            let mut details = "".to_string();
-            let mut args = "".to_string();
-            let mut cmd_examples = vec![];
+        debug!("ID: {id}");
+        debug!("NAME: {name}");
+        debug!("NAME_EXE: {name_exe}");
+        debug!("SHORT_DESC: {short_desc}");
+        debug!("DETAILS: {details}");
 
-            let v_args = elt_commands.get(k_command).unwrap();
-            let args_value = v_args.as_table();
-            for args_map in args_value.iter() {
-                for arg_key in args_map.keys() {
-                    let arg_value = args_map.get(arg_key).unwrap();
-                    // Check few basic values
-                    let mut isb = IntelligentStringBuilder::new(arg_value.to_string());
-                    let val = isb.delete_first_quote().delete_last_quote().replace_backslash_quote_with_quote().build();
+        debug!("Query: SELECT args FROM command_args WHERE COMMAND_ID={id};");
+        let mut args_statment = conn.prepare(&format!("SELECT args FROM command_args WHERE command_id={id};"))?;
+        let args: Vec<String> = args_statment.query_map([], |row| {
+            debug!("Args row found: {row:?}");
+            let args = row.get(0)?;
+            debug!("Args extracted: {args:?}");
+            Ok(args)
+        })?.filter_map(Result::ok).collect();
 
-                    if arg_key == "examples" {
-                        let Some(examples) = arg_value.as_array() else {
-                            continue;
-                        };
-                        for example in examples.iter() {
-                            let mut isb = IntelligentStringBuilder::new(example.to_string());
-                            cmd_examples.push(isb.delete_first_quote().delete_last_quote().replace_backslash_quote_with_quote().build());
-                        }
-                    } else if arg_key == "name_exe"{
-                        name_cmd = val;
-                    } else if arg_key == "cmd_types"{ 
-                        cmd_type = val;
-                    } else if arg_key == "short_desc"{ 
-                        short_desc = val;
-                    } else if arg_key == "details"{ 
-                        details = val;
-                    } else if arg_key == "args" {
-                        args = val;
-                    }
-                }
-            }
+        let args = match args.get(0) {
+            Some(s) => s.clone(),
+            None => String::new()
+        };
 
-            commands.push(Command::new(name, name_cmd, cmd_type, short_desc, details, args, cmd_examples));
-        }
-    }
+        debug!("ARGS: {args}");
+
+        debug!("Query: SELECT example FROM command_examples WHERE COMMAND_ID={id};");
+        let mut examples_statment = conn.prepare(&format!("SELECT example FROM command_examples WHERE command_id={id};"))?;
+        let examples: Vec<String> = examples_statment.query_map([], |row| {
+            let examples = row.get(0)?;
+            Ok(examples)
+        })?.filter_map(Result::ok).collect();
+        debug!("EXAMPLES: {examples:?}");
+
+        debug!("Query: SELECT type FROM command_types WHERE COMMAND_ID={id};");
+        let mut cmd_types_statment = conn.prepare(&format!("SELECT type FROM command_types WHERE command_id={id};"))?;
+        let cmd_types: Vec<String> = cmd_types_statment.query_map([], |row| {
+            let cmd_types = row.get(0)?;
+            Ok(cmd_types)
+        })?.filter_map(Result::ok).collect();
+        let cmd_types = match cmd_types.get(0) {
+            Some(s) => s.clone(),
+            None => String::new()
+        };
+        debug!("TYPES: {cmd_types}");
+
+        Ok(Command::new(
+            id,
+            name,
+            name_exe,
+            cmd_types,
+            short_desc,
+            details,
+            args,
+            examples))
+    })?.filter_map(Result::ok).collect();
+
+    info!("Number of loaded commands: {}", commands.len());
 
     return Ok(commands)
 }

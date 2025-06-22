@@ -1,9 +1,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
-use toml::Value;
 use std::{
-    fs::File, time::{Duration, Instant}
+    time::{Duration, Instant}
 };
-use std::io::prelude::*;
 use tui::{
     backend::Backend,
     Terminal,
@@ -11,7 +9,7 @@ use tui::{
 use anyhow::Result;
 use tracing::{debug, error, info};
 
-use crate::arsenal_objects::command::{load_values_into_commands, CommandArg, Command};
+use crate::arsenal_objects::command::{load_values_into_commands_from_db, Command, CommandArg};
 use crate::misc::inputs::write_co_clipboard;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 
@@ -71,7 +69,7 @@ impl SearchCommands {
                 .filter_map(|c| {
                     if c.name.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME
                         Some(c.clone())
-                    } else if c.name_cmd.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME_CMD
+                    } else if c.name_exe.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME_CMD
                         Some(c.clone())
                     } else if c.args.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: ARGS
                         Some(c.clone())
@@ -115,7 +113,7 @@ impl ArsenalApp {
                     Some(path) if !path.as_os_str().is_empty() => {
                         match path.to_str() {
                             Some(path_home_dir) => {
-                                let settings_path = format!("{}/.config/cyberarsenal/settings.toml", path_home_dir);
+                                let settings_path = format!("{}/.config/cyberarsenal/settings.db", path_home_dir);
                                 settings_path
                             },
                             None => anyhow::bail!("Could not load path from home user")
@@ -126,19 +124,19 @@ impl ArsenalApp {
             }
         };
 
-        let mut file = File::open(&settings).map_err(|e| anyhow::format_err!("File::open() err={}", e))?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
+        // let mut file = File::open(&settings).map_err(|e| anyhow::format_err!("File::open() err={}", e))?;
+        // let mut contents = String::new();
+        // file.read_to_string(&mut contents)?;
 
-        let value = contents.parse::<Value>()?;
+        // let value = contents.parse::<Value>()?;
         // info!("Settings: {value}");  // Too much data to log
 
         // Check and Load values
         // let mut commands = load_values_into_commands(value)?;
-        self.search_commands.commands = match load_values_into_commands(value) {
+        self.search_commands.commands = match load_values_into_commands_from_db(&settings) {
             Ok(lc) => lc,
             Err(e) => {
-                info!("LOAD FAILED: value {e}");
+                error!("LOAD FAILED with error={e}");
                 return Err(e)
             }
         };
@@ -149,7 +147,7 @@ impl ArsenalApp {
     }
 
     pub fn load_example_commands(&mut self) {
-        self.search_commands.listful_cmds.items.push(Command::new(
+        self.search_commands.listful_cmds.items.push(Command::new(0,
             "ping0".to_string(),
             "ping".to_string(),
             "network".to_string(),

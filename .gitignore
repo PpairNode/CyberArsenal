@@ -22,3 +22,4 @@ app.log
 # Added by python
 .env
 *.egg-info
+__pycache__
