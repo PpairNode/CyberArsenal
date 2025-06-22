@@ -23,7 +23,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Complete window
     let window = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Percentage(80), Constraint::Min(10)])
+        .constraints([Constraint::Length(3), Constraint::Min(10), Constraint::Length(5)])
         .split(f.size());
     // Body
     let body = Layout::default()
