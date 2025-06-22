@@ -21,13 +21,14 @@ from db_builder.logs import init_logs
 # - CMD_EXAMPLE (TEXT): example
 
 
-# +----+-----------+-------------------------------+
-# | ID | NAME_EXE  | SHORT_DESC                    |
-# +----+-----------+-------------------------------+
+# +----+-------+-----------+-------------------------------+
+# | ID | NAME  | NAME_EXE  | SHORT_DESC                    |
+# +----+-------+-----------+-------------------------------+
 table_commands="""
 -- Main table for commands
 CREATE TABLE IF NOT EXISTS commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
     name_exe TEXT NOT NULL,
     short_desc TEXT,
     details TEXT
@@ -76,7 +77,7 @@ TABLES = [
 
 # INSERT DATA
 # -- Insert command
-# INSERT INTO commands (name_exe, short_desc, details) VALUES (?,?,?);
+# INSERT INTO commands (name, name_exe, short_desc, details) VALUES (?,?,?,?);
 
 # -- Add types
 # INSERT INTO command_types (command_id, type) VALUES (?,?);
@@ -116,8 +117,8 @@ def insert_data(conn: Connection, toml_data: dict[str, any]) -> bool:
                 if 'examples' in val:
                     examples = val['examples']
                 # Now insert values for this command
-                cursor.execute(f"INSERT INTO commands (name_exe, short_desc, details) VALUES (?,?,?);",
-                               (name_exe, short_desc, details))
+                cursor.execute(f"INSERT INTO commands (name, name_exe, short_desc, details) VALUES (?,?,?,?);",
+                               (key, name_exe, short_desc, details))
                 id = cursor.lastrowid
                 cursor.execute(f"INSERT INTO command_types (command_id, type) VALUES (?,?);",
                                (id, cmd_types))
