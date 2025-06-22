@@ -14,7 +14,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // COMPLETE WINDOW
     let window = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Max(89), Constraint::Max(7)])
+        .constraints([Constraint::Length(3), Constraint::Percentage(80), Constraint::Min(10)])
         .split(f.size());
 
     // SEARCH PARAGRAPH
