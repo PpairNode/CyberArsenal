@@ -12,6 +12,7 @@ Here is a quick demo about the tool:
 ![CyberArsenal](docs/cyberarsenal.gif)
 
 ## CyberArsenal
+- Using python and SQLite to create a database from a commands file toml
 - Search bar
 - List of commands to chose
 - Hit `ENTER/EXIT`: enter or exit the command popup
