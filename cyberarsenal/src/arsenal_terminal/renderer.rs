@@ -10,41 +10,39 @@ use tui::{
 
 use super::app::ArsenalApp;
 use super::panes::info;
+use super::panes::search;
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
-    // COMPLETE WINDOW
+    // ========== LAYOUTS ==========
+    // WINDOW
+    // BODY (commands)
+    // FOOTER (info)
+    // =============================
+    // Complete window
     let window = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Percentage(80), Constraint::Min(10)])
         .split(f.size());
-
-    // SEARCH PARAGRAPH
-    let search_spans: Vec<Spans> = vec![
-        Spans::from(vec![
-            Span::styled(">> ", Style::default()),
-            Span::styled(format!("{}", app.search_commands.search.to_string()), Style::default().fg(Color::LightRed))
-        ])
-    ];
-    let search_pane = Block::default()
-        .title("Search CMD")
-        .borders(Borders::ALL);
-    let search_paragraph_pane = Paragraph::new(search_spans)
-        .block(search_pane)
-        .wrap(Wrap { trim: true });
-
-    // BODY
+    // Body
     let body = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(100)]) 
         .split(window[1]);
-
-    // BODY RIGHT PANE
+    // Footer
     let footer = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Percentage(100)])
         .split(window[2]);
 
-    // BODY LEFT PANE
+
+    // BLOCKS AND PARAGRAPHS
+    // Search bar
+    let search_pane = Block::default()
+        .title("Search CMD")
+        .borders(Borders::ALL);
+    let search_paragraph_pane = search::create_info_paragraph_pane(&app.search_commands.search, search_pane);
+
+    // Command list
     // Iterate through all elements in the `items` app and append some debug text to it.
     let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
@@ -62,7 +60,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         )
         .highlight_symbol("> ");
 
-    // INFO PANE
+    // Info
     let info_pane = Block::default()
         .title("Info")
         .borders(Borders::ALL);
@@ -76,11 +74,11 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
 
     // ========== RENDERER ==========
-    // RENDER SEARCH PANE
+    // Search
     f.render_widget(search_paragraph_pane, window[0]);
-    // RENDER BODY LEFT PANE
+    // Commands list
     f.render_stateful_widget(commands_list_pane, body[0], &mut app.search_commands.listful_cmds.state);
-    // RENDER INFO PANE
+    // Info
     f.render_widget(info_paragraph_pane, footer[0]);
 
 
