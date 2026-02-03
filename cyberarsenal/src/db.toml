@@ -51,7 +51,7 @@ examples = [
 [command.XfreeRDP-0]
 name_exe = "xfreerdp"
 cmd_types = "network"
-args = "/cert:ignore /u:<user> /p:<password> /v:<ip|127.0.0.1>"
+args = "/cert:<status|ignore> /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1> /dynamic-resolution"
 short_desc = "Connect with GUI to an Windows machine with RDP protocol."
 examples = [
     "xfreerdp /u:user /p:password /v:127.0.0.1"
@@ -60,11 +60,12 @@ examples = [
 [command.XfreeRDP-1]
 name_exe = "xfreerdp"
 cmd_types = "network"
-args = "/cert:<status|ignore> /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1>"
-short_desc = "Connect with GUI to an Windows machine with RDP protocol."
+args = "/cert:<status|ignore> /compression /auto-reconnect /dynamic-resolution /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1> /drive:<share-drive-name|share>,<share-local-folder|/tmp/shared>"
+short_desc = "Connect with GUI to an Windows machine with RDP protocol and mount share drive."
 examples = [
-    "xfreerdp /u:user /p:password /v:127.0.0.1"
+    "xfreerdp /cert-ignore /compression /auto-reconnect /dynamic-resolution /d:corp.local /u:user /p:password /v:127.0.0.1 /drive:share,/tmp/shared"
 ]
+
 
 [command.PwSh0]
 name_exe = "pwsh-preview"
@@ -177,11 +178,19 @@ examples = [
     "Get-CimInstance -ClassName win32_service | Select Name, StartMode | Where-Object {$_.Name -like 'mysql'}"
 ]
 
+[command.Tee]
+name_exe = "tee"
+cmd_types = "sysadmin"
+short_desc = "Add new entry to known hosts"
+args = "echo '<ip|127.0.0.1> example.local' | sudo tee /etc/hosts -a"
+examples = [
+    "echo '127.0.0.1 example.local' | sudo tee /etc/hosts -a"
+]
 
 # ===== PENTEST COMMANDS =====
 # ============================ #
 
-[command.Nmap-0]
+[command.Nmap-All-Port-Scan]
 name_exe = "nmap"
 cmd_types = "pentest|network"
 short_desc = "Scanning all ports with SYN scan and saving in file"
@@ -190,7 +199,7 @@ examples = [
     "nmap -sV -sS -Pn -p- -oN scan.nmap 127.0.0.1"
 ]
 
-[command.Nmap-1]
+[command.Nmap-Version-Script]
 name_exe = "nmap"
 cmd_types = "pentest|network"
 short_desc = "Version -sV, default script -sC"
@@ -200,13 +209,22 @@ examples = [
     "nmap -sV -p 443 --script 'vuln'"
 ]
 
-[command.Nmap-2]
+[command.Nmap-SMB-OS-Discovery]
 name_exe = "nmap"
 cmd_types = "pentest|network"
 short_desc = "SMB OS discovery"
 args = "-n -p139,445 --script smb-os-discovery <ip|127.0.0.1>"
 examples = [
     "nmap -n -p139,445 --script smb-os-discovery  127.0.0.1"
+]
+
+[command.Nmap-UDP-Scan]
+name_exe = "nmap"
+cmd_types = "pentest|network"
+short_desc = "Full UDP Scan"
+args = "-sS -sU -p- <ip|127.0.0.1> -oN scan-udp.txt"
+examples = [
+    "nmap -sS -sU -p- -T4 --min-rate 1000 127.0.0.1 -oN scan-udp.txt"
 ]
 
 [command.DNSEnum]
