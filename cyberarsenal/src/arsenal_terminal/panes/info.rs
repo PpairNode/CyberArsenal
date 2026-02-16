@@ -14,7 +14,7 @@ use crate::arsenal_objects::command::Command;
 
 pub fn create_info_paragraph_pane_light<'a>(command: Option<&Command>, block: Block<'a>) -> Paragraph<'a> {
     let Some(command) = command else {
-        return Paragraph::new("")
+        return Paragraph::new("").block(block)
     };
     
     let mut info_spans: Vec<Spans> = vec![

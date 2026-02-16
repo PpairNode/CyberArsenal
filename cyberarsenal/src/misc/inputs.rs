@@ -56,3 +56,11 @@ pub fn write_co_clipboard(command: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub fn truncate(s: &str, max: usize) -> String {
+    if s.len() > max {
+        format!("{}… ", &s[..max.saturating_sub(1)])
+    } else {
+        format!("{:<width$} ", s, width = max)
+    }
+}

@@ -8,7 +8,7 @@ use tui::{
 };
 
 
-use crate::arsenal_objects::command::CommandArg;
+use crate::{arsenal_objects::command::CommandArg, misc::inputs::truncate};
 
 use super::app::ArsenalApp;
 use super::panes::info;
@@ -54,9 +54,19 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
     // Command list
     // Iterate through all elements in the `items` app and append some debug text to it.
+    let width_max = body[0].width as usize;
+    let local_width = width_max * 5 / 100; // 10% pour [local]
+    let name_width = width_max * 10 / 100; // 30% pour short_desc
+    let short_desc_width = width_max * 20 / 100; // 20% pour name
     let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
-            ListItem::new(command.copy_raw_shifted()).style(Style::default().fg(Color::LightBlue))
+            // ListItem::new(command.copy_raw_shifted()).style(Style::default().fg(Color::LightBlue));
+            ListItem::new(Spans::from(vec![
+                Span::styled(truncate(&format!("[{}] ", command.local_str()), local_width), Style::default().fg(Color::Rgb(190,190,190))),
+                Span::styled(truncate(&format!("{} ", command.name), name_width), Style::default().fg(Color::LightRed)),
+                Span::styled(truncate(&format!("{} ", command.short_desc), short_desc_width), Style::default().fg(Color::Yellow)),
+                Span::styled(command.copy_raw(), Style::default().fg(Color::LightCyan)),
+            ]))
         })
         .collect();
     // Create a List from all list items and highlight the currently selected one
