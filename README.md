@@ -8,10 +8,20 @@ To build the database, follow the instruction here: [Database installation](setu
 To run the tool, for now it is only available through cargo locally: `cargo run -- -s <file.db>`. Just replace `file.db` with your database created during the setup.
 
 Here is a quick demo about the tool:
+![CYBAR ](docs/cyberarsenal.gif)
+*Quick demo (to be done again to match latest version)*
 
-![CyberArsenal](docs/cyberarsenal.gif)
+![CYBAR ](docs/cybar_full.png)
+*CyberArsenal Menu*
 
-## CyberArsenal
+![CYBAR ](docs/cybar_search_example_1.png)
+*CyberArsenal Search Example*
+
+![CYBAR ](docs/cybar_popup_example_1.png)
+*CyberArsenal Popup Command*
+
+
+## CyberArsenal - How to use
 - Using python and SQLite to create a database from a commands file toml
 - Search bar to navigate through commands
 - List of commands

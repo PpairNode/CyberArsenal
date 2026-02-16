@@ -1,5 +1,6 @@
 import argparse
 import tomllib
+from pathlib import Path
 import logging
 import sqlite3
 from sqlite3 import Connection
@@ -136,6 +137,7 @@ def insert_data(conn: Connection, toml_data: dict[str, any]) -> bool:
                 for example in examples:
                     cursor.execute(f"INSERT INTO command_examples (command_id, example) VALUES (?,?);",
                                    (id, example))
+                logging.debug(f"Command: [{key}]{use_name} has been added")
     conn.commit()
 
 
@@ -145,19 +147,53 @@ def connect_db(name) -> Connection | None :
     except Exception as e:
         raise e
 
+def confirm(path: Path) -> bool:
+    return input(f"{path} already exists, delete it? [y/N] ").strip().lower() in ("y", "yes")
+
 
 def main():
     parser = argparse.ArgumentParser(description="SQLite Builder for CyberArsenal")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("-d", "--database-name", type=str, help="Name of SQLite DB file", default="sqlite.db")
     parser.add_argument("-f", "--file", required=True, type=str, help="File to add commands into DB (toml)", default="commands.toml")
+    parser.add_argument("--force", action="store_true", help="Overwrite DB")
+    parser.add_argument("-b", "--backup", action="store_true", help="Backup DB")
 
     args = parser.parse_args()
 
     init_logs(args.verbose)
 
+    path = Path(args.database_name)
+
+    # Check backup and if exists check force then delete
+    if args.backup:
+        path_bak = Path(args.database_name + ".bak")
+        if path_bak.is_file():
+            if not args.force:
+                if confirm(path_bak):
+                    path_bak.unlink()
+                    logging.info(f"Old DB has been deleted: {path_bak}")
+            else:
+                path_bak.unlink(missing_ok=True)
+                logging.info(f"Old DB has been deleted: {path_bak}")
+            path.rename(path_bak)
+            logging.info(f"DB has been backed to {path_bak}")
+
+    # Check file and check force then delete
+    if path.is_file():
+        if not args.force:
+            if confirm(path):
+                path.unlink()
+                logging.info("Old DB has been deleted!")
+            else:
+                logging.error("File has not been deleted, exiting...")
+                return
+        else:
+            path.unlink(missing_ok=True)
+            logging.info(f"Old DB has been deleted: {path}!")
+
     # Open DB
-    conn: Connection = connect_db(args.database_name)
+    conn: Connection = connect_db(path)
 
     # Create DB tables
     create_tables(conn, TABLES)
@@ -171,4 +207,6 @@ def main():
 
     # Close DB
     conn.close()
+
+    logging.info(f"DB created with success: {path}")
     
