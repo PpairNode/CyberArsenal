@@ -23,7 +23,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Complete window
     let window = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(5), Constraint::Length(2), Constraint::Min(10)])
+        .constraints([Constraint::Length(5), Constraint::Length(4), Constraint::Min(10)])
         .split(f.size());
     // Header
     let header = Layout::default()
@@ -40,15 +40,17 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     
     // BLOCKS AND PARAGRAPHS
     // Search bar
-    let cur_key_num = match app.search_commands.listful_cmds.state.selected() {
-        Some(s) => s + 1,  // To match KEY in DB starting at 0
-        None => 1
+    let mut cur_key_num = match app.search_commands.listful_cmds.state.selected() {
+        Some(s) => s,  // To match KEY in DB starting at 0
+        None => 0
     };
+    let cur_cmd = app.search_commands.commands.get(cur_key_num);
+    cur_key_num += 1; // To match KEY in DB starting at 0
     let total_key_num = app.search_commands.commands.len();
     let search_pane = Block::default()
         .title("Search CMD")
-        .borders(Borders::NONE);
-    let search_paragraph_pane = search::create_info_paragraph_pane(&app.search_commands.search, cur_key_num, total_key_num,search_pane);
+        .borders(Borders::LEFT);
+    let search_paragraph_pane = search::create_search_paragraph_pane(&app.search_commands.search, cur_key_num, total_key_num, cur_cmd,search_pane);
 
     // Command list
     // Iterate through all elements in the `items` app and append some debug text to it.
