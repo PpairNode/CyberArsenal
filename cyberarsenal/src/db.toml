@@ -217,6 +217,15 @@ examples = [
     "echo '127.0.0.1 example.local' | sudo tee /etc/hosts -a"
 ]
 
+[command.LinuxNetServices]
+use_name = "hosts"
+local = true
+name_exe = "sudo"
+cmd_types = "sysadmin"
+short_desc = "Prepare HTTP and SMB service"
+args = "sudo systemctl stop nginx smbd nmbd"
+examples = []
+
 # ===== PENTEST COMMANDS =====
 # ============================ #
 
