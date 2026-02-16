@@ -1,6 +1,8 @@
 # CyberArsenal README
 CyberArsenal is an inventory, reminder and launcher for linux/windows commands of all types (forensics, pentest, development, sysadmin, ...).
 
+Support: Linux/Windows
+
 ## Building DB
 To build the database, follow the instruction here: [Database installation](setup/README.md).
 
@@ -19,6 +21,8 @@ Here is a quick demo about the tool:
 
 ![CYBAR ](docs/cybar_popup_example_1.png)
 *CyberArsenal Popup Command*
+
+Note: on `Windows` the command is `cargo run --target x86_64-pc-windows-msvc -- -s <file.db>`.
 
 
 ## CyberArsenal - How to use
