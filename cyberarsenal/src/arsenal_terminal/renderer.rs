@@ -14,6 +14,8 @@ use super::app::ArsenalApp;
 use super::panes::info;
 use super::panes::search;
 
+
+
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // ========== LAYOUTS ==========
     // WINDOW
@@ -62,9 +64,9 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             // ListItem::new(command.copy_raw_shifted()).style(Style::default().fg(Color::LightBlue));
             ListItem::new(Spans::from(vec![
                 Span::styled(truncate(&format!("[{}] ", command.local_str()), local_width), Style::default().fg(Color::Rgb(190,190,190))),
-                Span::styled(truncate(&format!("{} ", command.name), name_width), Style::default().fg(Color::Rgb(250, 99, 255))),
-                Span::styled(truncate(&format!("{} ", command.short_desc), short_desc_width), Style::default().fg(Color::Yellow)),
-                Span::styled(command.copy_raw(), Style::default().fg(Color::LightCyan)),
+                Span::styled(truncate(&format!("{} ", command.name), name_width), Style::default().fg(app.country_color_code.0)),
+                Span::styled(truncate(&format!("{} ", command.short_desc), short_desc_width), Style::default().fg(app.country_color_code.1)),
+                Span::styled(command.copy_raw(), Style::default().fg(app.country_color_code.2)),
             ]))
         })
         .collect();

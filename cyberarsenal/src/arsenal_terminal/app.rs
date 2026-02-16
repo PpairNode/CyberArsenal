@@ -3,8 +3,7 @@ use std::{
     time::{Duration, Instant}
 };
 use tui::{
-    backend::Backend,
-    Terminal,
+    Terminal, backend::Backend, style::Color
 };
 use anyhow::Result;
 use tracing::{debug, error, info};
@@ -14,11 +13,38 @@ use crate::misc::inputs::write_co_clipboard;
 use super::{event::AppEvent, renderer, stateful_list::StatefulList};
 
 
+enum Country3Color {
+    FRANCE,
+    BASE
+}
+
+impl Country3Color {
+    fn from_str(s: &str) -> Country3Color {
+        match s.to_lowercase().as_str() {
+            "france" | "fr" | "cocorico" => Country3Color::FRANCE,
+            _               => Country3Color::BASE,
+        }
+    }
+
+    fn colors(&self) -> (Color, Color, Color) {
+        match self {
+            Country3Color::FRANCE  => (Color::Rgb(79, 155, 255), Color::White, Color::Rgb(239, 65, 53)),
+            Country3Color::BASE     => (Color::Rgb(250, 99, 255), Color::Yellow, Color::LightCyan),
+        }
+    }
+
+    fn default() -> (Color, Color, Color) {
+        Country3Color::from_str("").colors()  // Gives BASE
+    }
+}
+
+
 pub struct ArsenalApp {
     pub max_events: usize,
     pub events: Vec<AppEvent>,
     pub search_commands: SearchCommands,
     pub chosen_command: Option<ChosenCommand>,
+    pub country_color_code: (Color, Color, Color),
     pub quit_app: bool
 }
 
@@ -90,12 +116,18 @@ impl SearchCommands {
 }
 
 impl ArsenalApp {
-    pub fn new(max_events: usize) -> ArsenalApp {
+    pub fn new(max_events: usize, country: Option<String>) -> ArsenalApp {
+        let country_color_code = match country {
+            Some(s) => Country3Color::from_str(&s).colors(),
+            None => Country3Color::default()
+        };
+
         ArsenalApp {
             max_events,
             events: vec![],
             search_commands: SearchCommands::new(),
             chosen_command: None,
+            country_color_code,
             quit_app: false
         }
     }
@@ -124,15 +156,7 @@ impl ArsenalApp {
             }
         };
 
-        // let mut file = File::open(&settings).map_err(|e| anyhow::format_err!("File::open() err={}", e))?;
-        // let mut contents = String::new();
-        // file.read_to_string(&mut contents)?;
-
-        // let value = contents.parse::<Value>()?;
-        // info!("Settings: {value}");  // Too much data to log
-
         // Check and Load values
-        // let mut commands = load_values_into_commands(value)?;
         self.search_commands.commands = match load_values_into_commands_from_db(&settings) {
             Ok(lc) => lc,
             Err(e) => {

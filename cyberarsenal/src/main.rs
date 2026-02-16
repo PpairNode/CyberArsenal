@@ -18,12 +18,16 @@ use misc::logs::init_tracing;
 #[derive(Args, Debug)]
 struct MyArgs {
     #[arg(short, long, default_value="false")]
-    ///Verbose mode
+    // Verbose mode
     _verbose: bool,
 
     #[arg(short, long)]
-    ///To store path
+    // To store path
     settings: String,
+
+    #[arg(short, long)]
+    // To store path
+    country: Option<String>,
 }
 
 
@@ -51,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Create application
     let tick_rate = Duration::from_millis(250);
-    let mut app = ArsenalApp::new(100);
+    let mut app = ArsenalApp::new(100, args.country);
 
     // Loading settings in application or error
     if let Err(e) = app.load_settings(args.settings) {
