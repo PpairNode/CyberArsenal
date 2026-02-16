@@ -6,6 +6,8 @@ use tui::{
 
 use crate::arsenal_objects::command::Command;
 
+const ORANGE: Color = Color::Rgb(255, 172, 28);
+
 
 pub fn create_search_paragraph_pane<'a>(search: &str, key_num: usize, total_key_num: usize, cmd_opt: Option<&Command>, block: Block<'a>) -> Paragraph<'a> {
     let cmd = match cmd_opt {
@@ -14,14 +16,15 @@ pub fn create_search_paragraph_pane<'a>(search: &str, key_num: usize, total_key_
     };
     let search_spans: Vec<Spans> = vec![
         Spans::from(vec![
-            Span::styled("CMD>>>", Style::default().fg(Color::White).bg(Color::Green)),
-            Span::styled(format!(" {}", search.to_string()), Style::default().fg(Color::White))
+            Span::styled("CMD SEARCH>>>", Style::default().fg(Color::White).bg(Color::Green)),
+            Span::styled(format!(" {}", search.to_string()), Style::default().fg(ORANGE))
         ]),
         Spans::from(vec![
             Span::styled(format!("{}/{}", key_num, total_key_num), Style::default())
         ]),
         Spans::from(vec![
-            Span::styled(format!("{}", cmd), Style::default())
+            Span::styled("* ", Style::default().fg(Color::LightCyan)),
+            Span::styled(cmd, Style::default())
         ])
     ];
     let search_paragraph_pane = Paragraph::new(search_spans)

@@ -23,7 +23,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Complete window
     let window = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(5), Constraint::Length(4), Constraint::Min(10)])
+        .constraints([Constraint::Length(5), Constraint::Length(3), Constraint::Min(10)])
         .split(f.size());
     // Header
     let header = Layout::default()
@@ -62,7 +62,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
             // ListItem::new(command.copy_raw_shifted()).style(Style::default().fg(Color::LightBlue));
             ListItem::new(Spans::from(vec![
                 Span::styled(truncate(&format!("[{}] ", command.local_str()), local_width), Style::default().fg(Color::Rgb(190,190,190))),
-                Span::styled(truncate(&format!("{} ", command.name), name_width), Style::default().fg(Color::LightRed)),
+                Span::styled(truncate(&format!("{} ", command.name), name_width), Style::default().fg(Color::Rgb(250, 99, 255))),
                 Span::styled(truncate(&format!("{} ", command.short_desc), short_desc_width), Style::default().fg(Color::Yellow)),
                 Span::styled(command.copy_raw(), Style::default().fg(Color::LightCyan)),
             ]))
@@ -120,22 +120,25 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .constraints([Constraint::Percentage(100)])
                 .split(area);
             let popup_block = Block::default()
-                .title("Popup CMD")
+                .title("CMD Popup")
                 .borders(Borders::ALL);
 
             let input_args: Vec<&CommandArg> = chosen.command.cmd_args.iter().filter(|c| c.is_input).collect();
             let popup_layout = Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([Constraint::Min(3), Constraint::Length(input_args.len() as u16 + 1), Constraint::Max(15)])
+                .constraints([Constraint::Min(6), Constraint::Length(input_args.len() as u16 + 1), Constraint::Ratio(3, 10)])
                 .split(area2);
 
             // COMMAND Block
-            let text = chosen.command.copy_basic();
             let command_spans: Vec<Spans> = vec![
                 Spans::from(vec![
-                    Span::styled(">> ", Style::default()),
-                    Span::styled(text, Style::default().fg(Color::LightRed))
-                ])
+                    Span::styled("BASE>>    ", Style::default()),
+                    Span::styled(chosen.command.copy_raw(), Style::default().fg(Color::LightGreen))
+                ]),
+                Spans::from(vec![
+                    Span::styled("UPDATED>> ", Style::default()),
+                    Span::styled(chosen.command.copy_basic(), Style::default().fg(Color::LightRed)),
+                ]),
             ];
             let command_paragraph_block = Block::default();
             let command_paragraph_pane = Paragraph::new(command_spans)

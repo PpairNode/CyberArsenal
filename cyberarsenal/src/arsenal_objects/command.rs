@@ -148,11 +148,11 @@ impl Display for CommandArg {
         if self.is_input {
             // If input also add pre/post string to complete entire value
             if self.modified.is_some() {
-                return write!(f, "({}) {}{}{} = {}{}{}", self.id, self.pre, self.value, self.post, self.pre, self.modified.clone().unwrap(), self.post)
+                return write!(f, "({}) {} = {}", self.id, self.value, self.modified.clone().unwrap())
             } else if self.default.is_some() {
-                return write!(f, "({}) {}{}{} = {}{}{}", self.id, self.pre, self.value, self.post, self.pre, self.default.clone().unwrap(), self.post)
-            } else {
-                return write!(f, "({}) {}{}{} = ", self.id, self.pre, self.value, self.post);
+                return write!(f, "({}) {} = {}", self.id, self.value, self.default.clone().unwrap())
+            } else {  // Not supposed to happen
+                return write!(f, "({}) {} = ", self.id, self.value);
             }    
         }
 

@@ -20,7 +20,7 @@ pub fn create_info_paragraph_pane_light<'a>(command: Option<&Command>, block: Bl
     let mut info_spans: Vec<Spans> = vec![
         Spans::from(vec![
             Span::styled("Command:", Style::default().fg(Color::LightBlue)),
-            Span::styled(format!("{}\n", command.name_exe), Style::default().fg(Color::Green))
+            Span::styled(format!("{}\n", command.name), Style::default().fg(Color::Green))
         ]),
         Spans::from(vec![
             Span::styled("TYPE:", Style::default().fg(Color::LightBlue)),

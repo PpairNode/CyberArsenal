@@ -44,7 +44,7 @@ use_name = "remmina"
 local = false
 name_exe = "remmina"
 cmd_types = "network|windows"
-args = "-c rdp://<user:password>@<ip|127.0.0.1>"
+args = "-c rdp://<username:user>:<password:pass>@<ip|127.0.0.1>"
 short_desc = "Connect with GUI to an Windows machine with RDP protocol."
 examples = [
     "remmina -c rdp://user:password@127.0.0.1"
