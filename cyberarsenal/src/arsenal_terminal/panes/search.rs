@@ -14,8 +14,8 @@ pub fn create_search_paragraph_pane<'a>(search: &str, key_num: usize, total_key_
     };
     let search_spans: Vec<Spans> = vec![
         Spans::from(vec![
-            Span::styled(">> ", Style::default()),
-            Span::styled(format!("{}", search.to_string()), Style::default().fg(Color::LightRed))
+            Span::styled("CMD>>>", Style::default().fg(Color::White).bg(Color::Green)),
+            Span::styled(format!(" {}", search.to_string()), Style::default().fg(Color::White))
         ]),
         Spans::from(vec![
             Span::styled(format!("{}/{}", key_num, total_key_num), Style::default())

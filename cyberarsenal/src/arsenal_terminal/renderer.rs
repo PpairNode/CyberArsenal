@@ -48,7 +48,6 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     cur_key_num += 1; // To match KEY in DB starting at 0
     let total_key_num = app.search_commands.commands.len();
     let search_pane = Block::default()
-        .title("Search CMD")
         .borders(Borders::LEFT);
     let search_paragraph_pane = search::create_search_paragraph_pane(&app.search_commands.search, cur_key_num, total_key_num, cur_cmd,search_pane);
 
