@@ -58,7 +58,7 @@ impl CommandArg {
         // ([^:<>].*)(<[a-zA-Z0-9-.:'!@#$%\^&*\(\){}\[\]\/|_=+]+>)([^:<>].*) <= supposed to work flawlessely but no
         // (.*)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)
         // Maybe should extract this regex for loading => takes a while
-        let re = match Regex::new(r"(.*)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)") {
+        let re = match Regex::new(r"(.*?)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)") {
             Ok(r) => r,
             Err(_) => {
                 return vec![CommandArg { id, pre: "".to_string(), value: args, post: "".to_string(), follow_char: Some(' '), is_input: false, default: None, modified: None }]
@@ -100,14 +100,17 @@ impl CommandArg {
                 cmd_arg.post = post.to_string();
 
                 idx += 1;
-                if idx < size_cmd_args {
-                    cmd_arg.follow_char = None;
-                }
-
-                // Add last string
                 if idx == size_cmd_args - 1 && !final_post_command.contains('>') {
                     cmd_arg.post = final_post_command.clone();
                 }
+
+                // Check follow_char depending on post
+                if idx < size_cmd_args && cmd_arg.post.is_empty() {
+                    cmd_arg.follow_char = None;
+                } else {
+                    cmd_arg.follow_char = Some(' ');
+                }
+
                 cmd_arg_vec.push(cmd_arg.clone());
                 tmp_id += 1;
             }

@@ -44,7 +44,7 @@ use_name = "remmina"
 local = false
 name_exe = "remmina"
 cmd_types = "network|windows"
-args = "-c rdp://<username:user>:<password:pass>@<ip|127.0.0.1>"
+args = "-c rdp://<username|user>:<password|pass>@<ip|127.0.0.1>"
 short_desc = "Connect with GUI to an Windows machine with RDP protocol."
 examples = [
     "remmina -c rdp://user:password@127.0.0.1"
@@ -343,7 +343,7 @@ short_desc = "Bruteforce website"
 details = """Brutforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work.
 There is also a filter response size to avoid false positives.
 """
-args = "-w <list_path|file.txt> -u http://<url|localhost>/FUZZ/ -t 100 -fs <response-size|1000>"
+args = "-w <list_path|file.txt> -u <url|http://localhost>/FUZZ/ -t 100 -fs <response-size|1000>"
 examples = [
     "ffuf -u http://localhost/FUZZ/ -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -fs 1000"
 ]
@@ -551,7 +551,7 @@ local = false
 name_exe = "python3"
 cmd_types = "pentest|windows"
 short_desc = "Connect to a MSSQL database instance"
-args = "mssqlclient.py <username:password@ip|sa:pass@127.0.0.1> -db <dbname>"
+args = "mssqlclient.py <username|sa>:<password|sa>@<ip|127.0.0.1> -db <dbname|master>"
 examples = [
     "mssqlclient.py sa:password@127.0.0.1 -db database"
 ]
