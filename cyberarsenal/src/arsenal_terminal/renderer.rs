@@ -23,26 +23,32 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Complete window
     let window = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(10), Constraint::Length(5)])
+        .constraints([Constraint::Length(5), Constraint::Length(2), Constraint::Min(10)])
         .split(f.size());
+    // Header
+    let header = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(100)])
+        .split(window[0]);
     // Body
     let body = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(100)]) 
-        .split(window[1]);
-    // Footer
-    let footer = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(100)])
         .split(window[2]);
 
 
+    
     // BLOCKS AND PARAGRAPHS
     // Search bar
+    let cur_key_num = match app.search_commands.listful_cmds.state.selected() {
+        Some(s) => s + 1,  // To match KEY in DB starting at 0
+        None => 1
+    };
+    let total_key_num = app.search_commands.commands.len();
     let search_pane = Block::default()
         .title("Search CMD")
-        .borders(Borders::ALL);
-    let search_paragraph_pane = search::create_info_paragraph_pane(&app.search_commands.search, search_pane);
+        .borders(Borders::NONE);
+    let search_paragraph_pane = search::create_info_paragraph_pane(&app.search_commands.search, cur_key_num, total_key_num,search_pane);
 
     // Command list
     // Iterate through all elements in the `items` app and append some debug text to it.
@@ -62,6 +68,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
         )
         .highlight_symbol("> ");
 
+
     // Info
     let info_pane = Block::default()
         .title("Info")
@@ -77,11 +84,11 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
 
     // ========== RENDERER ==========
     // Search
-    f.render_widget(search_paragraph_pane, window[0]);
+    f.render_widget(search_paragraph_pane, window[1]);
     // Commands list
     f.render_stateful_widget(commands_list_pane, body[0], &mut app.search_commands.listful_cmds.state);
     // Info
-    f.render_widget(info_paragraph_pane, footer[0]);
+    f.render_widget(info_paragraph_pane, header[0]);
 
 
     // If App command popup is opened, this should show the popup

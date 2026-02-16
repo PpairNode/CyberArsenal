@@ -11,6 +11,7 @@ pub enum CommandType {
     PROGRAMMING,
     PENTEST,
     REVERSE,
+    RECON,
     FORENSICS,
     CRYPTO,
     SYSADMIN,
@@ -23,9 +24,10 @@ impl CommandType {
     pub fn from_str(s: &str) -> Self {
         match s {
             "programming" => CommandType::PROGRAMMING,
-            "reverse" => CommandType::REVERSE,
-            "forensics" => CommandType::FORENSICS,
             "pentest" => CommandType::PENTEST,
+            "reverse" => CommandType::REVERSE,
+            "recon" => CommandType::RECON,
+            "forensics" => CommandType::FORENSICS,
             "crypto" => CommandType::CRYPTO,
             "sysadmin" => CommandType::SYSADMIN,
             "network" => CommandType::NETWORK,
@@ -76,7 +78,6 @@ impl CommandArg {
                 }
             }
         };
-
 
         let mut tmp_id = id;
 
@@ -162,6 +163,7 @@ impl Display for CommandArg {
 #[derive(Clone)]
 pub struct Command {
     pub id: usize,
+    pub local: bool,  // Command is for local or remote
     pub name: String,  // Real name as the name in brackets `[command.xxx]` => xxx
     pub name_exe: String,
     pub cmd_types: Vec<CommandType>,
@@ -173,7 +175,7 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new(id: usize, name: String, name_cmd: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
+    pub fn new(id: usize, local: bool, name: String, name_cmd: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
         let mut cmd_id = 0;
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
         let mut cmd_args: Vec<CommandArg> = vec![];
@@ -189,6 +191,7 @@ impl Command {
 
         Command {
             id,
+            local,
             name,
             name_exe: name_cmd,
             cmd_types: cmd_types_vector,
@@ -200,9 +203,16 @@ impl Command {
         }
     }
 
+    pub fn local_str(&self) -> String {
+        match self.local {
+            true => "L".to_string(),
+            false => "R".to_string()
+        }
+    }
+
     pub fn info(&self) -> String {
         format!(
-            "Command:{}\n\
+            "Command[{}]:{}\n\
             TYPE:{}\n\
             Explanation:\n{}\n\
             Details:\n{}\n\
@@ -210,7 +220,7 @@ impl Command {
             {} {}\n\
             \
             Examples:\n > {}",
-            self.name_exe,
+            self.local_str(), self.name_exe,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
@@ -224,12 +234,12 @@ impl Command {
 
     pub fn short(&self) -> String {
         format!(
-            "Command:{}\n\
+            "Command[{}]:{}\n\
             TYPE:{}\n\
             Explanation:\n{}\n\
             \
             {} {}\n",
-            self.name_exe,
+            self.local_str(), self.name_exe,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
@@ -286,15 +296,17 @@ impl Display for Command {
 pub fn load_values_into_commands_from_db(name: &str) -> Result<Vec<Command>> {
     let conn = Connection::open(name)?;
 
-    let mut cmd_statement = conn.prepare("SELECT id, name, name_exe, short_desc, details FROM commands;")?;
+    let mut cmd_statement = conn.prepare("SELECT id, local, name, name_exe, short_desc, details FROM commands;")?;
     let commands: Vec<Command> = cmd_statement.query_map([], |row| {
         let id: usize = row.get(0)?;
-        let name = row.get(1)?;
-        let name_exe = row.get(2)?;
-        let short_desc = row.get(3)?;
-        let details = row.get(4)?;
+        let local = row.get(1)?;
+        let name = row.get(2)?;
+        let name_exe = row.get(3)?;
+        let short_desc = row.get(4)?;
+        let details = row.get(5)?;
 
         debug!("ID: {id}");
+        debug!("INTERNAL: {local}");
         debug!("NAME: {name}");
         debug!("NAME_EXE: {name_exe}");
         debug!("SHORT_DESC: {short_desc}");
@@ -338,6 +350,7 @@ pub fn load_values_into_commands_from_db(name: &str) -> Result<Vec<Command>> {
 
         Ok(Command::new(
             id,
+            local,
             name,
             name_exe,
             cmd_types,

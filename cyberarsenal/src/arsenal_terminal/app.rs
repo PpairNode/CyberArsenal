@@ -147,8 +147,10 @@ impl ArsenalApp {
     }
 
     pub fn load_example_commands(&mut self) {
-        self.search_commands.listful_cmds.items.push(Command::new(0,
-            "ping0".to_string(),
+        self.search_commands.listful_cmds.items.push(Command::new(
+            0,
+            false,
+            "ping".to_string(),
             "ping".to_string(),
             "network".to_string(),
             "Simple ping with verbose on".to_string(),
