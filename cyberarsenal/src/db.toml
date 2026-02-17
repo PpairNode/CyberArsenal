@@ -226,6 +226,25 @@ short_desc = "Prepare HTTP and SMB service"
 args = "sudo systemctl stop nginx smbd nmbd"
 examples = []
 
+[command.SSH-Keygen]
+use_name = "ssh-keygen"
+local = true
+name_exe = "ssh-keygen"
+cmd_types = "sysadmin"
+short_desc = "Create an SSH key pair"
+args = "-t <type|ed25519> -f <file|/tmp/id_ed25519> -N '<password|>' -C '<comment|>'"
+examples = []
+
+[command.SSH-Copy-ID]
+use_name = "ssh-copy-id"
+local = true
+name_exe = "ssh-copy-id "
+cmd_types = "sysadmin"
+short_desc = "Add SSH public key to target host"
+args = "-i <key.pub|id_ed25519.pub> <username|user>@<hostname|127.0.0.1>"
+examples = []
+
+
 # ===== PENTEST COMMANDS =====
 # ============================ #
 

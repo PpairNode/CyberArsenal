@@ -23,3 +23,6 @@ app.log
 .env
 *.egg-info
 __pycache__
+
+# Project
+tests/
