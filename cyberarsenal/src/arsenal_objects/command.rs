@@ -44,11 +44,11 @@ impl CommandType {
 pub struct CommandArg {
     pub id: usize,                  // Used to know which argument is being modified
     pre: String,                    // Pre value before a <match>. Example: TEST<match>
-    pub value: String,              // Litteral value, e.g. '<port=4444>'. This value is always set up.
+    pub value: String,              // Litteral value, e.g. '<port|4444>'. This value is always set up.
     post: String,                   // Post value after a <match>. Example: <match>TEST
-    pub follow_char: Option<char>,          // If value is sticked to next, we shouldn't add a space. Example: <cur_match>/<next_match>
-    pub is_input: bool,                 // If this value has to be an input
-    default: Option<String>,        // If value is '<port=4444>' then default would be 4444. This would be the second value to be taken if not empty.
+    pub follow_char: Option<char>,  // If value is sticked to next, we shouldn't add a space. Example: <cur_match>/<next_match>
+    pub is_input: bool,             // If this value has to be an input
+    default: Option<String>,        // If value is '<port|4444>' then default would be 4444. This would be the second value to be taken if not empty.
     pub modified: Option<String>,   // If value is overriden by user input then it is modified here. This would be the first value to be taken if not empty.
 }
 
@@ -145,6 +145,50 @@ impl CommandArg {
             Some(c) => c.to_string(),
             None => "".to_string()
         }
+    }
+
+    // cmd_id => The arg to apply to every other same <value> name in cmd_args
+    // new_char == None => Delete char
+    // new_char == Value => Add char 
+    pub fn arg_modifier(cmd_id: usize, cmd_args: &mut Vec<CommandArg>, new_char: Option<char>) {
+        let arg = match cmd_args.get_mut(cmd_id) {
+            Some(ca) => {
+                match new_char {
+                    // ADD CHAR
+                    Some(nc) => { 
+                        match &mut ca.modified {
+                            Some(s) => s.push(nc),
+                            None => ca.modified = Some(nc.to_string())
+                        }
+                    },
+                    // DEL CHAR
+                    None => {
+                        match &mut ca.modified {
+                            Some(s) => {
+                                _ = s.pop();
+                                if s.is_empty() { ca.modified = None }
+                            },
+                            None => ca.modified = None
+                        }
+                    }
+                }
+                ca.clone()
+            },
+            None => return
+        };
+
+        // Then search for other values that have the same <value> name and apply the same modifications
+        CommandArg::apply_arg_to_vec_args(arg, cmd_args);
+    }
+
+    // When an arg is modified, maybe other args have the same <value> name.
+    // => They also needs an update from this given arg
+    pub fn apply_arg_to_vec_args(given_arg: CommandArg, cmd_args: &mut Vec<CommandArg>) {
+        cmd_args.iter_mut().for_each(|arg| {
+            if given_arg.id != arg.id && given_arg.value == arg.value {
+                arg.modified = given_arg.modified.clone();
+            }
+        });
     }
 }
 

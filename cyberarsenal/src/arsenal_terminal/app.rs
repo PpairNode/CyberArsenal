@@ -233,15 +233,7 @@ impl ArsenalApp {
                         };
 
                         // Command modifier
-                        match chosen.command.cmd_args.get_mut(cmd_id) {
-                            Some(c) => {
-                                match &mut c.modified {
-                                    Some(s) => s.push(x),
-                                    None => c.modified = Some(x.to_string())
-                                }
-                            },
-                            None => {}
-                        }
+                        CommandArg::arg_modifier(cmd_id, &mut chosen.command.cmd_args, Some(x));
 
                         // Refresh list after modifications of command
                         chosen.refresh_list();
@@ -267,18 +259,7 @@ impl ArsenalApp {
                         };
 
                         // Command modifier
-                        match chosen.command.cmd_args.get_mut(cmd_id) {
-                            Some(c) => {
-                                match &mut c.modified {
-                                    Some(s) => {
-                                        _ = s.pop();
-                                        if s.is_empty() { c.modified = None }
-                                    },
-                                    None => c.modified = None
-                                }
-                            },
-                            None => {}
-                        }
+                        CommandArg::arg_modifier(cmd_id, &mut chosen.command.cmd_args, None);
 
                         // Refresh list after modifications of command
                         chosen.refresh_list();
