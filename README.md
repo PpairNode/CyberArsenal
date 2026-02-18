@@ -9,10 +9,7 @@ To build the database, follow the instruction here: [Database installation](setu
 ## Running CyberArsenal
 To run the tool, for now it is only available through cargo locally: `cargo run -- -s <file.db>`. Just replace `file.db` with your database created during the setup.
 
-Here is a quick demo about the tool:
-![CYBAR ](docs/cyberarsenal.gif)
-*Quick demo (to be done again to match latest version)*
-
+Here are some quick images about the tool and how to use it:
 ![CYBAR ](docs/cybar_full.png)
 *CyberArsenal Menu*
 
