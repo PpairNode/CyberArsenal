@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -149,7 +151,9 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
                 .block(command_paragraph_block);
 
             // COMMAND VALUES Block
+            let mut arg_added = HashSet::new();
             let command_args: Vec<ListItem> = chosen.listful_args.items.iter()
+                .filter(|arg| arg_added.insert(&arg.value))
                 .map(|cmd_arg| {
                     ListItem::new(format!("{}", cmd_arg)).style(Style::default().fg(Color::LightBlue))
                 })
