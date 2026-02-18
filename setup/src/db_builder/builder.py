@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     local INTEGER DEFAULT 1,
     name TEXT NOT NULL,
-    name_exe TEXT NOT NULL,
     short_desc TEXT,
     details TEXT
 );"""
@@ -79,7 +78,7 @@ TABLES = [
 
 # INSERT DATA
 # -- Insert command
-# INSERT INTO commands (use_name, local, name, name_exe, short_desc, details) VALUES (?,?,?,?,?,?);
+# INSERT INTO commands (local, use_name, short_desc, details) VALUES (?,?,?,?,?,?);
 
 # -- Add types
 # INSERT INTO command_types (command_id, type) VALUES (?,?);
@@ -105,13 +104,11 @@ def insert_data(conn: Connection, toml_data: dict[str, any]) -> bool:
         if table_name == "command":
             for key, val in table_item.items():
                 # Get values
-                use_name, local, name_exe, cmd_types, short_desc, details, args, examples = [""] * 8
+                use_name, local, cmd_types, short_desc, details, args, examples = [""] * 7
                 if 'use_name' in val:
                     use_name = val['use_name']
                 if 'local' in val:
                     local = 1 if val['local'] else 0
-                if 'name_exe' in val:
-                    name_exe = val['name_exe']
                 if 'cmd_types' in val:
                     cmd_types = val['cmd_types']
                 if 'short_desc' in val:
@@ -127,8 +124,8 @@ def insert_data(conn: Connection, toml_data: dict[str, any]) -> bool:
                 if use_name == "":
                     use_name = key
                 # Now insert values for this command
-                cursor.execute(f"INSERT INTO commands (local, name, name_exe, short_desc, details) VALUES (?,?,?,?,?);",
-                               (local, use_name, name_exe, short_desc, details))
+                cursor.execute(f"INSERT INTO commands (local, name, short_desc, details) VALUES (?,?,?,?);",
+                               (local, use_name, short_desc, details))
                 id = cursor.lastrowid
                 cursor.execute(f"INSERT INTO command_types (command_id, type) VALUES (?,?);",
                                (id, cmd_types))

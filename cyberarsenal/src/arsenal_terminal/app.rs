@@ -95,7 +95,7 @@ impl SearchCommands {
                 .filter_map(|c| {
                     if c.name.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME
                         Some(c.clone())
-                    } else if c.name_exe.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME_CMD
+                    } else if c.name.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: NAME_CMD
                         Some(c.clone())
                     } else if c.args.to_lowercase().contains(&self.search.to_lowercase()) {  // Filter commands: ARGS
                         Some(c.clone())
@@ -174,7 +174,6 @@ impl ArsenalApp {
         self.search_commands.listful_cmds.items.push(Command::new(
             0,
             false,
-            "ping".to_string(),
             "ping".to_string(),
             "network".to_string(),
             "Simple ping with verbose on".to_string(),

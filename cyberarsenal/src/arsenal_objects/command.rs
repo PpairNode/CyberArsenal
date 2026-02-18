@@ -168,7 +168,6 @@ pub struct Command {
     pub id: usize,
     pub local: bool,  // Command is for local or remote
     pub name: String,  // Real name as the name in brackets `[command.xxx]` => xxx
-    pub name_exe: String,
     pub cmd_types: Vec<CommandType>,
     pub short_desc: String,
     pub details: String,
@@ -178,7 +177,7 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new(id: usize, local: bool, name: String, name_cmd: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
+    pub fn new(id: usize, local: bool, name: String, cmd_types: String, short_desc: String, details: String, args: String, examples: Vec<String>) -> Self {
         let mut cmd_id = 0;
         let v = args.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
         let mut cmd_args: Vec<CommandArg> = vec![];
@@ -196,7 +195,6 @@ impl Command {
             id,
             local,
             name,
-            name_exe: name_cmd,
             cmd_types: cmd_types_vector,
             short_desc,
             details,
@@ -220,16 +218,15 @@ impl Command {
             Explanation:\n{}\n\
             Details:\n{}\n\
             \
-            {} {}\n\
+            {}\n\
             \
             Examples:\n > {}",
-            self.local_str(), self.name_exe,
+            self.local_str(), self.name,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
             self.short_desc,
             self.details,
-            self.name_exe,
             self.copy_raw(),
             self.examples.join("\n > ")
         )
@@ -241,13 +238,12 @@ impl Command {
             TYPE:{}\n\
             Explanation:\n{}\n\
             \
-            {} {}\n",
-            self.local_str(), self.name_exe,
+            {}\n",
+            self.local_str(), self.name,
             self.cmd_types.iter()
                 .map(|cmd_type| format!("{:?}", cmd_type))
                 .collect::<Vec<String>>().join(" "),
             self.short_desc,
-            self.name_exe,
             self.copy_raw()
         )
     }
@@ -258,7 +254,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join("");
 
-        format!("{} {}", self.name_exe, cmd)
+        cmd
     }
 
     pub fn copy_raw_shifted(&self) -> String {
@@ -267,7 +263,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join("");
 
-        format!("[{:<20}] {} {}", self.name, self.name_exe, cmd)
+        format!("[{:<20}] {}", self.name, cmd)
     }
 
     pub fn copy_basic(&self) -> String {
@@ -276,7 +272,7 @@ impl Command {
             .collect::<Vec<String>>()
             .join("");
 
-        format!("{} {}", self.name_exe, cmd)
+        cmd
     }
 
     pub fn get_all_args(&self) -> &Vec<CommandArg> {
@@ -299,19 +295,17 @@ impl Display for Command {
 pub fn load_values_into_commands_from_db(name: &str) -> Result<Vec<Command>> {
     let conn = Connection::open(name)?;
 
-    let mut cmd_statement = conn.prepare("SELECT id, local, name, name_exe, short_desc, details FROM commands;")?;
+    let mut cmd_statement = conn.prepare("SELECT id, local, name, short_desc, details FROM commands;")?;
     let commands: Vec<Command> = cmd_statement.query_map([], |row| {
         let id: usize = row.get(0)?;
         let local = row.get(1)?;
         let name = row.get(2)?;
-        let name_exe = row.get(3)?;
-        let short_desc = row.get(4)?;
-        let details = row.get(5)?;
+        let short_desc = row.get(3)?;
+        let details = row.get(4)?;
 
         debug!("ID: {id}");
         debug!("INTERNAL: {local}");
         debug!("NAME: {name}");
-        debug!("NAME_EXE: {name_exe}");
         debug!("SHORT_DESC: {short_desc}");
         debug!("DETAILS: {details}");
 
@@ -355,7 +349,6 @@ pub fn load_values_into_commands_from_db(name: &str) -> Result<Vec<Command>> {
             id,
             local,
             name,
-            name_exe,
             cmd_types,
             short_desc,
             details,

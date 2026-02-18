@@ -22,7 +22,6 @@ max_events = 100
 [command.objdump0]
 use_name = "objdump"
 local = true
-name_exe = "objdump"
 cmd_type = "reverse"
 short_desc = "Display information from object <binary> in <type> format"
 details = "..."
@@ -37,7 +36,6 @@ All command keys are optional inside a command block.
 Understandable keys are:
 - `use_name`: name to be used when talking about this tool. For example `Get-CimInstance -ClassName win32_services` is not very clear so I have written `wmi-services` as name. 
 - `local`: local or remote purpose
-- `name_exe`: name of the command
 - `cmd_types`: A `|` separated list of types for the command (supported are `pentest|forensics|programming|reverse|crypto|network|sysadmin|recon`)
 - `short_desc`: an short description of the command
 - `details`: details if the tool need more info
