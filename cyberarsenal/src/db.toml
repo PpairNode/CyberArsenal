@@ -135,6 +135,12 @@ cmd_types = "recon"
 args = "[WMI]\"Win32_userAccount.Domain='$env:computername',Name='Administrator'\""
 short_desc = "WMI - SID retrieval of local Administrator in PS"
 
+[command.PowerView-LDAP-DACL]
+use_name = "PowerView LDAP"
+local = true
+cmd_types = "recon"
+args = ". .\\PowerView.ps1; Get-ObjectAcl -Identity <identity|user> -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_}"
+short_desc = "PowerView - List DACL on targeted object"
 
 # ==== AV BYPASS COMMANDS ====
 # ============================ #
@@ -157,7 +163,7 @@ short_desc = "AMSI Bypass `amsiContext` patch technique"
 use_name = "EvilClippy - VBA Stomping"
 local = true
 cmd_types = "security-bypass"
-args = ".\\EvilClippy.exe -n <macro-name|MyMacro> <word-doc-path|Doc1.doc>"
+args = ".\\EvilClippy.exe -n <macro-name|MyMacro> <word-doc-path|C:\\Users\\user\\Downloads\\Doc1.doc>"
 short_desc = "VBA Stomping to increase stealth (using: a `Word 1997-2003` Type Document)"
 
 
@@ -279,6 +285,13 @@ cmd_types = "sysadmin"
 short_desc = "Add SSH public key to target host"
 args = "ssh-copy-id -i <key.pub|id_ed25519.pub> <username|user>@<hostname|127.0.0.1>"
 examples = []
+
+[command.PowerShell-Formatting]
+use_name = "PowerShell Formatting"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Select and Filter object by Properties"
+args = "| Select-Object -Property <properties|AceType,Identity> | Format-List"
 
 
 # ===== PENTEST COMMANDS =====
@@ -552,7 +565,6 @@ args = "nxc <protocol|smb> -u <username> -p <password|password> <hostname|127.0.
 examples = [
     "nxc mssql 127.0.0.1 -u kevin -p 'pass' --rid-brute"
 ]
-
 
 [command.SMBClient-0]
 use_name = "smbclient"
