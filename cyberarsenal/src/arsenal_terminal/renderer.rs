@@ -58,9 +58,9 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut ArsenalApp) {
     // Command list
     // Iterate through all elements in the `items` app and append some debug text to it.
     let width_max = body[0].width as usize;
-    let local_width = width_max * 5 / 100; // 10% pour [local]
-    let name_width = width_max * 10 / 100; // 30% pour short_desc
-    let short_desc_width = width_max * 20 / 100; // 20% pour name
+    let local_width = width_max * 3 / 100; // 10% pour [local]
+    let name_width = width_max * 15 / 100; // 30% pour short_desc
+    let short_desc_width = width_max * 25 / 100; // 20% pour name
     let commands: Vec<ListItem> = app.search_commands.listful_cmds.items.iter()
         .map(|command| {
             // ListItem::new(command.copy_raw_shifted()).style(Style::default().fg(Color::LightBlue));

@@ -60,7 +60,7 @@ impl CommandArg {
         // ([^:<>].*)(<[a-zA-Z0-9-.:'!@#$%\^&*\(\){}\[\]\/|_=+]+>)([^:<>].*) <= supposed to work flawlessely but no
         // (.*)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)
         // Maybe should extract this regex for loading => takes a while
-        let re = match Regex::new(r"(.*?)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+)>(.*)") {
+        let re = match Regex::new(r"(.*?)<([a-zA-Z0-9-.:'!@#$%^&*\(\){}\[\]/|_=+]+,\\)>(.*)") {
             Ok(r) => r,
             Err(_) => {
                 return vec![CommandArg { id, pre: "".to_string(), value: args, post: "".to_string(), follow_char: Some(' '), is_input: false, default: None, modified: None }]
