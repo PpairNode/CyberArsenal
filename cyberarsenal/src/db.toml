@@ -142,6 +142,13 @@ cmd_types = "recon"
 args = ". .\\PowerView.ps1; Get-ObjectAcl -Identity <identity|user> -ResolveGUIDs | Foreach-Object {$_ | Add-Member -NotePropertyName Identity -NotePropertyValue (ConvertFrom-SID $_.SecurityIdentifier.value) -Force; $_}"
 short_desc = "PowerView - List DACL on targeted object"
 
+[command.MSSQL-0]
+use_name = "MSSQL Permission"
+local = true
+cmd_types = "recon"
+args = "SELECT sp.name AS LoginName,sp.type_desc AS LoginType,sp.is_disabled,spm.permission_name FROM sys.server_principals sp LEFT JOIN sys.server_permissions spm ON sp.principal_id = spm.grantee_principal_id WHERE sp.type IN ('S', 'U', 'G') ORDER BY sp.name;"
+short_desc = "MSSQL List user,login type and permissions (impersonations)"
+
 # ==== AV BYPASS COMMANDS ====
 # ============================ #
 [command.AMSI-Bypass-0]
@@ -293,8 +300,25 @@ cmd_types = "sysadmin"
 short_desc = "Select and Filter object by Properties"
 args = "| Select-Object -Property <properties|AceType,Identity> | Format-List"
 
+[command.zip]
+use_name = "Zip 7z"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Create a ZIP folder"
+args = "& 'C:\\Program Files\\7-Zip\\7z.exe' a -tzip <zip_out|onedrive.zip> <file1|.\\OneDrive.exe> <file2|.\\secur32.dll>"
 
-# ===== PENTEST COMMANDS =====
+# ===== COMPILATION/BUILD ===== # 
+# ============================= #
+
+[command.DotNetToJscript]
+use_name = "DotNetToJscript"
+local = true
+cmd_types = "compilation"
+short_desc = "Build JS file from C# Code"
+args = ".\\DotNetToJScript.exe <dll2tranform|.\\ExampleAssembly.dll> --lang=Jscript --ver=v4 -o <outfile|demo.js>"
+
+
+# ===== PENTEST COMMANDS ===== #
 # ============================ #
 
 [command.Nmap-All-Port-Scan]
@@ -626,11 +650,11 @@ examples = [
 ]
 
 [command.GetNPUsers]
-use_name = "GetNPUsers"
+use_name = "GetNPUsers AS-REP roasting"
 local = false
 cmd_types = "pentest|network|windows"
 short_desc = "Request TGT from DC to later crack it. Only works if Kerberos pre-authentication is not activated!"
-args = "-dc-ip <dc-ip|127.0.0.1>  -request -outputfile <outputfile|hashes-asrep.roast> <domain|corp.com/user>"
+args = "GetNPUsers.py -dc-ip <dc-ip|127.0.0.1>  -request -outputfile <outputfile|hashes-asrep.roast> <domain|corp.com/user>"
 examples = [
     "GetNPUsers.py -dc-ip 127.0.0.1  -request -outputfile hashes-asrep.roast corp.com/user"
 ]
@@ -686,7 +710,21 @@ examples = [
 ]
 
 
-# ===== REVERSE COMMANDS =====
+# ===== PHISHING COMMANDS ===== #
+# ============================= #
+[command.sendEmail]
+use_name = "sendEmail"
+local = false
+cmd_types = "phishing"
+short_desc = "Send email tooling"
+args = "sendEmail -s <127.0.0.1|SMTP-server> -t <to_email|user@corp.com> -f <from_email|attacker@corp.com> -u '<subject|TEST>' -o message-content-type=html -o message-file=<template_html|template.html> -a <attachment|iCalendar.ics>"
+examples = [
+    "sendEmail -s 127.0.0.1 -t offsec@corp1.com -f attacker@corp1.com -u 'TEST' -o message-content-type=html -o message-file=./template.html -a iCalendar.ics"
+]
+
+
+
+# ===== REVERSE COMMANDS ===== #
 # ============================ #
 
 [command.Objdump]
