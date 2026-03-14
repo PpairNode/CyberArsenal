@@ -1,0 +1,27 @@
+[command.MSSQL-0]
+use_name = "MSSQL Permission"
+local = true
+cmd_types = "recon"
+args = "SELECT sp.name AS LoginName,sp.type_desc AS LoginType,sp.is_disabled,spm.permission_name FROM sys.server_principals sp LEFT JOIN sys.server_permissions spm ON sp.principal_id = spm.grantee_principal_id WHERE sp.type IN ('S', 'U', 'G') ORDER BY sp.name;"
+short_desc = "MSSQL List user,login type and permissions (impersonations)"
+
+[command.MySQL]
+use_name = "mysql"
+local = false
+cmd_types = "sysadmin"
+short_desc = "Connect to a mysql database"
+args = "mysql -u <username|root> -p<password> -P <port|3306> --host <ip|127.0.0.1> <dbname>"
+examples = [
+    "mysql -u root -p user -P pass --host 127.0.0.1 bddname"
+]
+
+[command.MSSQLClient]
+use_name = "mssqlclient"
+local = false
+cmd_types = "pentest|windows"
+short_desc = "Connect to a MSSQL database instance"
+args = "mssqlclient.py <username|sa>:<password|sa>@<ip|127.0.0.1> -db <dbname|master>"
+examples = [
+    "mssqlclient.py sa:password@127.0.0.1 -db database"
+]
+

@@ -1,0 +1,9 @@
+[command.sendEmail]
+use_name = "sendEmail"
+local = false
+cmd_types = "phishing"
+short_desc = "Send email tooling"
+args = "sendEmail -s <127.0.0.1|SMTP-server> -t <to_email|user@corp.com> -f <from_email|attacker@corp.com> -u '<subject|TEST>' -o message-content-type=html -o message-file=<template_html|template.html> -a <attachment|iCalendar.ics>"
+examples = [
+    "sendEmail -s 127.0.0.1 -t offsec@corp1.com -f attacker@corp1.com -u 'TEST' -o message-content-type=html -o message-file=./template.html -a iCalendar.ics"
+]

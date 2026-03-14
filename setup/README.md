@@ -31,8 +31,8 @@ examples = [
 ]
 ```
 
-A `[command.xxx]` block will load this as a command.
-All command keys are optional inside a command block.
+A `[command.xxx]` block will load this as a command. All command keys are optional inside a command block.
+The `xxx` will be used a key in the DB and validates that there is no duplicates from other loads (duplication will be skipped).
 Understandable keys are:
 - `use_name`: name to be used when talking about this tool. For example `Get-CimInstance -ClassName win32_services` is not very clear so I have written `wmi-services` as name. 
 - `local`: local or remote purpose
@@ -46,11 +46,33 @@ Understandable keys are:
 
 ## Run DB builder
 ```bash
-# This build the DB file
-db_builder -f src/db.toml -d tests/commands.db -v --force --backup
+# Builder helper
+db_builder -h
+
+usage: db_builder [-h] [-v] [-d DATABASE_NAME] -c CONFIG [-o] [-f] [-b]
+
+SQLite Builder for CyberArsenal
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Enable verbose output
+  -d DATABASE_NAME, --database-name DATABASE_NAME
+                        Name of SQLite DB file
+  -c CONFIG, --config CONFIG
+                        Config file to add files into DB (toml)
+  -o, --overwrite-db    Overwrite DB (delete actual)
+  -f, --force-backup-overwrite
+                        Overwrite old DB when used with `-b`
+  -b, --backup          Backup DB
+
+# Example: build from cyberarsenal folder
+db_builder -c ../setup/data/config.toml -d tests/commands.db --force
 
 # Open and check values has been inserted
 sqlitebrowser sqlite.db
+
+# Run cyberarsenal tool
+cargo run -- -s tests/commands.db
 ```
 
 ![DB BUILDER](../docs/db_builder_craft_db.png)

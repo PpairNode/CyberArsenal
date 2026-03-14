@@ -1,0 +1,52 @@
+[command.FFUF-0]
+use_name = "ffuf"
+local = false
+cmd_types = "pentest|enum"
+short_desc = "Bruteforce website"
+details = """Brutforce directory, FUZZ keyword is mandatory and a `/` at the end also otherwise it's not gonna work.
+There is also a filter response size to avoid false positives.
+"""
+args = "ffuf -w <list_path|file.txt> -u <url|http://localhost>/FUZZ/ -t 100 -fs <response-size|1000>"
+examples = [
+    "ffuf -u http://localhost/FUZZ/ -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -fs 1000"
+]
+
+[command.FFUF-1]
+use_name = "ffuf"
+local = false
+cmd_types = "pentest|enum"
+short_desc = "Bruteforce subdomain"
+args = "ffuf -w <list_path|file.txt:FHOST> -u <url|http://localhost/> -H <header|'Host:FHOST.localhost'> -t 100"
+examples = [
+    "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
+]
+
+[command.SQLMap]
+use_name = "sqlmap"
+local = false
+cmd_types = "pentest"
+short_desc = "SQL injection of username/password"
+args = "sqlmap -u <url|'http://127.0.0.1/login'> --data <data|'username=admin&password=password'>"
+examples = [
+    "sqlmap -u 'http://searcher.htb/search' --data 'username=admin&password=password'"
+]
+
+[command.Dirb]
+use_name = "dirb"
+local = false
+cmd_types = "pentest|enum"
+short_desc = "Bruteforce url paths"
+args = "dirb <url|http://127.0.0.1/> <list>"
+examples = [
+    "dirb http://10.10.11.242/ /opt/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt"
+]
+
+[command.Gobuster]
+use_name = "gobuster"
+local = false
+cmd_types = "pentest"
+short_desc = "Bruteforce url paths with blacklist status code"
+args = "gobuster dir -u <ip|127.0.0.1> -w <list.txt|/opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt> -t 5 --status-codes-blacklist <code|404>"
+examples = [
+    "gobuster dir -u 127.0.0.1 -w /opt/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt -t 5 --status-codes-blacklist 404,301"
+]

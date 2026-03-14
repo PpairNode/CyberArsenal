@@ -30,6 +30,7 @@ table_commands="""
 CREATE TABLE IF NOT EXISTS commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     local INTEGER DEFAULT 1,
+    key TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     short_desc TEXT,
     details TEXT
@@ -78,7 +79,7 @@ TABLES = [
 
 # INSERT DATA
 # -- Insert command
-# INSERT INTO commands (local, use_name, short_desc, details) VALUES (?,?,?,?,?,?);
+# INSERT INTO commands (local, key, use_name, short_desc, details) VALUES (?,?,?,?,?);
 
 # -- Add types
 # INSERT INTO command_types (command_id, type) VALUES (?,?);
@@ -124,9 +125,11 @@ def insert_data(conn: Connection, toml_data: dict[str, any]) -> bool:
                 if use_name == "":
                     use_name = key
                 # Now insert values for this command
-                cursor.execute(f"INSERT INTO commands (local, name, short_desc, details) VALUES (?,?,?,?);",
-                               (local, use_name, short_desc, details))
+                cursor.execute("INSERT OR IGNORE INTO commands (local, key, name, short_desc, details) VALUES (?,?,?,?,?);", (local, key, use_name, short_desc, details))
                 id = cursor.lastrowid
+                if id == 0:
+                    logging.warning(f"Duplicate name skipped: {key}")
+                    continue
                 cursor.execute(f"INSERT INTO command_types (command_id, type) VALUES (?,?);",
                                (id, cmd_types))
                 cursor.execute(f"INSERT INTO command_args (command_id, args) VALUES (?,?);",
@@ -152,8 +155,9 @@ def main():
     parser = argparse.ArgumentParser(description="SQLite Builder for CyberArsenal")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("-d", "--database-name", type=str, help="Name of SQLite DB file", default="sqlite.db")
-    parser.add_argument("-f", "--file", required=True, type=str, help="File to add commands into DB (toml)", default="commands.toml")
-    parser.add_argument("--force", action="store_true", help="Overwrite DB")
+    parser.add_argument("-c", "--config", required=True, type=str, help="Config file to add files into DB (toml)", default="config.toml")
+    parser.add_argument("-o", "--overwrite-db", action="store_true", help="Overwrite DB (delete actual)")
+    parser.add_argument("-f", "--force-backup-overwrite", action="store_true", help="Overwrite old DB when used with `-b`")
     parser.add_argument("-b", "--backup", action="store_true", help="Backup DB")
 
     args = parser.parse_args()
@@ -166,7 +170,7 @@ def main():
     if args.backup:
         path_bak = Path(args.database_name + ".bak")
         if path_bak.is_file():
-            if not args.force:
+            if not args.force_backup_overwrite:
                 if confirm(path_bak):
                     path_bak.unlink()
                     logging.info(f"Old DB has been deleted: {path_bak}")
@@ -177,17 +181,11 @@ def main():
             logging.info(f"DB has been backed to {path_bak}")
 
     # Check file and check force then delete
-    if path.is_file():
-        if not args.force:
-            if confirm(path):
-                path.unlink()
-                logging.info("Old DB has been deleted!")
-            else:
-                logging.error("File has not been deleted, exiting...")
-                return
-        else:
-            path.unlink(missing_ok=True)
-            logging.info(f"Old DB has been deleted: {path}!")
+    if args.overwrite_db and path.is_file():
+        path.unlink(missing_ok=True)
+        logging.info(f"DB has been deleted: {path}!")
+    else:
+        logging.info(f"New data will be added to DB: {path}")
 
     # Open DB
     conn: Connection = connect_db(path)
@@ -196,14 +194,17 @@ def main():
     create_tables(conn, TABLES)
 
     # Load TOML for DB data
-    with open(args.file, "rb") as f:
-        toml_data = tomllib.load(f)
+    with open(args.config, "rb") as f:
+        config_toml = tomllib.load(f)
 
     # Enter DB data
-    insert_data(conn, toml_data)
+    for filepath in config_toml['files']:
+        with open(filepath, "rb") as f:
+            toml_data = tomllib.load(f)
+        insert_data(conn, toml_data)
 
     # Close DB
     conn.close()
 
-    logging.info(f"DB created with success: {path}")
+    logging.info(f"New DB located at: {path}")
     

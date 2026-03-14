@@ -1,0 +1,10 @@
+[command.Objdump]
+use_name = "objdump"
+local = true
+cmd_types = "reverse|utils"
+short_desc = "Display information from the binary in <type> format"
+args = "objdump -D <binary> -M <type|intel>"
+examples = [
+    "obdjump -M intel -D bin",
+    "objdump -dj .rodata loop -M intel"
+]

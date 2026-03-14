@@ -1,0 +1,109 @@
+[command.UpgradeShell]
+use_name = "shell"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Upgrade shell for more flexibility"
+args = "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"
+examples = [
+    "python3 -c 'import os; os.system(\"/bin/bash -p\")'",
+    "python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"
+]
+
+[command.Capabilities]
+use_name = "getcap"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Search binaries with capabilities (often require sudo)"
+details = "..."
+args = "getcap -r / 2>/dev/null"
+examples = [
+    "sudo getcap -r / 2>/dev/null",
+    "sudo getcap /usr/bin/ping"
+]
+
+[command.IP]
+use_name = "ip"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Put up/down an interface"
+args = "ip link set dev <interface> <status|down>"
+examples = [
+    "link set dev eth0 down",
+    "link set dev eth0 up"
+]
+
+[command.UFW]
+use_name = "ufw"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Allow ip to contacted our machine"
+args = "ufw allow from <target>"
+examples = [
+    "ufw allow from 192.168.0.101"
+]
+
+[command.Icacls]
+use_name = "icacls"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Check file/folder permission for users"
+args = "icacls <path>"
+
+[command.Tee]
+use_name = "tee"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Add new entry to known hosts"
+args = "echo '<ip|127.0.0.1> example.local' | sudo tee /etc/hosts -a"
+examples = [
+    "echo '127.0.0.1 example.local' | sudo tee /etc/hosts -a"
+]
+
+[command.LinuxNetServices]
+use_name = "hosts"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Prepare HTTP and SMB service"
+args = "sudo systemctl stop nginx smbd nmbd"
+
+[command.SSH-Keygen]
+use_name = "ssh-keygen"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Create an SSH key pair"
+args = "ssh-keygen -t <type|ed25519> -f <file|/tmp/id_ed25519> -N '<password|>' -C '<comment|>'"
+
+[command.SSH-Copy-ID]
+use_name = "ssh-copy-id"
+local = true
+cmd_types = "sysadmin"
+short_desc = "Add SSH public key to target host"
+args = "ssh-copy-id -i <key.pub|id_ed25519.pub> <username|user>@<hostname|127.0.0.1>"
+
+[command.7Z]
+use_name = "Zip 7z"
+local = true
+cmd_types = "sysadmin|windows"
+short_desc = "Create a ZIP folder"
+args = "& 'C:\\Program Files\\7-Zip\\7z.exe' a -tzip <zip_out|onedrive.zip> <file1|.\\OneDrive.exe> <file2|.\\secur32.dll>"
+
+[command.Find]
+use_name = "find"
+local = true
+cmd_types = "pentest|sysadmin|linux"
+short_desc = "Find binaries with SUID bit set"
+args = "find / -perm -4000 2> /dev/null"
+examples = [
+    "find / -perm -4000 2> /dev/null"
+]
+
+[command.HTTPServer]
+use_name = "http.server"
+local = true
+cmd_types = "pentest"
+short_desc = "Setup an HTTP server"
+args = "python3 -m http.server --bind <ip|127.0.0.1> <port|8000>"
+examples = [
+    "python3 -m http.server --bind 127.0.0.1 8000"
+]
+

