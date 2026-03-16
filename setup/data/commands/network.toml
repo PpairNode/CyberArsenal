@@ -109,3 +109,17 @@ examples = [
     "smbclient -L //127.0.0.1/ -U user --password=adminpass"
 ]
 
+[command.PingListener]
+use_name = "tcpdump"
+local = true
+cmd_types = "network"
+short_desc = "Dump ping traffic"
+args = "sudo tcpdump -nnvXSs 0 -c2 icmp"
+
+[command.DownloadBits]
+use_name = "bitsadmin"
+local = false
+cmd_types = "network"
+short_desc = "Download with bitsadmin - LOLBIN"
+args = "bitsadmin /Transfer myJob <url|http://127.0.0.1/file.txt> <file|C:\\Users\\Public\\test.txt>"
+

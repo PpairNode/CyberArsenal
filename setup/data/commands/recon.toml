@@ -210,3 +210,24 @@ examples = [
     "nxc mssql 127.0.0.1 -u kevin -p 'pass' --rid-brute"
 ]
 
+[command.RSATDllLoading]
+use_name = "RSAT Microsoft.ActiveDirectory.Management.dll"
+local = true
+cmd_types = "sysadmin|recon"
+short_desc = "Load and Recon data with RSAT"
+args = "Import-Module .\\Microsoft.ActiveDirectory.Management.dll; Get-Command -Module Microsoft.ActiveDirectory.Management | Where-Object { $_.Name -like 'Get-*' }"
+
+[command.UnconstrainedDelegationRSAT]
+use_name = "RSAT - Delegation"
+local = true
+cmd_types = "recon"
+short_desc = "List Unconstrained Delegation using RSAT"
+args = "Get-ADComputer -Filter {TrustedForDelegation -eq $true}"
+
+[command.ConstrainedDelegationPowerView]
+use_name = "PowerView - Delegation"
+local = true
+cmd_types = "recon"
+short_desc = "List Constrained Delegation using PowerView"
+args = "Get-DomainUser -TrustedToAuth"
+

