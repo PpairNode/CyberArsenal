@@ -92,7 +92,7 @@ examples = [
 [command.SMBClient-0]
 use_name = "smbclient impacket"
 local = false
-cmd_types = "pentest"
+cmd_types = "network"
 short_desc = "Connect an smb share"
 args = "smbclient.py <share|c> <path|./>"
 examples = [
@@ -102,7 +102,7 @@ examples = [
 [command.SMBClient-1]
 use_name = "smbclient"
 local = false
-cmd_types = "pentest"
+cmd_types = "network"
 short_desc = "Connect an smb share"
 args = "smbclient -L //<ip|127.0.0.1>/ -U <user> --password=<password>"
 examples = [

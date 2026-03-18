@@ -7,16 +7,25 @@ use tracing::{debug, info};
 
 
 #[derive(Debug, Clone)]
+#[allow(non_camel_case_types)]
 pub enum CommandType {
-    PROGRAMMING,
-    PENTEST,
-    LATERALIZATION,
-    REVERSE,
+    CREDENTIALS,
+    ENCODING,
+    FUZZING,
+    NETWORK,
+    PHISHING,
     RECON,
+    REVERSE,
+    SECURITY_BYPASS,
+    SHELL,
+    SQL,
+    SYSADMIN,
+    WINDOWS,
+    PROGRAMMING,
+    LATERALIZATION,
     FORENSICS,
     CRYPTO,
-    SYSADMIN,
-    NETWORK,
+    CRACKING,
     NONE,
     UNKNOWN,
 }
@@ -24,17 +33,25 @@ pub enum CommandType {
 impl CommandType {
     pub fn from_str(s: &str) -> Self {
         match s {
-            "programming" => CommandType::PROGRAMMING,
-            "pentest" => CommandType::PENTEST,
-            "lateralization" => CommandType::LATERALIZATION,
-            "reverse" => CommandType::REVERSE,
-            "recon" => CommandType::RECON,
-            "forensics" => CommandType::FORENSICS,
-            "crypto" => CommandType::CRYPTO,
-            "sysadmin" => CommandType::SYSADMIN,
-            "network" => CommandType::NETWORK,
-            "" => CommandType::NONE,
-            _ => CommandType::UNKNOWN
+            "credentials"     => CommandType::CREDENTIALS,
+            "encoding"        => CommandType::ENCODING,
+            "fuzzing"         => CommandType::FUZZING,
+            "network"         => CommandType::NETWORK,
+            "phishing"        => CommandType::PHISHING,
+            "recon"           => CommandType::RECON,
+            "reverse"         => CommandType::REVERSE,
+            "security-bypass" => CommandType::SECURITY_BYPASS,
+            "shell"           => CommandType::SHELL,
+            "sql"             => CommandType::SQL,
+            "sysadmin"        => CommandType::SYSADMIN,
+            "windows"         => CommandType::WINDOWS,
+            "programming"     => CommandType::PROGRAMMING,
+            "lateralization"  => CommandType::LATERALIZATION,
+            "forensics"       => CommandType::FORENSICS,
+            "crypto"          => CommandType::CRYPTO,
+            "cracking"        => CommandType::CRACKING,
+            ""                => CommandType::NONE,
+            _                 => CommandType::UNKNOWN,
         }
     }
 }

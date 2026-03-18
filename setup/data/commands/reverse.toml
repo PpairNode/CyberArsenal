@@ -1,7 +1,7 @@
 [command.Objdump]
 use_name = "objdump"
 local = true
-cmd_types = "reverse|utils"
+cmd_types = "reverse"
 short_desc = "Display information from the binary in <type> format"
 args = "objdump -D <binary> -M <type|intel>"
 examples = [

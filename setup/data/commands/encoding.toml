@@ -1,7 +1,7 @@
 [command.PwSh0]
 use_name = "pwsh"
 local = true
-cmd_types = "utils"
+cmd_types = "encoding"
 short_desc = "Convert command to Base64String with PowerShell."
 args = "pwsh-preview -c '[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(\"<command>\"))'"
 examples = [
@@ -11,14 +11,14 @@ examples = [
 [command.PythonEncPowerShell]
 use_name = "Encoding Base64"
 local = true
-cmd_types = "utils"
+cmd_types = "encoding"
 short_desc = "Base64: Python => PowerShell"
 args = "python3 -c \"import base64; print(base64.b64encode('<commands|\\$a=\\'TESTA\\';\\$b=\\'TESTB\\'>'.encode('utf-16le')).decode())\""
 
 [command.PythonDecPowerShell]
 use_name = "Decoding Base64"
 local = true
-cmd_types = "utils"
+cmd_types = "encoding"
 short_desc = "Base64: Python => PowerShell"
 args = "python3 -c \"import base64; print(base64.b64decode('<BASE64>').decode('utf-16le'))\""
 

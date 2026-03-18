@@ -44,7 +44,7 @@ args = "Get-CimInstance Win32_DCOMApplication"
 [command.Nmap-All-Port-Scan]
 use_name = "nmap"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "Scanning all ports with SYN scan and saving in file"
 args = "nmap -n -sV -sS -Pn -p- -oN <output_file|scan.txt> <destination|127.0.0.1>"
 examples = [
@@ -54,14 +54,14 @@ examples = [
 [command.Nmap-Windows]
 use_name = "nmap"
 local = false
-cmd_types = "pentest|recon|windows"
+cmd_types = "recon|windows"
 short_desc = "Scanning Windows well-known ports"
 args = "nmap -n -Pn -p21,22,53,80,88,135,139,143,443,445,1433,1521,3128,3306,3389,5985,5986,8080,8443 -oN windows_scan.txt <destination|127.0.0.1>"
 
 [command.Nmap-Version-Script]
 use_name = "nmap"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "Version -sV, default script -sC"
 args = "nmap -n -sC -sV <ip|127.0.0.1>"
 examples = [
@@ -72,7 +72,7 @@ examples = [
 [command.Nmap-SMB-OS-Discovery]
 use_name = "SMB"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "SMB OS discovery"
 args = "nmap -n -p139,445 --script smb-os-discovery <ip|127.0.0.1>"
 examples = [
@@ -82,7 +82,7 @@ examples = [
 [command.Nmap-UDP-Scan]
 use_name = "nmap"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "Full UDP Scan"
 args = "nmap -sS -sU -p- <ip|127.0.0.1> -oN scan-udp.txt"
 examples = [
@@ -92,7 +92,7 @@ examples = [
 [command.DNSEnumType]
 use_name = "dnsenum"
 local = false
-cmd_types = "pentest|network|recon"
+cmd_types = "network|recon"
 short_desc = "DNS Enumeration with type handling"
 args = "dnsenum -t <type|any> <hostname>"
 examples = [
@@ -102,7 +102,7 @@ examples = [
 [command.Enum4Linux]
 use_name = "enum4linux"
 local = false
-cmd_types = "pentest|network"
+cmd_types = "network"
 short_desc = "Enumeration"
 args = "enum4linux <hostname>"
 examples = [
@@ -112,7 +112,7 @@ examples = [
 [command.OneSixtyOne]
 use_name = "onesixtyone"
 local = false
-cmd_types = "pentest|network|enum"
+cmd_types = "network|fuzzing"
 short_desc = "SNMP Bruteforce Attack"
 args = "onesixtyone -c <communities_file> -i <ips_file>"
 examples = [
@@ -122,7 +122,7 @@ examples = [
 [command.SNMPWalk]
 use_name = "snmpwalk"
 local = false
-cmd_types = "pentest|network|enum"
+cmd_types = "network|fuzzing"
 short_desc = "SNMP Enumeration"
 args = "snmpwalk -c <community|public> -v1 -t 10 <ip|127.0.0.1> -Oa"
 examples = [
@@ -150,7 +150,7 @@ examples = [
 [command.LDAPDomainDump]
 use_name = "ldapdomaindump"
 local = false
-cmd_types = "pentest"
+cmd_types = "windows|recon"
 short_desc = "Dump LDAP information"
 args = "ldapdomaindump -u '<DOMAIN/user|CORP.local/user>' -p '<LM:NTLM>' -at NTLM ldap://<ip|127.0.0.1>"
 examples = [
@@ -160,7 +160,7 @@ examples = [
 [command.LDAPSearch]
 use_name = "ldapsearch"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "LDAP Enumeration using Kerberos (-Y GSSAPI)"
 args = "ldapsearch -Y GSSAPI -H ldap://<URI|dc01.domain.corp> -D '<binddn>' -W -b '<basedn>' 'servicePrincipalName=<spn|*>' servicePrincipalName"
 examples = [
@@ -170,7 +170,7 @@ examples = [
 [command.PsPy64s0]
 use_name = "pspy64s"
 local = true
-cmd_types = "pentest|linux"
+cmd_types = "credentials"
 short_desc = "Check on processes during execution"
 details = """
 Pspy is a command line tool designed to snoop on processes without need for root permissions.
@@ -183,7 +183,7 @@ examples = [
 [command.CrackMapExec]
 use_name = "cme"
 local = false
-cmd_types = "pentest"
+cmd_types = "recon"
 short_desc = "List shares on list of machines"
 args = "cme smb <ipsfile|ips.txt> -u <username> -H <NTHASH> --shares"
 examples = [
@@ -193,7 +193,7 @@ examples = [
 [command.NetExec]
 use_name = "nxc"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "Show access on list of machines"
 args = "nxc smb <ipsfile|ips.txt> -u <username> -p <password|password>"
 examples = [
@@ -203,7 +203,7 @@ examples = [
 [command.NetExec2]
 use_name = "nxc"
 local = false
-cmd_types = "pentest|recon"
+cmd_types = "recon"
 short_desc = "List users on machine"
 args = "nxc <protocol|smb> -u <username> -p <password|password> <hostname|127.0.0.1> --rid-brute"
 examples = [

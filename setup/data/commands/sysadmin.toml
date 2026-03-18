@@ -90,7 +90,7 @@ args = "& 'C:\\Program Files\\7-Zip\\7z.exe' a -tzip <zip_out|onedrive.zip> <fil
 [command.Find]
 use_name = "find"
 local = true
-cmd_types = "pentest|sysadmin|linux"
+cmd_types = "linux|sysadmin"
 short_desc = "Find binaries with SUID bit set"
 args = "find / -perm -4000 2> /dev/null"
 examples = [
@@ -100,7 +100,7 @@ examples = [
 [command.HTTPServer]
 use_name = "http.server"
 local = true
-cmd_types = "pentest"
+cmd_types = "network"
 short_desc = "Setup an HTTP server"
 args = "python3 -m http.server --bind <ip|127.0.0.1> <port|8000>"
 examples = [

@@ -18,7 +18,7 @@ examples = [
 [command.MSSQLClient]
 use_name = "mssqlclient"
 local = false
-cmd_types = "pentest|windows"
+cmd_types = "network|windows"
 short_desc = "Connect to a MSSQL database instance"
 args = "mssqlclient.py -windows-auth -db <dbname|master> -port 1433 <username|sa>:<password|sa>@<ip|127.0.0.1>"
 examples = [
