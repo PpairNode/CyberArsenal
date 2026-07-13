@@ -16,7 +16,7 @@ use_name = "ffuf"
 local = false
 cmd_types = "fuzzing"
 short_desc = "Bruteforce subdomain"
-args = "ffuf -w <list_path|file.txt:FHOST> -u <url|http://localhost/> -H <header|'Host:FHOST.localhost'> -t 100"
+args = "ffuf -w '<list_path|file.txt>:FHOST' -u <url|http://localhost/> -H 'Host:FHOST.<header|localhost>' -t 100"
 examples = [
     "ffuf -w '/opt/SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FHOST' -u 'http://localhost/' -H 'Host:FHOST.localhost' -t 100"
 ]

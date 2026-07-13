@@ -53,4 +53,4 @@ use_name = "Windows Defender - Signatures"
 local = true
 cmd_types = "security-bypass"
 short_desc = "Windows Defender - Remove Malware Signatures"
-args = "C:\\Program Files\\Windows Defender\\MpCmdRun.exe" -RemoveDefinitions -All
+args = "\"C:\\Program Files\\Windows Defender\\MpCmdRun.exe\" -RemoveDefinitions -All"

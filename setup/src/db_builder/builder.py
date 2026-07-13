@@ -199,9 +199,13 @@ def main():
 
     # Enter DB data
     for filepath in config_toml['files']:
-        with open(filepath, "rb") as f:
-            toml_data = tomllib.load(f)
-        insert_data(conn, toml_data)
+        try:
+            logging.debug(f"Loading TOML: {filepath}")
+            with open(filepath, "rb") as f:
+                toml_data = tomllib.load(f)
+            insert_data(conn, toml_data)
+        except tomllib.TOMLDecodeError as e:
+            logging.error(f"Could not load TOML: {filepath} => error: {e}")
 
     # Close DB
     conn.close()
